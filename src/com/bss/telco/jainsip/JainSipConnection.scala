@@ -103,9 +103,7 @@ class JainSipConnection(var connid:String,
 			stateFunc = Map[VersionedState,()=> Unit]()//WIPE IT ALL, shit happened not in the order we expected!
 			telco.fireFailure(this)
 			externalVersion = 0
-
 			internalVersion = 0 
-															     
 		}
 		unlock() 
 	}
@@ -201,8 +199,7 @@ class JainSipConnection(var connid:String,
 	  						stateFunc += new VERSIONED_CONNECTED(intVers)->f
 	  				 	
 	  		case Some(x) => //System.err.debug("We are joined to something, lets put the other call on hold!")
-	  						joinedTo.get.hold(
-	  						()=>{this.reconnect(sdp, f)})
+	  						joinedTo.get.hold(()=>this.reconnect(sdp, f))
 	  	}
 	}
  	 

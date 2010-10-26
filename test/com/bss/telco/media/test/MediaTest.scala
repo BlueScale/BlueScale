@@ -1,27 +1,3 @@
-package com.bss.telco.media.test
-
-import org.junit._
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector
-
-import javax.media.CaptureDeviceInfo
-import javax.media.CaptureDeviceManager
-import javax.media.DataSink
-import javax.media.Format
-import javax.media.Manager
-import javax.media.MediaLocator
-import javax.media.NoProcessorException
-import javax.media.NotRealizedError
-import javax.media.Processor
-import javax.media.control.FormatControl
-import javax.media.control.TrackControl
-import javax.media.format.AudioFormat
-import javax.media.protocol.ContentDescriptor
-import javax.media.protocol.DataSource
-import javax.media.ProcessorModel
-import javax.media.protocol.ContentDescriptor
-import javax.media.protocol.FileTypeDescriptor
 
 /*
 *  
@@ -46,29 +22,33 @@ import javax.media.protocol.FileTypeDescriptor
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.media
 
-import java.io.IOException
-import java.net.InetAddress
+package com.bss.telco.media.test
+
+import org.junit._
+import java.io.File;
+import java.io.IOException;
+import java.util.Vector
+
+import javax.media.CaptureDeviceInfo
+import javax.media.CaptureDeviceManager
+import javax.media.DataSink
+import javax.media.Format
 import javax.media.Manager
-import javax.media.MediaException
-import javax.media.Player
-import javax.media.Controller
+import javax.media.MediaLocator
+import javax.media.NoProcessorException
+import javax.media.NotRealizedError
 import javax.media.Processor
+import javax.media.control.FormatControl
+import javax.media.control.TrackControl
 import javax.media.format.AudioFormat
 import javax.media.protocol.ContentDescriptor
 import javax.media.protocol.DataSource
-import javax.media.rtp.RTPManager
-import javax.media.rtp.SendStream
-import javax.media.rtp.SessionAddress
-import javax.media.rtp.SessionManagerException
-import javax.media.ControllerEvent
-import javax.media.ControllerListener
-import javax.media.EndOfMediaEvent
-
-
-import javax.media.Player
+import javax.media.ProcessorModel
+import javax.media.protocol.ContentDescriptor
+import javax.media.protocol.FileTypeDescriptor
 import javax.media.Controller
+ 
 
 class MediaTest extends junit.framework.TestCase {
 
@@ -78,7 +58,7 @@ class MediaTest extends junit.framework.TestCase {
         println("@testFourth")
         val ip = "192.168.2.5"
         val port = 3000
-        val proc = Manager.createProcessor( Manager.createDataSource( new MediaLocator( "file://C:\\Users\\runT1ME\\Desktop\\BlueScale\\BlueScaleRepo\\resources\\gulp.wav" ) ) )
+        val proc = Manager.createProcessor( Manager.createDataSource( new MediaLocator( "resources\\gulp.wav" ) ) )
         wait(proc, Processor.Configured)
         proc.setContentDescriptor( new ContentDescriptor(ContentDescriptor.RAW_RTP) )
         wait( proc, Controller.Realized )
