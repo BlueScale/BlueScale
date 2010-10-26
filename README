@@ -1,0 +1,5 @@
+BlueScale is an attempt at writing a Scalable SIP server that is capable of multiple front end control mechanisms.
+
+The first mechanism is CCXML, later to add REST support, SOAP, and possibly others.
+
+
