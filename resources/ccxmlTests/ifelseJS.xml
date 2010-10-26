@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ccxml version="1.0" xmlns="http://www.w3.org/2002/09/ccxml">
+  <eventprocessor>
+  	
+  		<transition event="ccxml.loaded">
+                   <log expr="hello World"/>
+        <if cond="(4+5) == 10 ">
+        	<log expr="if worked in LOADED"/>
+        	
+      	<else/>
+        	<log expr="if didn't work in LOADED"/>
+      	</if>
+                     
+        </transition>
+    
+    <transition event="connection.alerting">
+      <if cond="(4+5) == 9 ">
+        <log expr="if worked in ALERTING"/>
+        <reject/>
+      <else/>
+        <log expr="if didn't work"/>
+      </if>
+     
+    </transition>
+     
+  </eventprocessor>
+</ccxml>

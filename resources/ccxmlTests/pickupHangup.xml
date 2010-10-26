@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ccxml version="1.0" xmlns="http://www.w3.org/2002/09/ccxml">
+  <eventprocessor>
+  
+    <transition event="connection.alerting" name="evt">
+      <log expr="'The number called is' + evt.connection.remote + '.'"/>
+       <accept/>
+    </transition>
+    
+    <transition event="connection.connected">
+      <log expr="'Call was answered,Time to disconnect it.'"/>
+      <disconnect/>
+    </transition>
+    
+    <transition event="connection.disconnected">
+      <log expr="'Call has been disconnected. Ending CCXML Session.'"/>
+      <exit/>
+    </transition>
+    
+  </eventprocessor>
+</ccxml>

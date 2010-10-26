@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BlueScaleConfig>
+		<TelcoServer>
+			<StartingDoc value="pickupHangup.xml" type="CCXML"/><!--other types are BlueML, specify either http:// or file://-->
+			<ListeningAddress value="127.0.0.1"/>
+			<ListeningPort value ="4000"/>
+			<DestAddress value="127.0.0.1"/>
+			<DestPort value = "4001"/>
+		</TelcoServer>
+
+		<!-- NOTE: JMF does not play nice with 127.0.0.1 as a dest address, so you will need to change the IP to a real IP
+			 future types will be jlibrtp, MSML, etc.-->
+		<MediaServer type="LocalJMF"/> 
+		<!--
+		<Logging>
+		</Logging>
+		-->
+</BlueScaleConfig>
+

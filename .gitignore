@@ -1,0 +1,11 @@
+# Compiled source #
+###################*
+*.class
+*.log.txt
+*.project
+
+# FOLDERS
+############
+bin/
+log/
+dist/

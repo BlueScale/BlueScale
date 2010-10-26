@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+
+
+<project name="bssCCXML" default="all">
+
+	<property environment="env"/>
+
+	<property name="scala.src.dir" 			value="src" />
+	<property name="test.src.dir" 			value="test" />
+	<property name="build.dir" 				value="bin" />
+	<property name="resources.dir"			value="resources"/>
+	<property name="lib.dir"				value="lib"/>
+	<property name="dist.dir"				value="dist"/>
+	
+	<property name="scala.home"				value="${env.SCALA_HOME}"/>
+	<property name="scala-compiler.jar" value="${scala.home}/lib/scala-compiler.jar"/>
+	<property name="scala-library.jar" value="${scala.home}/lib/scala-library.jar"/>
+		
+	<!--*************************************
+		Scala Specific config stuff
+		*************************************
+	-->
+	<path id="build.classpath">
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement location="${resources.dir}"/>
+		<pathelement location="${build.dir}"/> 
+		<pathelement location="${scala-compiler.jar}"/>
+		<pathelement location="${scala-library.jar}"/>
+ 	</path>
+
+	<taskdef resource="scala/tools/ant/antlib.xml">
+		 <classpath refid="build.classpath"/>
+	 </taskdef>
+
+
+	<!--**************************************
+		 Targets
+		 *************************************
+	-->	
+	<target name="all" depends="init, clean, build" />
+
+	<target name="init">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+	</target>
+	
+	<target name="clean" depends="init"> 
+		<echo message="-- Cleaning --"/>
+		<delete>
+			 <fileset dir="bin" includes="**/*.class"/>
+		</delete>
+		<delete>
+			<fileset dir="dist" includes="**/*"/>
+		</delete>
+	</target>
+
+	<!-- *************************************
+		 BUILDING RELATED
+		 *************************************
+	-->
+	
+	<presetdef name="bss-scalac">
+		<scalac srcdir="${scala.src.dir}"
+			addparams="${debuglevel}"
+				destdir="${build.dir}" 
+				scalacdebugging="on" 
+				unchecked="on">
+		      <classpath refid="build.classpath"/>
+		</scalac>
+	</presetdef>
+	 
+	<target name="build.src" depends="init">
+		<echo message="-- Building Source --"/>
+		<property name="debuglevel" value="g:notc"/>
+   		<bss-scalac/>	
+	</target>
+
+	<target name="build.dist" depends="init">
+		<echo message="-- Building Source for Distribution--"/>
+		<property name="debuglevel" value="none"/>
+		<bss-scalac/>
+	</target>
+
+	<target name="build.test" depends="init,build.src">
+		<echo message="-- Building Tests --"/>
+		<scalac srcdir="${test.src.dir}" destdir="${build.dir}"
+				scalacdebugging="on">
+			<classpath refid="build.classpath"/>
+		</scalac>
+	</target>
+
+	<target name="build" depends="build.src, build.test"/>
+	 	
+	<!-- *************************************
+		 TESTING RELATED
+		 *************************************
+	-->
+
+	<!-- runs a single junit test-->
+	<target name="junit" depends="init">
+		<echo message="Running JUnit for ${t}"/>
+		<junit printsummary="withOutAndErr" fork="yes">
+			<formatter type="plain" usefile="false"/>
+			<classpath refid="build.classpath"/>
+			<batchtest>
+				<fileset dir="${build.dir}">
+					<include name="**/${t}.class"/>
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="run" depends="init">
+		<echo message="Running! ${t}"/>
+		<java classname="${t}" fork ="true">
+			<classpath refid="build.classpath"/>
+		</java>
+	</target>
+
+	<target name="debug" depends="init">
+		<echo message="-- Debuging ${t}--"/>
+		<java classname="${t}" fork="true">
+			<classpath refid="build.classpath"/>
+			<jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5000"/>
+		</java>
+	</target>
+		
+	<!-- runs tests for all functional tests, but not performance and load related-->
+	<target name="functional" depends="init">
+		<echo message="-- Functional tests --"/>
+		<junit printsummary="withOutAndErr">
+			<classpath refid="build.classpath"/>
+			<formatter type="plain" usefile="false"/>
+			<batchtest fork="yes"> 
+				<fileset dir="${build.dir}"
+				includes="**/*FunctionalTest*.class"
+				excludes="**/*$*.class"	/> 
+			</batchtest> 	
+		</junit>
+	</target>
+
+	<!-- *************************************
+		 DISTRIBUTION 
+		 *************************************
+	-->
+	<target name="jar" depends="init, clean, build.dist">
+		<jar destfile="${dist.dir}/temp/BlueScaleServer.jar">
+			<fileset dir="${build.dir}"/>
+			<manifest>
+					<attribute name="Class-Path" 
+						value="lib/scala-library.jar lib/scala-compiler.jar lib/jmf.jar lib/js.jar lib/Log4j-1.2.8.jar lib/sip/jain-sip-api-1.2.jar lib/sip/jain-sip-ri-1.2.108.jar jain-sip-sdp-1.2.108.jar BlueScaleServer.jar ./ "/>
+				
+				<attribute name="Main-Class" value="com.bss.server.Launcher"/>
+			</manifest>
+		 </jar>
+	</target>
+
+   	<target name="dist" depends="init, clean, jar">
+		<mkdir dir="${dist.dir}/temp/lib"/>
+		<mkdir dir="${dist.dir}/temp/log"/>
+		<mkdir dir="${dist.dir}/temp/docs"/>
+		<copy todir="${dist.dir}/temp/lib">
+			<fileset dir="${lib.dir}"/>
+		</copy>
+	
+		<copy todir="${dist.dir}/temp/lib" file="${scala-compiler.jar}"/>
+	
+		<copy todir="${dist.dir}/temp/lib" file="${scala-library.jar}"/>
+		
+		<copy todir="${dist.dir}/temp/" file="${resources.dir}/BlueScaleConfig.xml"/>
+
+		<copy todir="${dist.dir}/temp/" file="${resources.dir}/ccxmlTests/pickupHangup.xml"/>
+	 
+		 <zip destfile="${dist.dir}/BSS_DIST.zip">
+			 <fileset dir="${dist.dir}/temp/"/>
+		 </zip>
+
+		 <delete includeemptydirs="true">
+			 <fileset dir="${dist.dir}/temp" />
+		</delete>
+	  </target>
+
+</project>
+	

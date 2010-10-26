@@ -1,0 +1,118 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+Accept	src\com\bss\ccxml\tags\Tags.scala	/^case class Accept($/;"	c
+Accept	src\com\bss\ccxml\tags\Tags.scala	/^case class Accept($/;"	m
+ActionTag	src\com\bss\ccxml\tags\Tags.scala	/^abstract case class ActionTag$/;"	c
+ActionTag	src\com\bss\ccxml\tags\Tags.scala	/^abstract case class ActionTag$/;"	m
+Answerable	src\com\bss\telco\Answerable.scala	/^protected[telco] trait Answerable {$/;"	t
+AssignAction	src\com\bss\ccxml\tags\Tags.scala	/^case class AssignAction($/;"	c
+AssignAction	src\com\bss\ccxml\tags\Tags.scala	/^case class AssignAction($/;"	m
+Attempt	src\com\bss\telco\Attempt.scala	/^class Attempt[T] private (run:Option[()=>Unit], runParam:Option[T=>Unit], fail:Option[T=>Unit]  ) {$/;"	c
+Attempt	src\com\bss\telco\Attempt.scala	/^object Attempt {$/;"	o
+CCXMLDoc	src\com\bss\ccxml\tags\CCXMLDoc.scala	/^class CCXMLDoc(val filename:String, val data: Elem ) {$/;"	c
+CCXMLEvent	src\com\bss\ccxml\event\CCXMLEvent.scala	/^abstract class CCXMLEvent(val name:String)$/;"	a
+CCXMLEvent	src\com\bss\ccxml\event\CCXMLEvent.scala	/^abstract class CCXMLEvent(val name:String)$/;"	c
+CONNECTED	src\com\bss\telco\api\ConnectionState.scala	/^case class CONNECTED() extends ConnectionState$/;"	c
+CONNECTED	src\com\bss\telco\api\ConnectionState.scala	/^case class CONNECTED() extends ConnectionState$/;"	m
+CallAction	src\com\bss\ccxml\tags\Tags.scala	/^abstract case class CallAction($/;"	c
+CallAction	src\com\bss\ccxml\tags\Tags.scala	/^abstract case class CallAction($/;"	m
+Cancel	src\com\bss\ccxml\tags\Tags.scala	/^case class Cancel($/;"	c
+Cancel	src\com\bss\ccxml\tags\Tags.scala	/^case class Cancel($/;"	m
+ConcurrencyException	src\com\bss\util\Lockable.scala	/^class ConcurrencyException extends Exception$/;"	c
+ConditionalChunk	src\com\bss\ccxml\tags\Tags.scala	/^case class ConditionalChunk( $/;"	c
+ConditionalChunk	src\com\bss\ccxml\tags\Tags.scala	/^case class ConditionalChunk( $/;"	m
+ConferenceEvent	src\com\bss\ccxml\event\TelecomEvent.scala	/^abstract class ConferenceEvent(name:String)$/;"	a
+ConferenceEvent	src\com\bss\ccxml\event\TelecomEvent.scala	/^abstract class ConferenceEvent(name:String)$/;"	c
+ConferenceJoined	src\com\bss\ccxml\event\TelecomEvent.scala	/^class ConferenceJoined($/;"	c
+ConfigParser	src\com\bss\server\ConfigParser.scala	/^class ConfigParser(val filename:String) {$/;"	c
+Connectable	src\com\bss\telco\Connectable.scala	/^protected[telco] trait Connectable[T] {$/;"	t
+ConnectionAlerting	src\com\bss\ccxml\event\TelecomEvent.scala	/^class ConnectionAlerting($/;"	c
+ConnectionConnected	src\com\bss\ccxml\event\TelecomEvent.scala	/^class ConnectionConnected($/;"	c
+ConnectionDisconnected	src\com\bss\ccxml\event\TelecomEvent.scala	/^class ConnectionDisconnected($/;"	c
+ConnectionEvent	src\com\bss\ccxml\event\TelecomEvent.scala	/^abstract case class ConnectionEvent($/;"	c
+ConnectionEvent	src\com\bss\ccxml\event\TelecomEvent.scala	/^abstract case class ConnectionEvent($/;"	m
+ConnectionMerged	src\com\bss\ccxml\event\TelecomEvent.scala	/^class ConnectionMerged($/;"	c
+ConnectionProgressing	src\com\bss\ccxml\event\TelecomEvent.scala	/^class ConnectionProgressing(conn:SipConnection)$/;"	c
+ConnectionRedirected	src\com\bss\ccxml\event\TelecomEvent.scala	/^class ConnectionRedirected($/;"	c
+ConnectionState	src\com\bss\telco\api\ConnectionState.scala	/^trait ConnectionState {}$/;"	t
+ControlEvent	src\com\bss\ccxml\event\CCXMLEvent.scala	/^abstract class ControlEvent(name:String) extends CCXMLEvent(name)$/;"	a
+ControlEvent	src\com\bss\ccxml\event\CCXMLEvent.scala	/^abstract class ControlEvent(name:String) extends CCXMLEvent(name)$/;"	c
+CreateCall	src\com\bss\ccxml\tags\Tags.scala	/^case class CreateCall($/;"	c
+CreateCall	src\com\bss\ccxml\tags\Tags.scala	/^case class CreateCall($/;"	m
+DIRECTION	src\com\bss\telco\Answerable.scala	/^case class DIRECTION(val destination:String, val callerid:String)$/;"	c
+DIRECTION	src\com\bss\telco\Answerable.scala	/^case class DIRECTION(val destination:String, val callerid:String)$/;"	m
+Disconnect	src\com\bss\ccxml\tags\Tags.scala	/^case class Disconnect($/;"	c
+Disconnect	src\com\bss\ccxml\tags\Tags.scala	/^case class Disconnect($/;"	m
+EcmaObject	src\com\bss\ccxml\event\CCXMLEvent.scala	/^class EcmaObject()$/;"	c
+EventProcessor	src\com\bss\ccxml\tags\CCXMLDoc.scala	/^case class EventProcessor(val transitions : Map[String, List[TransitionTag]], $/;"	c
+EventProcessor	src\com\bss\ccxml\tags\CCXMLDoc.scala	/^case class EventProcessor(val transitions : Map[String, List[TransitionTag]], $/;"	m
+Exit	src\com\bss\ccxml\tags\Tags.scala	/^class Exit() $/;"	c
+FetchAction	src\com\bss\ccxml\tags\Tags.scala	/^case class FetchAction($/;"	c
+FetchAction	src\com\bss\ccxml\tags\Tags.scala	/^case class FetchAction($/;"	m
+FetchDone	src\com\bss\ccxml\event\CCXMLEvent.scala	/^class FetchDone(val fetchId:String,$/;"	c
+FetchLoader	src\com\bss\ccxml\FetchLoader.scala	/^class FetchLoader(server:Server, session:Session) extends Actor {$/;"	c
+GotoAction	src\com\bss\ccxml\tags\Tags.scala	/^case class GotoAction(val fetchId:String) extends ActionTag $/;"	c
+GotoAction	src\com\bss\ccxml\tags\Tags.scala	/^case class GotoAction(val fetchId:String) extends ActionTag $/;"	m
+HOLD	src\com\bss\telco\api\ConnectionState.scala	/^case class HOLD() extends ConnectionState$/;"	c
+HOLD	src\com\bss\telco\api\ConnectionState.scala	/^case class HOLD() extends ConnectionState$/;"	m
+INCOMING	src\com\bss\telco\Answerable.scala	/^case class INCOMING(dest:String, cid:String) extends DIRECTION(dest, cid)$/;"	c
+INCOMING	src\com\bss\telco\Answerable.scala	/^case class INCOMING(dest:String, cid:String) extends DIRECTION(dest, cid)$/;"	m
+IfAction	src\com\bss\ccxml\tags\Tags.scala	/^case class IfAction($/;"	c
+IfAction	src\com\bss\ccxml\tags\Tags.scala	/^case class IfAction($/;"	m
+InviteCreator	src\com\bss\telco\jainsip\InviteCreator.scala	/^class InviteCreator(val sipServer:JainSipInternal) {$/;"	c
+JainSipConnection	src\com\bss\telco\jainsip\JainSipConnection.scala	/^class JainSipConnection(var connid:String, $/;"	c
+JainSipInternal	src\com\bss\telco\jainsip\JainSipInternal.scala	/^protected[jainsip] class JainSipInternal(telco:SipTelcoServer,$/;"	c
+JmfMediaConnection	src\com\bss\telco\media\jmf\JmfMediaConnection.scala	/^class JmfMediaConnection(file:String,$/;"	c
+JmfMediaServer	src\com\bss\telco\media\jmf\JmfMediaServer.scala	/^class JmfMediaServer(listeningIp:String,$/;"	c
+Join	src\com\bss\ccxml\tags\Tags.scala	/^case class Join($/;"	c
+Join	src\com\bss\ccxml\tags\Tags.scala	/^case class Join($/;"	m
+Joinable	src\com\bss\telco\Joinable.scala	/^protected[telco] trait Joinable {$/;"	t
+Launcher	src\com\bss\server\Launcher.scala	/^class Launcher {$/;"	c
+Launcher	src\com\bss\server\Launcher.scala	/^object Launcher {$/;"	o
+LoadDocument	src\com\bss\ccxml\event\CCXMLEvent.scala	/^class LoadDocument(val doc:CCXMLDoc) extends ControlEvent("bss.loaddocevent")$/;"	c
+Loaded	src\com\bss\ccxml\event\CCXMLEvent.scala	/^class Loaded( val sessionId:String, $/;"	c
+Lockable	src\com\bss\util\Lockable.scala	/^trait Lockable {$/;"	t
+LogAction	src\com\bss\ccxml\tags\Tags.scala	/^case class LogAction($/;"	c
+LogAction	src\com\bss\ccxml\tags\Tags.scala	/^case class LogAction($/;"	m
+LogHelper	src\com\bss\util\LogHelper.scala	/^trait LogHelper {$/;"	t
+MediaConnection	src\com\bss\telco\api\MediaConnection.scala	/^trait MediaConnection$/;"	t
+MediaServer	src\com\bss\telco\api\MediaServer.scala	/^trait MediaServer {$/;"	t
+OUTGOING	src\com\bss\telco\Answerable.scala	/^case class OUTGOING(dest:String, cid:String) extends DIRECTION(dest, cid)$/;"	c
+OUTGOING	src\com\bss\telco\Answerable.scala	/^case class OUTGOING(dest:String, cid:String) extends DIRECTION(dest, cid)$/;"	m
+PROGRESSING	src\com\bss\telco\api\ConnectionState.scala	/^case class PROGRESSING() extends ConnectionState$/;"	c
+PROGRESSING	src\com\bss\telco\api\ConnectionState.scala	/^case class PROGRESSING() extends ConnectionState$/;"	m
+Parser	src\com\bss\ccxml\tags\Parser.scala	/^object Parser { $/;"	o
+Playable	src\com\bss\telco\Playable.scala	/^protected[telco] trait Playable {$/;"	t
+ProtocolNotSupportedException	src\com\bss\telco\SdpHelper.scala	/^	class ProtocolNotSupportedException(str:String) extends Exception$/;"	c
+Reject	src\com\bss\ccxml\tags\Tags.scala	/^case class Reject($/;"	c
+Reject	src\com\bss\ccxml\tags\Tags.scala	/^case class Reject($/;"	m
+SdpHelper	src\com\bss\telco\SdpHelper.scala	/^object SdpHelper {$/;"	o
+Server	src\com\bss\ccxml\Server.scala	/^class Server(rootdoc:CCXMLDoc,$/;"	c
+Session	src\com\bss\ccxml\Session.scala	/^class Session(val server:Server, val id: Int) extends Actor { $/;"	c
+SipConnection	src\com\bss\telco\api\SipConnection.scala	/^trait SipConnection $/;"	t
+SipData	src\com\bss\telco\jainsip\SipData.scala	/^class SipData(val transaction:ServerTransaction, val dialog:Dialog)$/;"	c
+SipTelcoServer	src\com\bss\telco\jainsip\SipTelcoServer.scala	/^class SipTelcoServer(val ip:String, val port:Int, destIp:String, val destPort:Int) extends TelcoServer {$/;"	c
+Tags	src\com\bss\ccxml\tags\Tags.scala	/^abstract case class Tags$/;"	c
+Tags	src\com\bss\ccxml\tags\Tags.scala	/^abstract case class Tags$/;"	m
+TelcoServer	src\com\bss\telco\api\TelcoServer.scala	/^trait TelcoServer {$/;"	t
+TelecomAction	src\com\bss\ccxml\tags\Tags.scala	/^abstract case class TelecomAction $/;"	c
+TelecomAction	src\com\bss\ccxml\tags\Tags.scala	/^abstract case class TelecomAction $/;"	m
+TelecomEvent	src\com\bss\ccxml\event\TelecomEvent.scala	/^abstract class TelecomEvent(val nme:String) extends CCXMLEvent(nme);$/;"	a
+TelecomEvent	src\com\bss\ccxml\event\TelecomEvent.scala	/^abstract class TelecomEvent(val nme:String) extends CCXMLEvent(nme);$/;"	c
+TransitionTag	src\com\bss\ccxml\tags\Tags.scala	/^case class TransitionTag($/;"	c
+TransitionTag	src\com\bss\ccxml\tags\Tags.scala	/^case class TransitionTag($/;"	m
+UNCONNECTED	src\com\bss\telco\api\ConnectionState.scala	/^case class UNCONNECTED() extends ConnectionState$/;"	c
+UNCONNECTED	src\com\bss\telco\api\ConnectionState.scala	/^case class UNCONNECTED() extends ConnectionState$/;"	m
+VERSIONED_CONNECTED	src\com\bss\telco\VersionedState.scala	/^case class VERSIONED_CONNECTED(version:Int) extends VersionedState {$/;"	c
+VERSIONED_CONNECTED	src\com\bss\telco\VersionedState.scala	/^case class VERSIONED_CONNECTED(version:Int) extends VersionedState {$/;"	m
+VERSIONED_HOLD	src\com\bss\telco\VersionedState.scala	/^case class VERSIONED_HOLD(version:Int) extends VersionedState {$/;"	c
+VERSIONED_HOLD	src\com\bss\telco\VersionedState.scala	/^case class VERSIONED_HOLD(version:Int) extends VersionedState {$/;"	m
+VERSIONED_PROGRESSING	src\com\bss\telco\VersionedState.scala	/^case class VERSIONED_PROGRESSING(version:Int) extends VersionedState {$/;"	c
+VERSIONED_PROGRESSING	src\com\bss\telco\VersionedState.scala	/^case class VERSIONED_PROGRESSING(version:Int) extends VersionedState {$/;"	m
+VERSIONED_UNCONNECTED	src\com\bss\telco\VersionedState.scala	/^case class VERSIONED_UNCONNECTED(version:Int) extends VersionedState {$/;"	c
+VERSIONED_UNCONNECTED	src\com\bss\telco\VersionedState.scala	/^case class VERSIONED_UNCONNECTED(version:Int) extends VersionedState {$/;"	m
+VersionedState	src\com\bss\telco\VersionedState.scala	/^trait VersionedState {$/;"	t

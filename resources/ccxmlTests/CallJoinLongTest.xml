@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ccxml xmlns="http://www.w3.org/2002/09/ccxml" version="1.0">
+
+<var name="callid_alice"/>
+<var name="calid_bob"/>
+
+<var name="appstate" expr="'init'" />
+
+     <eventprocessor statevariable="appstate">
+       
+                <transition event="ccxml.loaded" >
+                   <log expr="c4lling!"/>
+                    <assign name="appstate" expr="'trying_alice'" />
+                   <createcall dest="'7147570982'"/>
+                </transition>
+                
+                <transition event="connection.connected" name="connEvent" state="'trying_alice'">
+                   <log expr="alice connected!"/>
+                   <assign name="appstate" expr="'trying_bob'" />
+                   <assign name="callid_alice" expr="connEvent.callid"/>
+    			   <createcall dest="'9497773456'"/>
+            	</transition>
+                
+                <transition event="connection.connected" name="connEvent" state="'trying_bob'">
+                  <log expr="bob connected!"/>
+                  
+                  <assign name="currstate" expr="'joinem!'" />
+                  <assign name="callid_bob" expr="connEvent.callid"/>
+    			  
+    			  <join sessionid1="callid_alice" sessionid2="callid_bob"/> 
+                </transition>
+                
+        </eventprocessor>
+</ccxml>
