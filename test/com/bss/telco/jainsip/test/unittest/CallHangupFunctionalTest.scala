@@ -28,7 +28,6 @@ import Assert._
 import com.bss.telco.jainsip.test._
 import com.bss.telco.jainsip._
 import com.bss.telco.api._
-import com.bss.telco.jainsip.test.unittest.TestHelper
 
 class CallHangupFunctionalTest extends TestHelper with SimpleCall  {
 

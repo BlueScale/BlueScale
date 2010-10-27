@@ -41,16 +41,12 @@ class FetchLoader(server:Server, session:Session) extends Actor {
 		  react {
 		  
 		  case fetch:FetchAction =>
-		    	//check the cache, if its there, we're done!
-		    	if ( server.ccxmlMap.contains(fetch.next) ) { 
-		    		val doc = server.ccxmlMap(fetch.next)
-		    		session.fetchedDocMap+= fetch.fetchId->doc
-		    	} else {
-		    		//if not, load it, add to cache, add to session association, then we're done!
-		    		val doc = Launcher.getCCXML(fetch.next)
-		    		server.ccxmlMap+= fetch.next->doc
-		    		session.fetchedDocMap+=fetch.fetchId->doc		    		
-		    	}
+				server.ccxmlMap.contains(fetch.next) match {
+					case true => session.fetchedDocMap+=fetch.fetchId->server.ccxmlMap(fetch.next)
+					case false=> val doc = Launcher.getCCXML(fetch.next)
+								 server.ccxmlMap+=fetch.next->doc
+								 session.fetchedDocMap+=fetch.fetchId->doc
+				}
 		    	fireLoadedEvent(fetch)
 		    	exit()//kept around just long enough to asyncronoushly fetch a doc. 
 		  
@@ -59,14 +55,10 @@ class FetchLoader(server:Server, session:Session) extends Actor {
 	  }
   }
   
-  private def fireLoadedEvent(fetch:FetchAction) {
-	  fetch.fetchId
-	  val fetchDone = new FetchDone(fetch.fetchId, 
-                                  fetch.next, 
-                                  "", 
-                                  "???FetchLoader.scala?", 
-                                  "ccxml" )
-	  session ! fetchDone
-  }
- 
+  private def fireLoadedEvent(fetch:FetchAction) =
+		session ! new FetchDone(fetch.fetchId, 
+                                fetch.next, 
+                                "", 
+                                "???FetchLoader.scala?", 
+                                "ccxml" )
 }
