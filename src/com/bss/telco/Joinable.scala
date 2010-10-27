@@ -23,7 +23,6 @@
 */
 package com.bss.telco
 import javax.sdp.SessionDescription
-import com.bss.telco.jainsip.concurrent._
 
 protected[telco] trait Joinable {
 
