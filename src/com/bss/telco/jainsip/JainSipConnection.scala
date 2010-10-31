@@ -23,8 +23,6 @@
 */
 package com.bss.telco.jainsip 
  
-import scala.actors.Actor
-import scala.actors.Actor._ 
 import com.bss.telco.jainsip._
 import com.bss.telco._
 import com.bss.telco.api._
@@ -40,8 +38,10 @@ class JainSipConnection(var connid:String,
                         val dir:DIRECTION, 
                         val telco:SipTelcoServer) 
                      	extends SipConnection
+                     	with SipData
                      	with LogHelper 
-                     	with Lockable {
+                     	with Lockable 
+                     	with OrderedExecutable {
 	  
   
 	private var state:VersionedState = VERSIONED_UNCONNECTED(0)
@@ -64,7 +64,7 @@ class JainSipConnection(var connid:String,
 
 	override def sdp = localSdp 
 
-  	protected[jainsip] var sip:Option[SipData] = None
+  	//protected[jainsip] var sip:Option[SipData] = None
   
 	protected[jainsip] def setConnectionid(id:String) = connid = id
 
@@ -117,27 +117,6 @@ class JainSipConnection(var connid:String,
 			debug( key + "->" + value )
 	}
 
-   
-   /*
-    * This is to multithread Our network stack a bit better
-    * 
-    */
-    private val act:Actor = actor {
-		loop { react {
-    	   case f:( ()=>Unit ) => try {
-    		   						f()
-    	   						  } catch {
-    	   						  	case ex:Exception => debug("damn, exception, ex = " + ex)
-    	   						  						 ex.printStackTrace()
-    	   						  						 telco.removeConnection(this)
-    	   						  						 telco.fireFailure(this)
-    	   						  }
-            
-         	  case _ => error("Something was sent to the execute method of " + this + " That shouldn't have been!") 
-    	 }}  
-     }
-  
-    def execute(f:()=>Unit) = act ! f
     
  	override def connect( f:()=> Unit) = connect(localSdp, f)
   
@@ -159,8 +138,9 @@ class JainSipConnection(var connid:String,
 	}
  
 	override  def disconnect(disconnectCallback:()=> Unit) = wrapLock {
-		val client = telco.internal.getByeRequest(this)
-		sip.get.dialog.sendRequest(client) 
+		telco.internal.sendByeRequest(this)
+		//sip.get.dialog.sendRequest(client) 
+		
 		stateFunc +=  VERSIONED_UNCONNECTED(intVers) -> disconnectCallback
 	} 
   	 

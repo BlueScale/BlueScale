@@ -37,7 +37,6 @@ import scala.collection.mutable.ListBuffer
 
 class HelloWorldCCxmlFunctionalTest extends CCxmlHelper {
 
-println("BLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH")
 	val latch = new CountDownLatch(1)
 	val logList = new ListBuffer[String] 
   	server.log = (s:String) => {

@@ -133,7 +133,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		Option(requestEvent.getServerTransaction) match {
 			case Some(transaction) => 	val conn = telco.getConnection(getCallId(request)) 
 										conn.execute( ()=>{
-											conn.sip = Some(new SipData(transaction, conn.sip.get.dialog))
+											//conn.sip = Some(new SipData(transaction, conn.sip.get.dialog))
+											conn.serverTx = Some(transaction)
 											SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(request.getRawContent()) )					
 											sendResponse(200, conn, request.getRawContent()) 
 										})
@@ -143,7 +144,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 								val incoming = INCOMING(parseToHeader(request.getRequestURI().toString()), "")
 								val conn = new JainSipConnection(getCallId(request), incoming, telco)
 								conn.execute( ()=>{
-									conn.sip = Some(new SipData(transaction, transaction.getDialog))
+								    conn.serverTx = Some(transaction)
+								    conn.dialog = Some( transaction.getDialog() ) //FIXME: we may not need to store this...
+									//conn.sip = Some(new SipData(transaction, transaction.getDialog))
+
 									//TOOD: make sure it defaults to alerting
 									conn.setConnectionid(getCallId(request))
 									telco.addConnection(conn) //(getCallId(request), conn)
@@ -154,21 +158,27 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		
 	}
 	
-	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent) {
+	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent) = {
+	//LETS DO THIS MORE SCALA STYLE
 		//val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(requestEvent.getRequest())
 		val response = messageFactory.createResponse(responseCode, requestEvent.getRequest() ) //transaction.getRequest())
 		response.addHeader( requestEvent.getRequest().getHeader("Contact"))
 		requestEvent.getServerTransaction().sendResponse(response)
+		//return requestEvent.getServerTransaction().
 	}
  
 	//TODO: deal with dead transactions...
-	def sendResponse(responseCode:Int, conn:JainSipConnection, content:Array[Byte] ) = {
-		val response = messageFactory.createResponse(responseCode,conn.sip.get.transaction.getRequest)
-		response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321") 
-		response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + ip + ":"+port)))
-		if ( null != content ) response.setContent(content,headerFactory.createContentTypeHeader("application", "sdp"))
-		conn.sip.get.transaction.sendResponse(response) 
-	}
+	def sendResponse(responseCode:Int, conn:JainSipConnection, content:Array[Byte] ) = 
+	    conn.serverTx match {
+            case Some(tx)=> 	val response = messageFactory.createResponse(responseCode,conn.serverTx.get.getRequest)
+		                        response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
+		                        response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + ip + ":"+port)))
+                            	if ( null != content ) response.setContent(content,headerFactory.createContentTypeHeader("application", "sdp"))
+		                        tx.sendResponse(response)
+            case None => println("Error, ServerTX not found for conn " + conn)
+	    }
+	 
+	
 	
     
 	private def processBye(requestEvent: RequestEvent, request:Request, transaction:ServerTransaction) {
@@ -209,8 +219,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)
 				  						SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
-				  						conn.sip = Some(new SipData(null, re.getDialog()))
-				  						if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.localSdp ) )
+				  						conn.dialog = Some( re.getDialog() )
+				  					    if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.localSdp ) )
 				  							conn.setState(HOLD())
 				  						else {
 				  						
@@ -234,23 +244,32 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		//System.err.println("outgoing SDP = " + conn.listeningSdp.toString())
 		val request = inviteCreator.getInviteRequest(conn.direction.callerid,conn.direction.destination, sdp.toString().getBytes())
 		conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
-		sipProvider.getNewClientTransaction(request).sendRequest()
+		conn.clientTx = Some( sipProvider.getNewClientTransaction(request) )
+		//conn.dialog = Some(request.getDialog()  )
+		conn.clientTx.get.sendRequest()
+        //val s = Some(new SipData( sipProvider.getNewClientTransaction(request), request.getDialog()))
+		//conn.sip.get.transaction.sendRequest()
 		return getCallId(request)
 	}
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
-		//println("reinvite, this is weird.  for " + conn.asInstanceOf[JainSipConnection].dir.destination)
-		val request = conn.sip.get.dialog.createRequest(Request.INVITE)  
+		val request = conn.dialog.get.createRequest(Request.INVITE)
+		//val request = conn.sip.get.dialog.createRequest(Request.INVITE)  
 		request.addHeader(conn.contactHeader.get) //neccessary?
   		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
 		//println("			listeningSdp = " + conn.listeningSdp.toString())
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
-   		conn.sip.get.dialog.sendRequest(sipProvider.getNewClientTransaction(request))
+		val tx = sipProvider.getNewClientTransaction(request)
+   		conn.dialog.get.sendRequest(tx)
+   		//conn.sip.get.dialog.sendRequest(sipProvider.getNewClientTransaction(request))
+	    val txId = tx.getBranchId() //return?
 	}
  
-	def getByeRequest(conn:JainSipConnection) : ClientTransaction = {
-		val byeRequest = conn.sip.get.dialog.createRequest(Request.BYE)
-		this.sipProvider.getNewClientTransaction(byeRequest)
+	def sendByeRequest(conn:JainSipConnection) = {
+        //		val byeRequest = conn.sip.get.dialog.createRequest(Request.BYE)
+        val byeRequest = conn.dialog.get.createRequest(Request.BYE)
+        conn.clientTx =	Some(this.sipProvider.getNewClientTransaction(byeRequest))
+        conn.dialog.get.sendRequest(conn.clientTx.get)
 	} 
     
 	override def processTimeout(timeout:TimeoutEvent) {

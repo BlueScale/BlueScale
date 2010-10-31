@@ -101,7 +101,7 @@
 	<!-- runs a single junit test-->
 	<target name="junit" depends="init">
 		<echo message="Running JUnit for ${t}"/>
-		<junit printsummary="withOutAndErr" fork="yes">
+		<junit printsummary="withOutAndErr" fork="yes" haltonerror="true">
 			<formatter type="plain" usefile="false"/>
 			<classpath refid="build.classpath"/>
 			<batchtest>
@@ -123,7 +123,7 @@
 		<echo message="-- Debuging ${t}--"/>
 		<java classname="${t}" fork="true">
 			<classpath refid="build.classpath"/>
-			<jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5000"/>
+			<jvmarg value="-agentlib:jdwp=transport=wocket,server=y,suspend=y,address=5000"/>
 		</java>
 	</target>
 		
