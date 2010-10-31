@@ -242,31 +242,25 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	
 	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : String = {
 		//System.err.println("outgoing SDP = " + conn.listeningSdp.toString())
+
 		val request = inviteCreator.getInviteRequest(conn.direction.callerid,conn.direction.destination, sdp.toString().getBytes())
 		conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		conn.clientTx = Some( sipProvider.getNewClientTransaction(request) )
-		//conn.dialog = Some(request.getDialog()  )
 		conn.clientTx.get.sendRequest()
-        //val s = Some(new SipData( sipProvider.getNewClientTransaction(request), request.getDialog()))
-		//conn.sip.get.transaction.sendRequest()
-		return getCallId(request)
+        return getCallId(request)
 	}
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
 		val request = conn.dialog.get.createRequest(Request.INVITE)
-		//val request = conn.sip.get.dialog.createRequest(Request.INVITE)  
 		request.addHeader(conn.contactHeader.get) //neccessary?
   		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
-		//println("			listeningSdp = " + conn.listeningSdp.toString())
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
 		val tx = sipProvider.getNewClientTransaction(request)
    		conn.dialog.get.sendRequest(tx)
-   		//conn.sip.get.dialog.sendRequest(sipProvider.getNewClientTransaction(request))
-	    val txId = tx.getBranchId() //return?
+   	    val txId = tx.getBranchId() //return?
 	}
  
 	def sendByeRequest(conn:JainSipConnection) = {
-        //		val byeRequest = conn.sip.get.dialog.createRequest(Request.BYE)
         val byeRequest = conn.dialog.get.createRequest(Request.BYE)
         conn.clientTx =	Some(this.sipProvider.getNewClientTransaction(byeRequest))
         conn.dialog.get.sendRequest(conn.clientTx.get)
