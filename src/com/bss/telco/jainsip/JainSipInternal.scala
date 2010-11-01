@@ -255,9 +255,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		request.addHeader(conn.contactHeader.get) //neccessary?
   		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
-		val tx = sipProvider.getNewClientTransaction(request)
-   		conn.dialog.get.sendRequest(tx)
-   	    val txId = tx.getBranchId() //return?
+		conn.clientTx = Some( sipProvider.getNewClientTransaction(request) )
+   		conn.dialog.get.sendRequest(conn.clientTx.get)
 	}
  
 	def sendByeRequest(conn:JainSipConnection) = {

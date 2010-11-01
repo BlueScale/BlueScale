@@ -3,6 +3,7 @@
 *.class
 *.log.txt
 *.project
+*.classpath
 
 # FOLDERS
 ############
