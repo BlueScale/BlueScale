@@ -64,7 +64,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	def error(s:String) {
 		println(s)
 	}
-
 	
  
     properties.setProperty("javax.sip.STACK_NAME", "BSSJainSip"+this.hashCode())//name with hashcode so we can have multiple instances started in one VM
@@ -111,8 +110,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		val r = requestEvent.getRequest()
 		printHeaders(requestEvent.getRequest())
 		sendRegisterResponse(200, requestEvent)
-		
-	}
+    }
  
 	def processNewRequest(requestEvent: RequestEvent, f:(RequestEvent)=>Unit) =
 		requestEvent.getServerTransaction() match {
@@ -185,17 +183,18 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		transaction.sendResponse(messageFactory.createResponse(200, request))
 		val conn = telco.getConnection(getCallId(request))
 		conn.execute(()=>{
-			conn.setState(UNCONNECTED())
+			conn.setState(VERSIONED_UNCONNECTED( transaction.getBranchId() ))
 			telco.removeConnection(conn)
 		})
 	}
  
 	
-  	private def processAck(requestEvent:RequestEvent, request:Request ) { 
+  	private def processAck(requestEvent:RequestEvent, request:Request) { 
+		println("processAck !!!!!!!")
 		val request = requestEvent.getRequest()
       	val conn = telco.getConnection(getCallId(request))
 		
-		conn.execute(()=>{conn.setState(CONNECTED())})
+		conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
 	}  		
    
    //TODO: handle re-tries... we can't just let another setState happen, could fuck things up if something else had been set already...
@@ -209,29 +208,30 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		val conn = telco.getConnection(getCallId(re))
 		conn.execute(()=>{
 		asResponse(re).getStatusCode() match {
-			case Response.SESSION_PROGRESS => conn.setState(PROGRESSING())
+			case Response.SESSION_PROGRESS => conn.setState(VERSIONED_PROGRESSING("") )
 		    		 				
 			case Response.RINGING =>  //println("ringing")
 			                           
 			case Response.OK => 
 		    			cseq.getMethod() match {
 		    				case Request.INVITE =>
+		    				debug("***************************** INVITE 200 OK ************************************")
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)
 				  						SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
 				  						conn.dialog = Some( re.getDialog() )
 				  					    if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.localSdp ) )
-				  							conn.setState(HOLD())
+				  							conn.setState(VERSIONED_HOLD( transaction.getBranchId() ))
 				  						else {
 				  						
-				  							conn.setState(CONNECTED()) //Is a joined state worth it?
+				  							conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) //Is a joined state worth it?
 				  						}
 				  						            
 		    				case Request.CANCEL =>
 		    					log("	cancel request ")
 		    				case Request.BYE =>
 		    					telco.removeConnection(conn)
-		    					conn.setState(UNCONNECTED())
+		    					conn.setState( VERSIONED_UNCONNECTED(transaction.getBranchId() ) )
 		    				case _ => 
 			    			  	error("	wtf ")
 		    			}

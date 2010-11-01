@@ -29,19 +29,19 @@ trait VersionedState {
 	def getState: ConnectionState
 }
 
-case class VERSIONED_CONNECTED(version:Int) extends VersionedState {
+case class VERSIONED_CONNECTED(version:String) extends VersionedState {
 	def getState = CONNECTED()
 }
 
-case class VERSIONED_HOLD(version:Int) extends VersionedState {
+case class VERSIONED_HOLD(version:String) extends VersionedState {
 	def getState = HOLD()
 }
 
-case class VERSIONED_UNCONNECTED(version:Int) extends VersionedState {
+case class VERSIONED_UNCONNECTED(version:String) extends VersionedState {
 	def getState = UNCONNECTED()
 }
 
-case class VERSIONED_PROGRESSING(version:Int) extends VersionedState {
+case class VERSIONED_PROGRESSING(version:String) extends VersionedState {
 	def getState = PROGRESSING()
 }
 

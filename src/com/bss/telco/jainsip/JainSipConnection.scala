@@ -44,7 +44,7 @@ class JainSipConnection(var connid:String,
                      	with OrderedExecutable {
 	  
   
-	private var state:VersionedState = VERSIONED_UNCONNECTED(0)
+	private var state:VersionedState = VERSIONED_UNCONNECTED("")
 	 
 	var contactHeader:Option[ContactHeader] = None
 	 
@@ -64,8 +64,6 @@ class JainSipConnection(var connid:String,
 
 	override def sdp = localSdp 
 
-  	//protected[jainsip] var sip:Option[SipData] = None
-  
 	protected[jainsip] def setConnectionid(id:String) = connid = id
 
 	private var externalVersion = 0
@@ -81,25 +79,18 @@ class JainSipConnection(var connid:String,
 		return internalVersion
 	}
  
- 	protected[jainsip] def setState(s:ConnectionState) : Unit = {
+ 	protected[jainsip] def setState(s:VersionedState) : Unit = {
  		lock()
- 		//debugStateMap(s)
- 		state = s match {
-			case CONNECTED() => VERSIONED_CONNECTED(extVers)
-			case HOLD() 	=> VERSIONED_HOLD(extVers)
-			case UNCONNECTED() => VERSIONED_UNCONNECTED(extVers)
-			case PROGRESSING() => VERSIONED_PROGRESSING(externalVersion) //Don't increment a progressing!
- 		}
-
+ 		debugStateMap(s)
+ 		state = s
+ 		
 		if (stateFunc.contains(state) && stateFunc(state) != null) {
-			
-
 			val func = stateFunc(state)
-			stateFunc(state)()
-		} else if ( s == UNCONNECTED() ) { 
+			stateFunc(s)()
+		} else if ( state.getState == UNCONNECTED() ) { 
 			telco.fireDisconnected(this)
   
-		} else if ( s != PROGRESSING()) {
+	    } else if ( state.getState != PROGRESSING()) {
 			stateFunc = Map[VersionedState,()=> Unit]()//WIPE IT ALL, shit happened not in the order we expected!
 			telco.fireFailure(this)
 			externalVersion = 0
@@ -108,8 +99,8 @@ class JainSipConnection(var connid:String,
 		unlock() 
 	}
 
-	def debugStateMap(s:ConnectionState) = {
-		debug(" **************** debug statemap *************")
+	def debugStateMap(s:VersionedState) = {
+		debug(" **************** debug statemap ************* stateFunc size = " + stateFunc.size )
 		debug( "s =" + s)
 		debug(" ext vers = "+  externalVersion )
 		debug(" int vers = " + internalVersion )
@@ -123,25 +114,27 @@ class JainSipConnection(var connid:String,
 	private def connect(sdp:SessionDescription, connectedCallback:()=> Unit) = wrapLock { 	
  	   	connid = telco.internal.sendInvite(this, sdp)
 		telco.addConnection(this)
-		setState(PROGRESSING())
-	  	stateFunc += new VERSIONED_CONNECTED(intVers)->connectedCallback   	
+	  	stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->connectedCallback   	
+  		setState(VERSIONED_PROGRESSING( clientTx.get.getBranchId() ))
+
 	}
  	
 	override  def accept(connectedCallback:()=> Unit) = wrapLock { 
+		debug(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ accept is called !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 		telco.internal.sendResponse(200, this, localSdp.toString().getBytes())
-  	  	stateFunc +=VERSIONED_CONNECTED(intVers) -> connectedCallback
+  	  	stateFunc +=VERSIONED_CONNECTED(serverTx.get.getBranchId()) -> connectedCallback
 	}
  
 	override  def reject(rejectCallback:()=> Unit) = wrapLock {
 		telco.internal.sendResponse(606, this, localSdp.toString().getBytes())
-		stateFunc +=  VERSIONED_UNCONNECTED(intVers) -> rejectCallback
+		stateFunc +=  VERSIONED_UNCONNECTED(serverTx.get.getBranchId()) -> rejectCallback
 	}
  
 	override  def disconnect(disconnectCallback:()=> Unit) = wrapLock {
 		telco.internal.sendByeRequest(this)
 		//sip.get.dialog.sendRequest(client) 
 		
-		stateFunc +=  VERSIONED_UNCONNECTED(intVers) -> disconnectCallback
+		stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) -> disconnectCallback
 	} 
   	 
 	//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
@@ -162,12 +155,14 @@ class JainSipConnection(var connid:String,
  	override def hold(f:()=>Unit) = wrapLock {
 		//System.err.debug("holding! for" + dir.destination)
 		SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.ip))
-		stateFunc += new VERSIONED_HOLD(intVers)->( ()=> {
+	
+      	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS	
+      	stateFunc += new VERSIONED_HOLD(clientTx.get.getBranchId())->( ()=> {
 			joinedTo.foreach( _.joinedTo = None)
 			joinedTo = None
 			f()
 		})
-      	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS
+      	
 	}
   
 	override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit =  wrapLock {
@@ -176,7 +171,7 @@ class JainSipConnection(var connid:String,
 		  	
 	  		case None 	=> //	System.err.debug("in reconnect, Nothing is joined, we can reconnect now!")                                                        
 	  						telco.internal.sendReinvite(this, sdp)
-	  						stateFunc += new VERSIONED_CONNECTED(intVers)->f
+	  						stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->f
 	  				 	
 	  		case Some(x) => //System.err.debug("We are joined to something, lets put the other call on hold!")
 	  						joinedTo.get.hold(()=>this.reconnect(sdp, f))
@@ -185,3 +180,4 @@ class JainSipConnection(var connid:String,
  	 
  }
  
+

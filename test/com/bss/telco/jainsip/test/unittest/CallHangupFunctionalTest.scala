@@ -51,7 +51,7 @@ class CallHangupFunctionalTest extends TestHelper with SimpleCall  {
 
 }
 
-object CallHangup {
+object CallHangupFunctionalTest {
 	def main(args:Array[String]) {
 		println("running")
 		val ch = new CallHangupFunctionalTest()
