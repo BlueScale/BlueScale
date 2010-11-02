@@ -120,7 +120,6 @@ class JainSipConnection(var connid:String,
 	}
  	
 	override  def accept(connectedCallback:()=> Unit) = wrapLock { 
-		debug(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ accept is called !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 		telco.internal.sendResponse(200, this, localSdp.toString().getBytes())
   	  	stateFunc +=VERSIONED_CONNECTED(serverTx.get.getBranchId()) -> connectedCallback
 	}
@@ -132,23 +131,19 @@ class JainSipConnection(var connid:String,
  
 	override  def disconnect(disconnectCallback:()=> Unit) = wrapLock {
 		telco.internal.sendByeRequest(this)
-		//sip.get.dialog.sendRequest(client) 
-		
 		stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) -> disconnectCallback
 	} 
   	 
 	//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
 	override def join(otherCall:Joinable, joinCallback:()=>Unit) = wrapLock {
 		//debug("OtherCall = " + otherCall)
-		otherCall.reconnect(localSdp,()=>{ 
-
-		//System.err.debug("other call has been RECONNECTED, this is in the join")
-		this.reconnect(otherCall.sdp, ()=>{
-
-		this.joinedTo = Some(otherCall)  
-		this.joinedTo.get.joinedTo = Some(this) 
-	
-		joinCallback() }) })
+		otherCall.reconnect(localSdp,()=>
+		    //System.err.debug("other call has been RECONNECTED, this is in the join")
+    		this.reconnect(otherCall.sdp, ()=>{
+        		this.joinedTo = Some(otherCall)  
+		        this.joinedTo.get.joinedTo = Some(this) 
+	    		joinCallback() 
+	    	}) )
 	}
 
  

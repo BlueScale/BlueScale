@@ -157,7 +157,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
 	
 	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent) = {
-	//LETS DO THIS MORE SCALA STYLE
+    	//LETS DO THIS MORE SCALA STYLE
 		//val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(requestEvent.getRequest())
 		val response = messageFactory.createResponse(responseCode, requestEvent.getRequest() ) //transaction.getRequest())
 		response.addHeader( requestEvent.getRequest().getHeader("Contact"))
@@ -190,7 +190,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
  
 	
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
-		println("processAck !!!!!!!")
 		val request = requestEvent.getRequest()
       	val conn = telco.getConnection(getCallId(request))
 		
@@ -215,7 +214,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case Response.OK => 
 		    			cseq.getMethod() match {
 		    				case Request.INVITE =>
-		    				debug("***************************** INVITE 200 OK ************************************")
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)
 				  						SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
@@ -241,8 +239,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
 	
 	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : String = {
-		//System.err.println("outgoing SDP = " + conn.listeningSdp.toString())
-
 		val request = inviteCreator.getInviteRequest(conn.direction.callerid,conn.direction.destination, sdp.toString().getBytes())
 		conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		conn.clientTx = Some( sipProvider.getNewClientTransaction(request) )
