@@ -81,10 +81,9 @@ class JainSipConnection(var connid:String,
  
  	protected[jainsip] def setState(s:VersionedState) : Unit = {
  		lock()
- 		debugStateMap(s)
+ 		//debugStateMap(s)
  		state = s
- 		
-		if (stateFunc.contains(state) && stateFunc(state) != null) {
+ 		if (stateFunc.contains(state) && stateFunc(state) != null) {
 			val func = stateFunc(state)
 			stateFunc(s)()
 		} else if ( state.getState == UNCONNECTED() ) { 
@@ -116,7 +115,6 @@ class JainSipConnection(var connid:String,
 		telco.addConnection(this)
 	  	stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->connectedCallback   	
   		setState(VERSIONED_PROGRESSING( clientTx.get.getBranchId() ))
-
 	}
  	
 	override  def accept(connectedCallback:()=> Unit) = wrapLock { 

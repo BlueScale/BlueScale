@@ -23,7 +23,7 @@
 */
 package com.bss.ccxml.event
 
-import com.bss.ccxml.tags.CCXMLDoc;
+import com.bss.ccxml.tags.CCXMLDoc
 
 abstract class CCXMLEvent(val name:String)
 
