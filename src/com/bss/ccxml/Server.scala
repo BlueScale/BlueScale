@@ -34,6 +34,7 @@ import com.bss.telco.jainsip._
 import com.bss.telco._
 import com.bss.util._
 
+//TODO:rename to ccxmlServer, take in a telcoserver
 class Server(rootdoc:CCXMLDoc,
 			ip:String, 
 			port:Int, 

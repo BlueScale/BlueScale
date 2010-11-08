@@ -76,11 +76,11 @@ trait JoinTwoConnected {
 	}
  
 	def runConn() = {
-	getTelcoServer().setDisconnectedCallback(disconnected)
-	  cell 			= getTelcoServer().createConnection("9495550982", "7147579999")
-	  desk   		= getTelcoServer().createConnection("7147579999", "9495550982")
-	  moviePhone1 	= getTelcoServer().createConnection("9497773456", "9495550982")
-	  moviePhone2 	= getTelcoServer().createConnection("9497773456", "9495550982")
+	    getTelcoServer().setDisconnectedCallback(disconnected)
+	    cell 			= getTelcoServer().createConnection("9495550982", "7147579999")
+	    desk   		    = getTelcoServer().createConnection("7147579999", "9495550982")
+	    moviePhone1 	= getTelcoServer().createConnection("9497773456", "9495550982")
+	    moviePhone2 	= getTelcoServer().createConnection("9497773456", "9495550982")
 		cell.connect( ()=>{
 			 			println("cellphoneconnected")
                     	desk.connect( ()=>{

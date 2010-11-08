@@ -34,7 +34,9 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import com.bss.util._
 
-class JainSipConnection(var connid:String, 
+class JainSipConnection(var connid:String,
+                        val to:String,
+                        val from:String, 
                         val dir:DIRECTION, 
                         val telco:SipTelcoServer) 
                      	extends SipConnection
@@ -43,7 +45,8 @@ class JainSipConnection(var connid:String,
                      	with Lockable 
                      	with OrderedExecutable {
 	  
-  
+    override def destination = to
+    override def origin = from 
 	private var state:VersionedState = VERSIONED_UNCONNECTED("")
 	 
 	var contactHeader:Option[ContactHeader] = None
@@ -167,7 +170,7 @@ class JainSipConnection(var connid:String,
 	  						stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->f
 	  				 	
 	  		case Some(x) => //System.err.debug("We are joined to something, lets put the other call on hold!")
-	  						joinedTo.get.hold(()=>this.reconnect(sdp, f))
+	  						x.hold(()=>this.reconnect(sdp, f))
 	  	}
 	}
  	 

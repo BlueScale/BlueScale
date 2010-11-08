@@ -35,5 +35,9 @@ trait SipConnection
 	def connectionState : ConnectionState //Possibly not needed here...
  
 	def protocol:String
+
+    def destination:String
+
+    def origin:String
 }
 

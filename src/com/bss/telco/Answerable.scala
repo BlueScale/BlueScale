@@ -25,15 +25,15 @@ package com.bss.telco
 
 
 
-case class DIRECTION(val destination:String, val callerid:String)
+case class DIRECTION
 
-case class INCOMING(dest:String, cid:String) extends DIRECTION(dest, cid)
+case class INCOMING extends DIRECTION
 
-case class OUTGOING(dest:String, cid:String) extends DIRECTION(dest, cid)
+case class OUTGOING extends DIRECTION
 
 protected[telco] trait Answerable {
-
-	def direction : DIRECTION
+    
+  	def direction : DIRECTION
 
  	def accept(f:()=> Unit)
   
