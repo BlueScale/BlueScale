@@ -65,13 +65,13 @@
 	-->
 	
 	<presetdef name="bss-scalac">
-		<scalac srcdir="${scala.src.dir}"
+		<fsc srcdir="${scala.src.dir}"
 			addparams="${debuglevel}"
 				destdir="${build.dir}" 
 				scalacdebugging="on" 
 				unchecked="on">
 		      <classpath refid="build.classpath"/>
-          </scalac>
+		</fsc>
 	</presetdef>
 	 
 	<target name="build.src" depends="init">
@@ -88,10 +88,9 @@
 
 	<target name="build.test" depends="init,build.src">
 		<echo message="-- Building Tests --"/>
-		<scalac srcdir="${test.src.dir}" destdir="${build.dir}"
-				scalacdebugging="on">
+		<bss-scalac srcdir="${test.src.dir}"> 
 			<classpath refid="build.classpath"/>
-		</scalac>
+		</bss-scalac>
 	</target>
 
 	<target name="build" depends="build.src, build.test"/>

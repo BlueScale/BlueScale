@@ -26,7 +26,6 @@ package com.bss.telco.jainsip
 import javax.sip._;
 
 trait SipData {
-//val transaction:ClientTransaction, val dialog:Dialog)
     protected[jainsip] var serverTx:Option[ServerTransaction] = None
     protected[jainsip] var clientTx:Option[ClientTransaction] = None
     protected[jainsip] var dialog:Option[Dialog] = None

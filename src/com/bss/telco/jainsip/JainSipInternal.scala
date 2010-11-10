@@ -125,9 +125,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	def processInvite(requestEvent: RequestEvent) {
 		debug("request for " + requestEvent.getRequest())	
 		val request = requestEvent.getRequest()
-		
-		
-		
 		Option(requestEvent.getServerTransaction) match {
 			case Some(transaction) => 	val conn = telco.getConnection(getCallId(request)) 
 										conn.execute( ()=>{
