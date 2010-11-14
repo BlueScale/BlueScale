@@ -12,15 +12,15 @@
 	<property name="lib.dir"				value="lib"/>
 	<property name="dist.dir"				value="dist"/>
 	
-	<property name="scala.home"				value="${env.SCALA_HOME}"/>
-	<property name="scala-compiler.jar" value="${scala.home}/lib/scala-compiler.jar"/>
-	<property name="scala-library.jar" value="${scala.home}/lib/scala-library.jar"/>
-		
     <!--
     	*************************************
 		Scala Specific config stuff
 		*************************************
-	-->
+	-->	
+	<property name="scala.home"				value="${env.SCALA_HOME}"/>
+	<property name="scala-compiler.jar" value="${scala.home}/lib/scala-compiler.jar"/>
+	<property name="scala-library.jar" value="${scala.home}/lib/scala-library.jar"/>
+	
 	<path id="build.classpath">
 		<fileset dir="lib">
 			<include name="**/*.jar"/>
@@ -94,7 +94,8 @@
 	</target>
 
 	<target name="build" depends="build.src, build.test"/>
-	 	
+
+    <target name="rebuild" depends="clean, build.src, build.test"/>
     <!-- 
     	 *************************************
 		 TESTING RELATED

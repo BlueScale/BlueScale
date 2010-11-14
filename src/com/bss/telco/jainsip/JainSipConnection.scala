@@ -68,19 +68,6 @@ class JainSipConnection(var connid:String,
 	override def sdp = localSdp 
 
 	protected[jainsip] def setConnectionid(id:String) = connid = id
-
-	private var externalVersion = 0
-	private var internalVersion = 0
-
-	private def extVers : Int = {
-		externalVersion += 1
-		return externalVersion
-	}
-
-	private def intVers : Int = {
-		internalVersion += 1
-		return internalVersion
-	}
  
  	protected[jainsip] def setState(s:VersionedState) : Unit = {
  		lock()
@@ -92,11 +79,9 @@ class JainSipConnection(var connid:String,
 		} else if ( state.getState == UNCONNECTED() ) { 
 			telco.fireDisconnected(this)
   
-	    } else if ( state.getState != PROGRESSING()) {
+        } else if ( state.getState != PROGRESSING()) {
 			stateFunc = Map[VersionedState,()=> Unit]()//WIPE IT ALL, shit happened not in the order we expected!
 			telco.fireFailure(this)
-			externalVersion = 0
-			internalVersion = 0 
 		}
 		unlock() 
 	}
@@ -104,8 +89,6 @@ class JainSipConnection(var connid:String,
 	def debugStateMap(s:VersionedState) = {
 		debug(" **************** debug statemap ************* stateFunc size = " + stateFunc.size )
 		debug( "s =" + s)
-		debug(" ext vers = "+  externalVersion )
-		debug(" int vers = " + internalVersion )
 		for ( (key, value) <- stateFunc ) 
 			debug( key + "->" + value )
 	}

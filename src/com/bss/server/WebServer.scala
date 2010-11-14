@@ -48,15 +48,13 @@ class WebServer(apiPort:Int,
     private val wserver = new Server()
     initWebServer()
    
-    def initWebServer() = {
+    def initWebServer() {
         val apiConnector = new SocketConnector()
         apiConnector.setPort(apiPort)
         wserver.setConnectors( List(apiConnector).toArray )
-        val handler = new ServletHandler()
-        wserver.setHandler(handler)
-        handler.addServletWithMapping("com.bss.telco.CallServlet", "/")
+        val context = new Context(wserver, "/", Context.SESSIONS)
+        context.addServlet( new ServletHolder( new CallServlet(telcoServer) ), "/*" )
         wserver.start()
-        wserver.join()
     }
 
     def stop() =
@@ -84,10 +82,10 @@ class CallServlet(telcoServer:TelcoServer) extends HttpServlet {
 
     def postBackStatus(url:String, conn:SipConnection) = {
         BlueML.postToUrl(url, Map( "CallId"->conn.connectionid,
-                            "From"-> conn.origin,
-                            "To" -> conn.destination,
-                            "CallStatus" -> conn.connectionState.toString(),
-                            "Direction" -> conn.direction.toString() ) )
+                                    "From"-> conn.origin,
+                                    "To" -> conn.destination,
+                                    "CallStatus" -> conn.connectionState.toString(),
+                                    "Direction" -> conn.direction.toString() ) )
         
 
         println("postBackStatus")
@@ -134,7 +132,6 @@ object BlueML {
                     <Direction></Direction>
                 </BlueXml>).toString()
     }
-
 }
 
 
