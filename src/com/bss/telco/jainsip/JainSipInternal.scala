@@ -33,6 +33,8 @@ import javax.sdp.SdpFactory
 import javax.sdp.SdpParseException
 import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
+import gov.nist.javax.sip.SipStackImpl;
+import gov.nist.javax.sip.stack.ServerLog;
 
 import java.util._
 import java.net.InetAddress
@@ -71,12 +73,13 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	properties.setProperty("gov.nist.javax.sip.DEBUG_LOG","log/debug_log" + port + ".log.txt") //FIXME
 	properties.setProperty("gov.nist.javax.sip.SERVER_LOG","log/server_log" + port + ".log.txt")
 	properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS","false")
-	properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "TRACE")
+	properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "ERROR")
 	properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "10")	
-  
+    properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "false") 
  
 	val sipStack = sipFactory.createSipStack(properties)
-	debug("createSipStack " + sipStack)
+	//sipStack.asInstanceOf[SipStackImpl].getServerLog().setTraceLevel(ServerLog.TRACE_NONE)
+    debug("createSipStack " + sipStack)
 	val headerFactory 	= sipFactory.createHeaderFactory()
 	val addressFactory = sipFactory.createAddressFactory()
 	val messageFactory = sipFactory.createMessageFactory()

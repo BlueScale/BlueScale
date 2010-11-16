@@ -11,7 +11,8 @@
 	<property name="resources.dir"			value="resources"/>
 	<property name="lib.dir"				value="lib"/>
 	<property name="dist.dir"				value="dist"/>
-	
+
+    <property name="log4j"                  value="-Dlog4j.configuration=${resources.dir}/log4j.properties" />
     <!--
     	*************************************
 		Scala Specific config stuff
@@ -135,7 +136,8 @@
 	<target name="functional" depends="init">
 		<echo message="-- Functional tests --"/>
 		<junit printsummary="withOutAndErr">
-			<classpath refid="build.classpath"/>
+            <classpath refid="build.classpath"/>
+            <jvmarg value="${log4j}"/>
 			<formatter type="plain" usefile="false"/>
 			<batchtest fork="yes"> 
 				<fileset dir="${build.dir}"

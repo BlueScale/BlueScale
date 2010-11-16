@@ -40,14 +40,20 @@ import org.mortbay.jetty.handler.AbstractHandler
 import com.bss.telco.api._
 import com.bss.telco.jainsip.SipTelcoServer
 import java.net._
+import scala.xml._
 
 class WebServer(apiPort:Int,
                 adminPort:Int,
-                telcoServer:TelcoServer) {
+                telcoServer:TelcoServer,
+                callbackUrl:String) {
     
     private val wserver = new Server()
     initWebServer()
-   
+    println(" telcoServe r= " + telcoServer)
+    println(" ballbackUrl = " + callbackUrl)
+    telcoServer.setIncomingCallback( (conn:SipConnection)=> BlueML.postBackStatus(callbackUrl, conn) )
+
+
     def initWebServer() {
         val apiConnector = new SocketConnector()
         apiConnector.setPort(apiPort)
@@ -71,7 +77,7 @@ class CallServlet(telcoServer:TelcoServer) extends HttpServlet {
 
         val conn = telcoServer.createConnection(to, from)
         conn.connect(() => {
-            postBackStatus(url, conn)
+            BlueML.postBackStatus(url, conn)
             //send status to the url
         })
 
@@ -80,19 +86,34 @@ class CallServlet(telcoServer:TelcoServer) extends HttpServlet {
         val response = BlueML.getCallResponse(conn.connectionid, to, from, "progressing")
     }
 
-    def postBackStatus(url:String, conn:SipConnection) = {
-        BlueML.postToUrl(url, Map( "CallId"->conn.connectionid,
-                                    "From"-> conn.origin,
-                                    "To" -> conn.destination,
-                                    "CallStatus" -> conn.connectionState.toString(),
-                                    "Direction" -> conn.direction.toString() ) )
-        
-
-        println("postBackStatus")
-    }
+   
 }
 
 object BlueML {
+    def postBackStatus(url:String, conn:SipConnection) = 
+        Option(BlueML.postToUrl(url, getConnectionMap(conn) ) ) match {
+            case Some(xml) =>   println(xml)
+                                handleBlueML(xml, conn)
+            case None => //nothing to do here
+        }
+         
+   def getConnectionMap(conn:SipConnection) =   Map( "CallId"->conn.connectionid,
+                                                  "From"-> conn.origin,
+                                                  "To" -> conn.destination,
+                                                  "CallStatus" -> conn.connectionState.toString(),
+                                                  "Direction" -> conn.direction.toString() )    
+    
+    def handleBlueML(str:String, conn:SipConnection) {
+        val elem = XML.loadString(str) \ "BlueML"
+        
+        Some(elem).foreach( _.text match {
+                    case "Dial" => conn.accept( ()=> println("ok connect to the other call, then join here") )
+                    case _ =>
+                } )
+        
+
+    }
+    
 
     def readAll(reader:BufferedReader) : String = 
         Option( reader.readLine() ) match {
@@ -115,6 +136,7 @@ object BlueML {
             os.flush()
             val reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream() ))
             val response = readAll(reader)
+            println("response = " + response)
             reader.close()
             return response
         } finally {
