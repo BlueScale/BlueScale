@@ -86,14 +86,6 @@ class JainSipConnection(var connid:String,
 		unlock() 
 	}
 
-	def debugStateMap(s:VersionedState) = {
-		debug(" **************** debug statemap ************* stateFunc size = " + stateFunc.size )
-		debug( "s =" + s)
-		for ( (key, value) <- stateFunc ) 
-			debug( key + "->" + value )
-	}
-
-    
  	override def connect( f:()=> Unit) = connect(localSdp, f)
   
 	private def connect(sdp:SessionDescription, connectedCallback:()=> Unit) = wrapLock { 	
@@ -156,7 +148,15 @@ class JainSipConnection(var connid:String,
 	  						x.hold(()=>this.reconnect(sdp, f))
 	  	}
 	}
- 	 
+
+	def debugStateMap(s:VersionedState) = {
+		debug(" **************** debug statemap ************* stateFunc size = " + stateFunc.size )
+		debug( "s =" + s)
+		for ( (key, value) <- stateFunc ) 
+			debug( key + "->" + value )
+	}
+
+    
  }
  
 
