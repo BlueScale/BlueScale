@@ -41,6 +41,7 @@ import com.bss.telco.api._
 import com.bss.telco.jainsip.SipTelcoServer
 import java.net._
 import scala.xml._
+import com.bss.blueml._
 
 class WebServer(apiPort:Int,
                 adminPort:Int,
@@ -50,7 +51,7 @@ class WebServer(apiPort:Int,
     private val wserver = new Server()
     initWebServer()
     
-    telcoServer.setIncomingCallback( conn => BlueML.postBackStatus(callbackUrl, conn) )
+    telcoServer.setIncomingCallback( conn => WebUtil.postBackStatus(callbackUrl, conn) )
 
 
     def initWebServer() {
@@ -78,13 +79,12 @@ class CallServlet(telcoServer:TelcoServer) extends HttpServlet {
 
         val conn = telcoServer.createConnection(to, from)
         conn.connect(() => {
-            BlueML.postBackStatus(url, conn)
+            WebUtil.postBackStatus(url, conn)
             //send status to the url
         })
 
         //print out XML to the page!
-
-        val response = BlueML.getCallResponse(conn.connectionid, to, from, "progressing")
+        val response = WebUtil.getCallResponse(conn.connectionid, to, from, "progressing")
     }
  
 }

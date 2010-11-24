@@ -4,6 +4,7 @@
 *.log.txt
 *.project
 *.classpath
+*.scala_dependencies
 
 # FOLDERS
 ############

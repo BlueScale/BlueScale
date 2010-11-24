@@ -31,7 +31,7 @@ import org.mozilla.javascript.Context
 object Parser { 
 	
 	def parseVars(nodes: NodeSeq) : Map[String, String] = {
-		var map = Map[String,String]()// = Option->Option// new HashMap[String,String]
+		var map = Map[String,String]()
 		val cx = Context.enter()
 		//FIXME: make this faster, i'm sure theres a way to copy the scope data from one to another
         val scope = cx.initStandardObjects()
@@ -42,7 +42,7 @@ object Parser {
 	    	
 	    	map +=varName->( if(expr!="") expr else null)
        } 
-	   map
+	   return map
 	}
   
     def parseEventProcessor(node: NodeSeq): EventProcessor = {
@@ -122,7 +122,8 @@ object Parser {
      val ifAction = new IfAction( ifConditional, handleElseIf(ifIter), parseActions(ifIter) )
      return ifAction
    }
-   
+  
+   //TODO: implement ElseIFf....
    private def handleElseIf(nodes:Iterator[Node]):List[ConditionalChunk] = {
      return null
    }
