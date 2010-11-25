@@ -50,8 +50,8 @@ class WebServer(apiPort:Int,
     
     private val wserver = new Server()
     initWebServer()
-    
-    telcoServer.setIncomingCallback( conn => WebUtil.postBackStatus(callbackUrl, conn) )
+    val engine = new Engine(telcoServer)    
+    telcoServer.setIncomingCallback( conn => WebUtil.postBackStatus(callbackUrl, conn, engine.HandleBlueML) )
 
 
     def initWebServer() {
@@ -59,7 +59,7 @@ class WebServer(apiPort:Int,
         apiConnector.setPort(apiPort)
         wserver.setConnectors( List(apiConnector).toArray )
         val context = new Context(wserver, "/", Context.SESSIONS)
-        context.addServlet( new ServletHolder( new CallServlet(telcoServer) ), "/*" )
+        context.addServlet( new ServletHolder( new CallServlet(telcoServer,engine) ), "/*" )
    }
 
     def start() =
@@ -70,7 +70,8 @@ class WebServer(apiPort:Int,
 }
 
 
-class CallServlet(telcoServer:TelcoServer) extends HttpServlet {
+class CallServlet(telcoServer:TelcoServer,
+                  engine:Engine) extends HttpServlet {
     
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) {
         val to      = request.getParameter("To")
@@ -79,7 +80,7 @@ class CallServlet(telcoServer:TelcoServer) extends HttpServlet {
 
         val conn = telcoServer.createConnection(to, from)
         conn.connect(() => {
-            WebUtil.postBackStatus(url, conn)
+            WebUtil.postBackStatus(url, conn, engine.HandleBlueML)
             //send status to the url
         })
 
