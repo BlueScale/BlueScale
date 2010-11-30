@@ -166,7 +166,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	def sendResponse(responseCode:Int, conn:JainSipConnection, content:Array[Byte] ) = 
 	    conn.serverTx match {
             case Some(tx)=> 	val response = messageFactory.createResponse(responseCode,conn.serverTx.get.getRequest)
-		                        response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
+		                        //response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
 		                        response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + ip + ":"+port)))
                             	if ( null != content ) response.setContent(content,headerFactory.createContentTypeHeader("application", "sdp"))
 		                        tx.sendResponse(response)
