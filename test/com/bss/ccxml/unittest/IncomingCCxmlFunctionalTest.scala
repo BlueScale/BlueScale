@@ -56,7 +56,7 @@ class IncomingCCxmlFunctionalTest extends CCxmlHelper {
 	
 	def testIncoming() = {
 		
-		val conn = b2bServer.b2bTelcoServer.createConnection("7147773456", "7145555555")
+		val conn = b2bServer.createConnection("7147773456", "7145555555")
 		conn.connect( ()=>
 						println("Connected!")
 						)

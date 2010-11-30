@@ -25,6 +25,7 @@ package com.bss.blueml
 
 import scala.xml._
 import com.bss.telco.api._
+import com.bss.util.Util
 
 object BlueMLParser {
 
@@ -32,7 +33,7 @@ object BlueMLParser {
        for (verb <- (XML.loadString(str) \\ "Response") \ "_" )
             yield parseVerb(verb)
     
-    def parseVerb(n:Node) : BlueMLVerb = {
+    private def parseVerb(n:Node) : BlueMLVerb = {
         println("parseVerb node = " + n)
         n.label match {
             case "Dial" => parseDial(n)
@@ -44,15 +45,15 @@ object BlueMLParser {
         }
     }
 
-    def parseDial(n:Node) : Dial = 
-        new Dial( (n \ "number").text,
+    private def parseDial(n:Node) : Dial = 
+        new Dial( Util.GetNonEmpty((n \ "number").text, n.text),
                   (n \ "callerId").text,
-                  (n \ "action").text)
-    
-
-    def parsePlay(n:Node) : Play = {
+                  (n \"action").text )
+                  
+   private def parsePlay(n:Node) : Play = {
         return null
     }
+
 }
 
 

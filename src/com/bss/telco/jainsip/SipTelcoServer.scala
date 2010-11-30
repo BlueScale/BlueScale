@@ -47,8 +47,7 @@ class SipTelcoServer(val ip:String, val port:Int, destIp:String, val destPort:In
  
    	override def createConnection(dest:String, callerid:String) = 
 	  new JainSipConnection( null, dest, callerid, new OUTGOING, this) //this gets in the connections map when an ID is created
-  
-		
+ 		
 	override def findConnection(id:String): SipConnection = 
 		connections.get(id)
 	

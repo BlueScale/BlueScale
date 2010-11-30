@@ -40,8 +40,8 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   
 	var portCounter = 0; 
   
-	val b2bTelcoServer    = new SipTelcoServer( ip, port, destIp, destPort)
-  
+	private val b2bTelcoServer    = new SipTelcoServer( ip, port, destIp, destPort)
+	  
  
 	val sdpFactory = SdpFactory.getInstance()
      
@@ -49,13 +49,20 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		  portCounter = portCounter+1;
 		  portCounter
     }
-                          
+    
+     
+    def createConnection(dest:String, callerid:String) : SipConnection = {
+        val conn =	b2bTelcoServer.createConnection(dest, callerid)
+        conn.localSdp = getFakeSdp(ip)
+        return conn
+    }
+  
   
 	def handleIncoming(conn:SipConnection) : Unit = { 
 		//set the joinedTo.get.sdp
 		println("HANDLE INCOMING ")
 	  	SdpHelper.addMediaTo(conn.asInstanceOf[JainSipConnection].sdp, getFakeSdp(ip))
-		conn.accept(()=>{});
+		conn.accept(()=> println("b2bServer accepted call to " + conn.destination ) );
 	}
    
    def getFakeSdp(ip:String) : SessionDescription = {

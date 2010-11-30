@@ -78,12 +78,12 @@ class WebTest extends junit.framework.TestCase {
     def testIncomingCall() {
         println("test")  
         var callId:Option[String] = None
-        val inConn = b2bServer.b2bTelcoServer.createConnection("7147773456", "7145555555")
+        val inConn = b2bServer.createConnection("7147773456", "7145555555")
 
         //BlueScale API is goign to post back an incoming call to in
         testWS.setNextResponse( request=> {
             callId = Some( request.getParameter("CallId") )
-            getDialResponse("9492223333")
+            getDialResponse("9494443333")
         })
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything

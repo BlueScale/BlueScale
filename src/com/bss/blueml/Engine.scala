@@ -43,9 +43,14 @@ class Engine(telcoServer:TelcoServer) {
     def handleDial(conn:SipConnection, dial:Dial) = {
         conn.connectionState match {
             //need to figure out how you can transfer/hold 
-            case u:UNCONNECTED  => conn.accept( ()=> { 
-                                                val destConn = telcoServer.createConnection(dial.number,"")
-                                                destConn.connect( ()=>conn.join(destConn, ()=> println("joined") ))  
+            case u:UNCONNECTED  => conn.accept( ()=> {
+                                                println("ACCEPTED")
+                                                val destConn = telcoServer.createConnection(dial.number,"2222222222")
+                                                println("about to connect for destConn to " + dial.number )
+                                                destConn.connect( ()=>{ println("destConn connected!")
+                                                    conn.join(destConn, ()=> println("joined"))
+
+                                                })  
                                             })
 
             case p:PROGRESSING  => println("progressing")

@@ -46,7 +46,9 @@ class JainSipConnection(var connid:String,
                      	with OrderedExecutable {
 	  
     override def destination = to
+    
     override def origin = from 
+	
 	private var state:VersionedState = VERSIONED_UNCONNECTED("")
 	 
 	var contactHeader:Option[ContactHeader] = None
@@ -90,7 +92,7 @@ class JainSipConnection(var connid:String,
   
 	private def connect(sdp:SessionDescription, connectedCallback:()=> Unit) = wrapLock { 	
  	   	connid = telco.internal.sendInvite(this, sdp)
-		telco.addConnection(this)
+ 	   	telco.addConnection(this)
 	  	stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->connectedCallback   	
   		setState(VERSIONED_PROGRESSING( clientTx.get.getBranchId() ))
 	}
@@ -113,13 +115,12 @@ class JainSipConnection(var connid:String,
 	//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
 	override def join(otherCall:Joinable, joinCallback:()=>Unit) = wrapLock {
 		//debug("OtherCall = " + otherCall)
-		otherCall.reconnect(localSdp,()=>
-		    //System.err.debug("other call has been RECONNECTED, this is in the join")
-    		this.reconnect(otherCall.sdp, ()=>{
-        		this.joinedTo = Some(otherCall)  
+		otherCall.reconnect(localSdp,()=>{
+		   	this.reconnect(otherCall.sdp, ()=>{
+    		    this.joinedTo = Some(otherCall)  
 		        this.joinedTo.get.joinedTo = Some(this) 
 	    		joinCallback() 
-	    	}) )
+	    	}) })
 	}
 
  
@@ -137,20 +138,18 @@ class JainSipConnection(var connid:String,
 	}
   
 	override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit =  wrapLock {
-		//System.err.debug("reconnecting for " + dir.destination)
-   		joinedTo match {
+		joinedTo match {
 		  	
-	  		case None 	=> //	System.err.debug("in reconnect, Nothing is joined, we can reconnect now!")                                                        
-	  						telco.internal.sendReinvite(this, sdp)
+	  		case None 	=> 	//System.err.println("in reconnect, Nothing is joined, we can reconnect now!")                                                        
+	  						telco.internal.sendReinvite(this, sdp) //TODO: fix race condition, should pass in the stateFunc stuff to the sendReinvite method...
 	  						stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->f
 	  				 	
-	  		case Some(x) => //System.err.debug("We are joined to something, lets put the other call on hold!")
-	  						x.hold(()=>this.reconnect(sdp, f))
+	  		case Some(x) => x.hold( ()=>this.reconnect(sdp, f) )
 	  	}
 	}
 
 	def debugStateMap(s:VersionedState) = {
-		debug(" **************** debug statemap ************* stateFunc size = " + stateFunc.size )
+		debug(" ****** debug statemap ****** stateFunc size = " + stateFunc.size )
 		debug( "s =" + s)
 		for ( (key, value) <- stateFunc ) 
 			debug( key + "->" + value )

@@ -96,8 +96,7 @@ class Session(val server:Server, val id: Int) extends Actor {
         
     private def getTransitionActions(event:CCXMLEvent): Option[List[ActionTag]] = {
     	val ad = activeDoc.get
-    	//if ( !( ad.eventProcessor.transitions.contains(event.name)) )
-    		//return None
+    
        	if ( !((activeDoc.get).eventProcessor.transitions.contains(event.name)) ) 
        		return None
         
@@ -187,26 +186,20 @@ class Session(val server:Server, val id: Int) extends Actor {
   	private def handleTelecomAction(action:TelecomAction, event:CCXMLEvent) =  		 
   	  	action match {
       		case accept:Accept =>   		val connId = findConnId(StrOption(accept.connectionid), event)
-      										println("connectionid = " + connId)
-      										val conn = server.findConnection( connId )
-      										conn.accept(()=>{ this ! new ConnectionConnected(conn)})
+      									    val conn = server.findConnection( connId )
+      										conn.accept(()=> this ! new ConnectionConnected(conn))
       		  					 
       	
       		case reject:Reject =>   		val conn = server.findConnection( evalScript(reject.connectionid) )
-      										conn.reject( ()=>{ 
-      														this ! new ConnectionDisconnected("Rejected!", conn)
-      													})
+      										conn.reject( ()=> this ! new ConnectionDisconnected("Rejected!", conn) )
       	  							      	  
       		case disconnect:Disconnect => 	val connId = findConnId(StrOption(disconnect.connectionid), event)
-      		 								System.err.println("connectionId = " + connId)
       										val conn = server.findConnection( connId )
       									  	conn.disconnect(()=>{ this ! new ConnectionDisconnected("requested", conn)})
       			
       		case createCall:CreateCall => 	val conn = server.createConnection( createCall.dest,
       																			createCall.callerid, 
-    																			(c:SipConnection)=>{ 
-      																				this ! new ConnectionDisconnected("hangup", c) 
-      																			} )
+    																			(c:SipConnection)=> this ! new ConnectionDisconnected("hangup", c)  )
       										conn.connect(()=>{  
       															System.out.println("connId = " + createCall.connectionId + " | conn.connectinoid = " + conn.connectionid)
       															setVars(createCall.connectionId, "'"+ conn.connectionid + "'")

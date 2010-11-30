@@ -38,7 +38,7 @@ trait OrderedExecutable
     private val act:Actor = actor {
 		loop { react {
     	   case f:( ()=>Unit ) => try {
-    		   						f()
+    	            				f()
     	   						  } catch {
     	   						  	case ex:Exception => debug("damn, exception, ex = " + ex)
     	   						  						 ex.printStackTrace()

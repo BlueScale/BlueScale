@@ -56,6 +56,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	sipFactory.setPathName("gov.nist")
 	val properties = new Properties()
 	val transport = "udp"
+
 	def debug(s:String) {
 		println(s)
 	}
@@ -129,19 +130,20 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		debug("request for " + requestEvent.getRequest())	
 		val request = requestEvent.getRequest()
 		Option(requestEvent.getServerTransaction) match {
-			case Some(transaction) => 	val conn = telco.getConnection(getCallId(request)) 
-										conn.execute( ()=>{
+			case Some(transaction) => 	val conn = telco.getConnection(getCallId(request))
+			                            conn.execute( ()=>{
 											conn.serverTx = Some(transaction)
 											SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(request.getRawContent()) )					
 											sendResponse(200, conn, request.getRawContent()) 
 										})
 			
-			case None => 		val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
+			case None => 	    val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
 								transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
 								val destination = parseToHeader(request.getRequestURI().toString())
 								val conn = new JainSipConnection(getCallId(request), destination, "", INCOMING(), telco)
-								conn.execute( ()=>{
-								    conn.serverTx = Some(transaction)
+                                conn.execute( ()=>{
+                                	conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader]) 
+                                    conn.serverTx = Some(transaction)
 								    conn.dialog = Some( transaction.getDialog() ) //FIXME: we may not need to store this...
                                     //TOOD: make sure it defaults to alerting
 									conn.setConnectionid(getCallId(request))
@@ -209,15 +211,15 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case Response.OK => 
 		    			cseq.getMethod() match {
 		    				case Request.INVITE =>
+		    				            
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)
 				  						SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
 				  						conn.dialog = Some( re.getDialog() )
-				  					    if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.localSdp ) )
-				  							conn.setState(VERSIONED_HOLD( transaction.getBranchId() ))
-				  						else {
-				  						
-				  							conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) //Is a joined state worth it?
+				  					    if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.localSdp ) ) {
+				  					        conn.setState(VERSIONED_HOLD( transaction.getBranchId() ))
+				  						} else {
+				  						    conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) //Is a joined state worth it?
 				  						}
 				  						            
 		    				case Request.CANCEL =>
@@ -243,8 +245,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
 		val request = conn.dialog.get.createRequest(Request.INVITE)
-		request.addHeader(conn.contactHeader.get) //neccessary?
-  		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
+		conn.contactHeader.foreach( request.addHeader(_) )//neccessary?
+		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
 		conn.clientTx = Some( sipProvider.getNewClientTransaction(request) )
    		conn.dialog.get.sendRequest(conn.clientTx.get)
@@ -281,7 +283,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
   	   
   	protected[jainsip] def asRequest(r:RequestEvent) = r.getRequest()
   	 
-  	private def parseToHeader(to:String): String = to.toString().split("@")(0).split(":")(1)
+  	private def parseToHeader(to:String): String = {
+        //TODO: fix case where there is no callerID
+        to.toString().split("@")(0).split(":")(1)
+  	}
    
   	
   	private def printHeaders(request:Request) = { 

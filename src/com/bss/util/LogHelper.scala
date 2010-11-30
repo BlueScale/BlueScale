@@ -16,7 +16,7 @@ trait LogHelper {
 	}
 
 	def debug(msg: => String) {
-		//logger.debug(msg)
+		println(msg)
 	}
 
 	def error(msg: =>String) {
