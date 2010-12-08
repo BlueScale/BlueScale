@@ -86,7 +86,7 @@ class Session(val server:Server, val id: Int) extends Actor {
     
     private def runActions(actions:Option[List[ActionTag]],event:CCXMLEvent) {
         actions.foreach( 
-    	for ( val action <- _ ) {
+    	for (action <- _ ) {
     		action match{
     		  case t:TelecomAction => handleTelecomAction(t, event)
     		  case c:ActionTag => handleControlAction(c, event)
@@ -103,7 +103,7 @@ class Session(val server:Server, val id: Int) extends Actor {
     	context = Some(Context.enter()) //FIRST TIME THIS IS CALLED FROM AN EVENT! don't need to do it again
     
     	val transitions = activeDoc.get.eventProcessor.transitions(event.name)
-    	for ( val transition <- transitions) {
+    	for (transition <- transitions) {
 
     		val varName = activeDoc.get.eventProcessor.statevar 
     		if ( transition.state == null || transition.state == "") { 

@@ -49,12 +49,12 @@ class WebTest extends junit.framework.TestCase {
  
     val telcoServer  = new SipTelcoServer( "127.0.0.1", 4000, "127.0.0.1", 4001)
 
-    val ws = new WebServer(82, 8080, telcoServer, "http://localhost:81/")
+    val ws = new WebServer(8200, 8080, telcoServer, "http://localhost:8100/")
 
     //testing
     val b2bServer = new B2BServer("127.0.0.1", 4001, "127.0.0.1", 4000)
 
-    val testWS  = new SimpleWebServer(81)
+    val testWS  = new SimpleWebServer(8100)
 
     val latch = new CountDownLatch(1)
 
@@ -95,9 +95,10 @@ class WebTest extends junit.framework.TestCase {
         })
         Console.readLine()
         inConn.connect( ()=> println("connected!") )
+
         latch.await()
-   
-    }
+    } 
+
 
 
     //inConn-> BlueScaleWS -> SimpleWS

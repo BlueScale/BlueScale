@@ -36,7 +36,7 @@ object Parser {
 		//FIXME: make this faster, i'm sure theres a way to copy the scope data from one to another
         val scope = cx.initStandardObjects()
  
-	    for ( val n <- nodes ) {
+	    for (n <- nodes ) {
 	    	val varName = (n \ "@name").text
 	    	val expr = (n \ "@expr").text
 	    	
@@ -53,7 +53,7 @@ object Parser {
 		println("parseTransitions")
 
 		var map = Map[String,List[TransitionTag]]()
-		for ( val n <-(nodes \"transition") ) {
+		for (n <-(nodes \"transition")) {
 			
 		    val eventname = (n \ "@event").text
 		    val iter = (n \ "_").elements
@@ -78,7 +78,7 @@ object Parser {
   	private def parseActions(nodes:Iterator[Node]) : List[ActionTag] = {
 	  var list = new ListBuffer[ActionTag]
 	  
-	  for ( val actionNode <- nodes ) { 
+	  for (actionNode <- nodes) { 
 		actionNode.label match {
 	    	case "accept" => list+= Accept( (actionNode \ "@connectionid").text, 
                                           		(actionNode \"@hints" ).text)
