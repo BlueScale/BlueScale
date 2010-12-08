@@ -1,8 +1,3 @@
-package com.bss.telco.jainsip.test
-
-import java.net.InetAddress;
-import javax.sdp.MediaDescription;
-import javax.sdp.SdpException;
 /*
 *  
 * This file is part of BlueScale.
@@ -26,6 +21,12 @@ import javax.sdp.SdpException;
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
+
+package com.bss.telco.jainsip.test
+
+import java.net.InetAddress;
+import javax.sdp.MediaDescription;
+import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
@@ -93,35 +94,4 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 	}
 }
 
-object B2BServer {
-  
-	
-    
-    def areTwoConnected(conn1:SipConnection, conn2:SipConnection) : Boolean = {
-      val mediatrans1 =  conn1.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-      val medialist1 = conn2.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-      
-      val mediatrans2 =  conn2.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-      val medialist2 = conn1.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-      
-      //TODO: Check Media Connection!
-      
-      if ( mediatrans1.getMedia().getMediaPort != medialist1.getMedia().getMediaPort() ) 
-    	  return false
-      
-      if ( mediatrans2.getMedia().getMediaPort != medialist2.getMedia().getMediaPort() ) 
-    	  return false
-      
-      if ( conn1.connectionState != CONNECTED() || conn2.connectionState != CONNECTED() ) 
-        return false
-      
-      if ( conn1.joinedTo == None || conn2.joinedTo == None ) 
-    	  return false
-             
-      if ( !conn1.joinedTo.get.equals(conn2) || !conn2.joinedTo.get.equals(conn1) ) 
-    	  return false
-            
-      return true
-    }
- }
 

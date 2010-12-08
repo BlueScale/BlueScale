@@ -28,7 +28,7 @@ trait TelcoServer {
 
    	def createConnection(destPhone:String, callerId:String) : SipConnection //should switch this to take an outoging. 
   	  
-   	def findConnection(connectionId:String): SipConnection; 
+   	def findConnection(connectionId:String) : SipConnection; 
   
   	def setFailureCallback(f:(SipConnection)=>Unit)
   	
@@ -39,5 +39,7 @@ trait TelcoServer {
   	def start()
 
   	def stop()
+
+  	def areTwoConnected(conn1:SipConnection, conn2:SipConnection) : Boolean
   
 }

@@ -30,6 +30,8 @@ import com.bss.telco._
 import com.bss.telco.api._
 import com.bss.telco.jainsip._
 import com.bss.util._
+import javax.sdp.SessionDescription
+import javax.sdp.MediaDescription
 
 
 class SipTelcoServer(val ip:String, val port:Int, destIp:String, val destPort:Int) extends TelcoServer {
@@ -80,5 +82,33 @@ class SipTelcoServer(val ip:String, val port:Int, destIp:String, val destPort:In
 	
 	def fireIncoming(c:SipConnection) = {
 		incomingCallback.foreach( _(c) )
-	}
+    }
+
+    override def areTwoConnected(conn1:SipConnection, conn2:SipConnection) : Boolean = {
+        val mediatrans1 =  conn1.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+        val medialist1 = conn2.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+      
+        val mediatrans2 =  conn2.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+        val medialist2 = conn1.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+      
+        //TODO: Check Media Connection!
+      
+        if ( mediatrans1.getMedia().getMediaPort != medialist1.getMedia().getMediaPort() ) 
+    	    return false
+      
+        if ( mediatrans2.getMedia().getMediaPort != medialist2.getMedia().getMediaPort() ) 
+            return false
+      
+        if ( conn1.connectionState != CONNECTED() || conn2.connectionState != CONNECTED() ) 
+            return false
+      
+        if ( conn1.joinedTo == None || conn2.joinedTo == None ) 
+    	    return false
+             
+        if ( !conn1.joinedTo.get.equals(conn2) || !conn2.joinedTo.get.equals(conn1) ) 
+    	    return false
+            
+        return true
+    }
+
 }

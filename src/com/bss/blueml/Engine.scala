@@ -28,18 +28,18 @@ import com.bss.telco.api._
 
 class Engine(telcoServer:TelcoServer) {
    
-    def HandleBlueML(conn:SipConnection, str:String) : Unit  =
-        HandleBlueML(conn, BlueMLParser.parse(str))
+    def handleBlueML(conn:SipConnection, str:String) : Unit  =
+        handleBlueML(conn, BlueMLParser.parse(str))
 
-    def HandleBlueML(conn:SipConnection, verbs:Seq[BlueMLVerb]) : Unit = 
-        verbs.foreach( _ match {
-                
+    
+    def handleBlueML(conn:SipConnection, verbs:Seq[BlueMLVerb]) : Unit = 
+        verbs.foreach( _ match { 
                 case dial:Dial => handleDial(conn, dial)
 
                 case play:Play => println("play")
-
             })
 
+    
     def handleDial(conn:SipConnection, dial:Dial) = {
         conn.connectionState match {
             //need to figure out how you can transfer/hold 
@@ -48,12 +48,44 @@ class Engine(telcoServer:TelcoServer) {
                                                 val destConn = telcoServer.createConnection(dial.number,"2222222222")
                                                 println("about to connect for destConn to " + dial.number )
                                                 destConn.connect( ()=>{ println("destConn connected!")
-                                                    conn.join(destConn, ()=> println("joined"))
+                                                    conn.join(destConn, ()=> println("joined") )
 
                                                 })  
                                             })
 
-            case p:PROGRESSING  => println("progressing")
+            case p:PROGRESSING  => println("progressing") //TODO: should we sleep and call again? 
         }
     }
+
+    
+    def handleIncomingCall(url:String, conn:SipConnection) = 
+        postCallStatus(url, conn)
+    
+    def handleConnect(url:String, conn:SipConnection) =
+        postCallStatus(url, conn)
+
+    def postCallStatus(url:String, conn:SipConnection) =
+         WebUtil.postCallStatus(url, getConnectionMap(conn), (xml:String)=>handleBlueML(conn, xml) )
+        
+    
+    def getConnectionMap(conn:SipConnection) = 
+        Map( "CallId"->conn.connectionid,
+             "From"-> conn.origin,
+             "To" -> conn.destination,
+             "CallStatus" -> conn.connectionState.toString(),
+             "Direction" -> conn.direction.toString() )    
+    
+    
+    def getJoinedMap(conn1:SipConnection, conn2:SipConnection) = 
+        Map( "FirstCallId"->conn1.connectionid,
+             "SecondCallId"->conn2.connectionid,
+             "ConversationStatus"-> getJoinedState(conn1, conn2) )
+
+
+    def getJoinedState(conn1:SipConnection, conn2:SipConnection) : String =
+        telcoServer.areTwoConnected(conn1,conn2) match {
+                    case true => "Connected"
+                    case false=> "ConnectionFailed"
+                    }
+
 }

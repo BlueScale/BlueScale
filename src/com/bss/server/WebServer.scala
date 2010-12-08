@@ -51,7 +51,7 @@ class WebServer(apiPort:Int,
     private val wserver = new Server()
     initWebServer()
     val engine = new Engine(telcoServer)    
-    telcoServer.setIncomingCallback( conn => WebUtil.postBackStatus(callbackUrl, conn, engine.HandleBlueML) )
+    telcoServer.setIncomingCallback( (conn:SipConnection)=>engine.handleIncomingCall(callbackUrl,conn) )
 
 
     def initWebServer() {
@@ -77,15 +77,14 @@ class CallServlet(telcoServer:TelcoServer,
         val to      = request.getParameter("To")
         val from    = request.getParameter("From") 
         val url     = request.getParameter("Url")
-
+        //todo: make sure it's all valid
         val conn = telcoServer.createConnection(to, from)
-        conn.connect(() => {
-            WebUtil.postBackStatus(url, conn, engine.HandleBlueML)
+        conn.connect(
+            () => engine.handleConnect(url, conn)
             //send status to the url
-        })
-
+        )
         //print out XML to the page!
-        val response = WebUtil.getCallResponse(conn.connectionid, to, from, "progressing")
+        //val response = WebUtil.getCallResponse(conn.connectionid, to, from, "progressing")
     }
  
 }

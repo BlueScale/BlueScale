@@ -30,20 +30,25 @@ import com.bss.blueml._
 
 object WebUtil {
 
-    def postBackStatus(url:String, conn:SipConnection, handleResponse:(SipConnection,String)=>Unit) = 
+
+    /*
+    def postCallStatus(url:String, conn:SipConnection, handleResponse:(SipConnection,String)=>Unit) = 
         Option( WebUtil.postToUrl(url, getConnectionMap(conn)) ) match {
             case Some(xml) => handleResponse(conn, xml)
             //case Some(xml) => Engine.HandleBlueML(conn, xml)
             case None => //nothing to do here
         }
-         
-    def getConnectionMap(conn:SipConnection) = Map( "CallId"->conn.connectionid,
-                                                  "From"-> conn.origin,
-                                                  "To" -> conn.destination,
-                                                  "CallStatus" -> conn.connectionState.toString(),
-                                                  "Direction" -> conn.direction.toString() )    
-    
-    
+
+    def postJoinedStatus(url:String, conn1:SipConnection, conn2:SipConnection) =
+        WebUtil.postToUrl(url, getJoinedMap(conn1, conn2) )
+    */
+
+    def postCallStatus(url:String, map:Map[String,String], handleResponse:(String)=>Unit) =
+        Option( WebUtil.postToUrl(url, map) ) match {
+            case Some(xml)  => handleResponse(xml)
+            case None       => //ok...
+        }
+                    
     
     def readAll(reader:BufferedReader) : String = 
         Option( reader.readLine() ) match {
@@ -51,7 +56,7 @@ object WebUtil {
             case Some(x)=> x.concat(readAll(reader))
         }                   
    
-
+    
     def postToUrl(url:String, params:Map[String, String]) : String = {
         val data = params
                     .map({ case (key, value) =>  
@@ -73,6 +78,7 @@ object WebUtil {
         }
     }
 
+    
     def getCallResponse(connId:String, to:String, from:String, status:String ) : String = {
         return  (<BlueXml>
                    <DateCreated></DateCreated>
