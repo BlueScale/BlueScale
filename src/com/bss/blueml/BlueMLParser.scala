@@ -46,9 +46,9 @@ object BlueMLParser {
     }
 
     private def parseDial(n:Node) : Dial = 
-        new Dial( Util.GetNonEmpty((n \ "number").text, n.text),
-                  (n \ "callerId").text,
-                  (n \"action").text )
+        new Dial( Util.GetNonEmpty((n \ "Number").text, n.text),
+                  (n \ "CallerId").text,
+                  (n \"Action").text )
                   
    private def parsePlay(n:Node) : Play = {
         return null
@@ -67,8 +67,8 @@ class Play(val loop:Int,
 }
 
 class Dial(val number:String,
-           val  callerId:String,
-           val actionURL:String) extends BlueMLVerb {
+           val callerId:String,
+           val url:String) extends BlueMLVerb {
 
 }
 

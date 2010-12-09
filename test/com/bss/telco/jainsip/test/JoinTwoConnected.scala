@@ -41,8 +41,8 @@ trait JoinTwoConnected {
  	def getTelcoServer() : TelcoServer
   
  	def handleDisconnect(conn:SipConnection) = println("disconnected!")
-  
-	var cell:SipConnection = null 
+
+ 	var cell:SipConnection = null 
  
 	var desk:SipConnection = null
  
@@ -53,8 +53,8 @@ trait JoinTwoConnected {
                    
 	def firstJoined() {
 		println("joined, now waiting for moviepHONE!!")
-		System.err.println("are both connected = ? " + B2BServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
-        assertTrue(B2BServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
+		System.err.println("are both connected = ? " + getTelcoServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
+        assertTrue(getTelcoServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
         //Thread.sleep(30)
 		moviePhone1.connect( ()=>
                          	 	{println("this should implicitly put desk on hold.")
@@ -68,8 +68,8 @@ trait JoinTwoConnected {
  
 	def joined(c1:SipConnection, c2:SipConnection) : Unit = {
 	    println("OK now we should hear moviephone and not each other....")
-        assertTrue(B2BServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
-	    System.err.println("are both connected = ? " + B2BServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
+        assertTrue(getTelcoServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
+	    System.err.println("are both connected = ? " + getTelcoServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
         assertTrue(SdpHelper.isBlankSdp(desk.asInstanceOf[JainSipConnection].sdp))
 	    System.err.println("desk should be  on hold? " + SdpHelper.isBlankSdp(desk.asInstanceOf[JainSipConnection].sdp) ) //b2bServer.areTwoConnected(desk.asInstanceOf[SipConnection], )
 	    latch.countDown

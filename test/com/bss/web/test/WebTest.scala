@@ -88,9 +88,10 @@ class WebTest extends junit.framework.TestCase {
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> {
-            println("CONNECTED CALLBACK ExECUTING")
-            assertEquals( inConn.connectionState, CONNECTED )
+            println("CONNECTED CALLBACK ExECUTING, " + inConn.connectionState)
+            assertEquals( inConn.connectionState, CONNECTED() )
             latch.countDown()
+            println("countdownLatch")
             ""
         })
         Console.readLine()
@@ -133,7 +134,10 @@ class WebTest extends junit.framework.TestCase {
 
     def getDialResponse(dest:String) : String =
         return (<Response>
-                    <Dial>{dest}</Dial>
+                    <Dial>
+                        <Number>{dest}</Number>
+                        <Action>http://localhost:8100/</Action>
+                    </Dial>
                 </Response>).toString() 
 
 }

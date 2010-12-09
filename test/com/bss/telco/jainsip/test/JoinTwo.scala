@@ -40,27 +40,27 @@ trait JoinTwo {
 	
  	def getTelcoServer() : TelcoServer
   
- 	def handleDisconnect(conn:SipConnection) = println("disconnected!")
+ 	def handleDisconnect(conn:SipConnection) = println("disconnected!") 	
  
 	def runConn() {
  		latch = new CountDownLatch(1)
 	  
  		val alice = getTelcoServer().createConnection("4445556666", "9495557777")
  		val bob = getTelcoServer().createConnection("1112223333", "7147773333")
- 
+         
  		alice.connect(()=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		  	bob.connect(()=>{
 		  		assertEquals(bob.connectionState, CONNECTED())
 				alice.join(bob, ()=>{
-				assertTrue(B2BServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
-				  System.err.println("are both connected = ? " + B2BServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
+				assertTrue(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
+				  System.err.println("are both connected = ? " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  
 				  	alice.disconnect( ()=>{
 				  	  println("alice connectionstate = "+ alice.connectionState)
 				  		assertEquals(alice.connectionState, UNCONNECTED())
 				  		//make sure bob is on hold now!
-				  		assertFalse(B2BServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
+				  		assertFalse(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  		val b = SdpHelper.isBlankSdp(bob.asInstanceOf[JainSipConnection].sdp)
 				  		System.err.println("b = " + b)
 				  		//assertTrue( SdpHelper.isBlankSdp(bob.asInstanceOf[SipConnection].listeningSdp) )

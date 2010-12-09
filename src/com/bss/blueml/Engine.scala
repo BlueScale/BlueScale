@@ -25,6 +25,7 @@
 package com.bss.blueml
 
 import com.bss.telco.api._
+import com.bss.util.WebUtil
 
 class Engine(telcoServer:TelcoServer) {
    
@@ -44,12 +45,13 @@ class Engine(telcoServer:TelcoServer) {
         conn.connectionState match {
             //need to figure out how you can transfer/hold 
             case u:UNCONNECTED  => conn.accept( ()=> {
-                                                println("ACCEPTED")
+                                                println("ACCEPTED, dial = " + dial.url)
                                                 val destConn = telcoServer.createConnection(dial.number,"2222222222")
                                                 println("about to connect for destConn to " + dial.number )
                                                 destConn.connect( ()=>{ println("destConn connected!")
-                                                    conn.join(destConn, ()=> println("joined") )
-
+                                                    conn.join(destConn, 
+                                                             ()=> postCallStatus(dial.url, getJoinedMap(conn, destConn), (s:String)=>println("shurg"))
+                                                    )
                                                 })  
                                             })
 
@@ -59,14 +61,17 @@ class Engine(telcoServer:TelcoServer) {
 
     
     def handleIncomingCall(url:String, conn:SipConnection) = 
-        postCallStatus(url, conn)
+        postCallStatus(url, getConnectionMap(conn), (s:String)=>handleBlueML(conn, s) )
     
     def handleConnect(url:String, conn:SipConnection) =
-        postCallStatus(url, conn)
-
-    def postCallStatus(url:String, conn:SipConnection) =
-         WebUtil.postCallStatus(url, getConnectionMap(conn), (xml:String)=>handleBlueML(conn, xml) )
-        
+          postCallStatus(url, getConnectionMap(conn), (s:String)=>handleBlueML(conn, s) )
+    
+    def postCallStatus(url:String, map:Map[String,String], handleResponse:(String)=>Unit) =
+        Option( WebUtil.postToUrl(url, map) ) match {
+            case Some(xml)  => handleResponse(xml)
+            case None       => //ok...
+        }
+   
     
     def getConnectionMap(conn:SipConnection) = 
         Map( "CallId"->conn.connectionid,
@@ -89,3 +94,7 @@ class Engine(telcoServer:TelcoServer) {
                     }
 
 }
+/*
+object WebUtil {
+    def blah() = println("blah")
+}*/

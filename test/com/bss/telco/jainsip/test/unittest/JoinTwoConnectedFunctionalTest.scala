@@ -44,6 +44,7 @@ class JoinTwoConnectedFunctionalTest extends TestHelper with JoinTwoConnected  {
 		 getLatch.await()
  	 
 	}
+
  
 }
 
