@@ -37,13 +37,13 @@ import javax.servlet.http.HttpServletRequest
 
 object WebTest {
     def main(args:Array[String]) {
-        val wt = new WebTest()
+        val wt = new WebApiFunctionalTest()
         wt.setUp()
         wt.testIncomingCall()
         
     }
 }
-class WebTest extends junit.framework.TestCase {
+class WebApiFunctionalTest extends junit.framework.TestCase {
     
  	val config = new ConfigParser("resources/BlueScaleConfig.xml")
  
@@ -90,11 +90,11 @@ class WebTest extends junit.framework.TestCase {
         testWS.setNextResponse( (request:HttpServletRequest)=> {
             println("CONNECTED CALLBACK ExECUTING, " + inConn.connectionState)
             assertEquals( inConn.connectionState, CONNECTED() )
+            inConn.disconnect( ()=>println("disconnected") )
+
             latch.countDown()
-            println("countdownLatch")
             ""
         })
-        Console.readLine()
         inConn.connect( ()=> println("connected!") )
 
         latch.await()

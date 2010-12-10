@@ -26,13 +26,15 @@ import javax.sdp.SessionDescription
 
 protected[telco] trait Joinable {
 
+  	var joinedTo:Option[Joinable] = None
+  	
   	def hold(f:()=>Unit)
   
 	def join(connection:Joinable, f:()=>Unit)
 
-  	var joinedTo:Option[Joinable] = None
-
     def reconnect(sdp:SessionDescription, f:()=>Unit)
 
     def sdp:SessionDescription
+
+    def unjoin()
 }

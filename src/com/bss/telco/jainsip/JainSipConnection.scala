@@ -109,9 +109,16 @@ class JainSipConnection(var connid:String,
  
 	override  def disconnect(disconnectCallback:()=> Unit) = wrapLock {
 		telco.internal.sendByeRequest(this)
-		stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) -> disconnectCallback
-	} 
-  	 
+        val f = ()=> {
+            joinedTo.foreach( joined=>{
+                joined.unjoin()
+                joined.joinedTo = None
+                joinedTo = None 
+            })
+        }
+        
+		stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) -> disconnectCallback 
+  	 }
 	//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
 	override def join(otherCall:Joinable, joinCallback:()=>Unit) = wrapLock {
 		//debug("OtherCall = " + otherCall)
@@ -136,6 +143,9 @@ class JainSipConnection(var connid:String,
 		})
       	
 	}
+
+	override def unjoin() =
+	    disconnect( ()=> Unit )
   
 	override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit =  wrapLock {
 		joinedTo match {
