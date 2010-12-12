@@ -36,13 +36,22 @@ class JoinTwoUnconnectedFunctionalTest extends TestHelper with JoinTwo {
  
 	@Test
 	def testJoinConn() = {
-	  println("hi");
-		assertEquals("blah", "blah")
 	 	runConn()
 		getLatch.await()
  	 
 	}
  
+}
+
+object JoinTwoUnconnectedFunctionalTest {
+    def main(args:Array[String]) {
+        val t= new JoinTwoUnconnectedFunctionalTest()
+        t.setUp() 
+        t.testJoinConn()
+        t.latch.await()
+        t.tearDown()
+
+    }
 }
 
  

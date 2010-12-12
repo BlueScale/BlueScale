@@ -140,7 +140,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case None => 	    val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
 								transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
 								val destination = parseToHeader(request.getRequestURI().toString())
-								val conn = new JainSipConnection(getCallId(request), destination, "", INCOMING(), telco)
+								val conn = new JainSipConnection(getCallId(request), destination, "", INCOMING(), telco, true)
                                 conn.execute( ()=>{
                                 	conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader]) 
                                     conn.serverTx = Some(transaction)

@@ -40,14 +40,23 @@ trait JoinTwo {
 	
  	def getTelcoServer() : TelcoServer
   
- 	def handleDisconnect(conn:SipConnection) = println("disconnected!") 	
+ 	def handleDisconnect(conn:SipConnection) = {
+ 	    //this should be bob!
+ 	    assertEquals(bob.connectionState, UNCONNECTED())
+		System.err.println("assert that alice is disconnected = " + alice.connectionState)
+		System.err.println("assert that bob is disconnected = " + bob.connectionState)
+		latch.countDown()
+ 	}
+
+     	 
+    getTelcoServer.setDisconnectedCallback( handleDisconnect )
+ 	val alice = getTelcoServer().createConnection("4445556666", "9495557777")
+ 	val bob = getTelcoServer().createConnection("1112223333", "7147773333")
+
  
 	def runConn() {
  		latch = new CountDownLatch(1)
-	  
- 		val alice = getTelcoServer().createConnection("4445556666", "9495557777")
- 		val bob = getTelcoServer().createConnection("1112223333", "7147773333")
-         
+	          
  		alice.connect(()=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		  	bob.connect(()=>{
@@ -60,18 +69,11 @@ trait JoinTwo {
 				  	  println("alice connectionstate = "+ alice.connectionState)
 				  		assertEquals(alice.connectionState, UNCONNECTED())
 				  		//make sure bob is on hold now!
-				  		assertFalse(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
+				  		//assertFalse(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  		val b = SdpHelper.isBlankSdp(bob.asInstanceOf[JainSipConnection].sdp)
 				  		System.err.println("b = " + b)
-				  		//assertTrue( SdpHelper.isBlankSdp(bob.asInstanceOf[SipConnection].listeningSdp) )
-				  		bob.disconnect(()=>{ 
-				  			assertEquals(alice.connectionState, UNCONNECTED())
-				  			assertEquals(bob.connectionState, UNCONNECTED())
-				  			System.err.println("assert that alice is disconnected = " + alice.connectionState)
-				  			System.err.println("assert that bob is disconnected = " + bob.connectionState)
-				  			latch.countDown()
-				  		})
-				  	})
+				  		//Now bob should be disconnected
+				  						  	})
 				})
 			})
 		})

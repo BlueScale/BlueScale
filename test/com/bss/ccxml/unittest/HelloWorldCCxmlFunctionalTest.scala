@@ -60,8 +60,7 @@ class HelloWorldCCxmlFunctionalTest extends CCxmlHelper {
 		
 		server.loadHandler ! new LoadDocument(getRootDoc)
 		latch.await()
-		assertEquals("hello World", logList.last )
-		Thread.sleep(5000)
+		assertEquals("hello World", logList.last )	
 	}
  
 }

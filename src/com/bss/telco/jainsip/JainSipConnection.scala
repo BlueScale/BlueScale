@@ -39,7 +39,8 @@ class JainSipConnection protected[telco](
                         val to:String,
                         val from:String, 
                         val dir:DIRECTION, 
-                        val telco:SipTelcoServer)
+                        val telco:SipTelcoServer,
+                        val disconnectOnUnjoin:Boolean)
                         extends SipConnection
                      	with SipData
                      	with LogHelper 
@@ -64,9 +65,8 @@ class JainSipConnection protected[telco](
 	override def protocol = "SIP"
  
 	private var progressingCallback:(SipConnection)=>Unit = null
-  
-	//protected[jainsip] 
-	var localSdp  = SdpHelper.getBlankSdp(telco.ip) //Should be private, can't be protected for testing purposes
+  	
+	var localSdp  = SdpHelper.getBlankSdp(telco.ip) //Should be private, can't be for testing purposes, maybe make private anyway and use reflection?
 
 	override def sdp = localSdp 
 
@@ -92,16 +92,17 @@ class JainSipConnection protected[telco](
 		stateFunc +=  VERSIONED_UNCONNECTED(serverTx.get.getBranchId()) -> rejectCallback
 	}
  
-	override  def disconnect(disconnectCallback:()=> Unit) = wrapLock {
+	override  def disconnect(cb:()=> Unit) = wrapLock {
 		telco.internal.sendByeRequest(this)
         val f = ()=> {
             joinedTo.foreach( joined=>{
-                joined.unjoin()
                 joined.joinedTo = None
                 joinedTo = None 
+                joined.unjoin()
             })
+            cb()
         }
-        stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) -> disconnectCallback 
+        stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) ->f 
   	}
 
 	//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
@@ -126,15 +127,16 @@ class JainSipConnection protected[telco](
 			joinedTo = None
 			f()
 		})
-      	
-	}
+    }
 
-	override def unjoin() = unjoinCallback.foreach( _(this) )
-	    
+	override def unjoin() = disconnectOnUnjoin match {
+	        case true => disconnect( ()=>disconnectCallback.foreach( _(this) )) 
+	        case false=> unjoinCallback.foreach( _(this) )
+	    }
+	   	    
   
 	override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit =  wrapLock {
-		joinedTo match {
-		  	
+		joinedTo match {	
 	  		case None 	=> 	//System.err.println("in reconnect, Nothing is joined, we can reconnect now!")                                                        
 	  						telco.internal.sendReinvite(this, sdp) //TODO: fix race condition, should pass in the stateFunc stuff to the sendReinvite method...
 	  						stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->f
@@ -171,10 +173,7 @@ class JainSipConnection protected[telco](
 		for ( (key, value) <- stateFunc ) 
 			debug( key + "->" + value )
 	}
-
-
-
     
- }
+}
  
 
