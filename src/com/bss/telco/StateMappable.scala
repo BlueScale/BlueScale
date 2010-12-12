@@ -22,21 +22,7 @@
 *
 */
 package com.bss.telco
-import javax.sdp.SessionDescription
 
-protected[telco] trait Joinable[T] {
+trait StateMappable {
 
-  	var joinedTo:Option[Joinable[_]] = None
-  	
-  	def hold(f:()=>Unit)
-  
-	def join(connection:Joinable[_], f:()=>Unit)
-
-    def reconnect(sdp:SessionDescription, f:()=>Unit)
-
-    def sdp:SessionDescription
-
-    protected[telco] def unjoin() //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
-
-    var unjoinCallback:Option[(T)=>Unit] = None
-}
+   }

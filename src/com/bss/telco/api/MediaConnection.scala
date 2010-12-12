@@ -27,7 +27,7 @@ package com.bss.telco.api
 import com.bss.telco._
 
 trait MediaConnection
-	extends Joinable
+	extends Joinable[MediaConnection]
     with Playable {
 	
 	def connectionid : String

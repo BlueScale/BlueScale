@@ -34,12 +34,13 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import com.bss.util._
 
-class JainSipConnection(var connid:String,
+class JainSipConnection protected[telco](
+                        var connid:String,
                         val to:String,
                         val from:String, 
                         val dir:DIRECTION, 
-                        val telco:SipTelcoServer) 
-                     	extends SipConnection
+                        val telco:SipTelcoServer)
+                        extends SipConnection
                      	with SipData
                      	with LogHelper 
                      	with Lockable 
@@ -53,7 +54,6 @@ class JainSipConnection(var connid:String,
 	 
 	var contactHeader:Option[ContactHeader] = None
 	 
-	private var stateFunc = Map[VersionedState,()=> Unit]()
 	
  	override def connectionState = state.getState
  
@@ -65,28 +65,13 @@ class JainSipConnection(var connid:String,
  
 	private var progressingCallback:(SipConnection)=>Unit = null
   
-	protected[jainsip] var localSdp  = SdpHelper.getBlankSdp(telco.ip) //Should be private, can't be protected for testing purposes
+	//protected[jainsip] 
+	var localSdp  = SdpHelper.getBlankSdp(telco.ip) //Should be private, can't be protected for testing purposes
 
 	override def sdp = localSdp 
 
 	protected[jainsip] def setConnectionid(id:String) = connid = id
  
- 	protected[jainsip] def setState(s:VersionedState) : Unit = {
- 		lock()
- 		//debugStateMap(s)
- 		state = s
- 		if (stateFunc.contains(state) && stateFunc(state) != null) {
-			val func = stateFunc(state)
-			stateFunc(s)()
-		} else if ( state.getState == UNCONNECTED() ) { 
-			telco.fireDisconnected(this)
-  
-        } else if ( state.getState != PROGRESSING()) {
-			stateFunc = Map[VersionedState,()=> Unit]()//WIPE IT ALL, shit happened not in the order we expected!
-			telco.fireFailure(this)
-		}
-		unlock() 
-	}
 
  	override def connect( f:()=> Unit) = connect(localSdp, f)
   
@@ -116,11 +101,11 @@ class JainSipConnection(var connid:String,
                 joinedTo = None 
             })
         }
-        
-		stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) -> disconnectCallback 
-  	 }
+        stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) -> disconnectCallback 
+  	}
+
 	//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
-	override def join(otherCall:Joinable, joinCallback:()=>Unit) = wrapLock {
+	override def join(otherCall:Joinable[_], joinCallback:()=>Unit) = wrapLock {
 		//debug("OtherCall = " + otherCall)
 		otherCall.reconnect(localSdp,()=>{
 		   	this.reconnect(otherCall.sdp, ()=>{
@@ -144,8 +129,8 @@ class JainSipConnection(var connid:String,
       	
 	}
 
-	override def unjoin() =
-	    disconnect( ()=> Unit )
+	override def unjoin() = unjoinCallback.foreach( _(this) )
+	    
   
 	override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit =  wrapLock {
 		joinedTo match {
@@ -158,12 +143,36 @@ class JainSipConnection(var connid:String,
 	  	}
 	}
 
+	private var stateFunc = Map[VersionedState,()=> Unit]()
+
+
+    protected[telco] def setState(s:VersionedState) : Unit = {	
+	 	lock()
+ 		//debugStateMap(s)
+ 		state = s
+ 		if (stateFunc.contains(state) && stateFunc(state) != null) {
+			val func = stateFunc(state)
+			stateFunc(s)()
+		} else if ( state.getState == UNCONNECTED() ) { 
+		    //unrequested disconnect
+			disconnectCallback.foreach( _(this) )
+
+        } else if ( state.getState != PROGRESSING()) {
+			stateFunc = Map[VersionedState,()=> Unit]()//WIPE IT ALL, shit happened not in the order we expected!
+			telco.fireFailure(this)
+		}
+		unlock() 
+	}
+
+
 	def debugStateMap(s:VersionedState) = {
 		debug(" ****** debug statemap ****** stateFunc size = " + stateFunc.size )
 		debug( "s =" + s)
 		for ( (key, value) <- stateFunc ) 
 			debug( key + "->" + value )
 	}
+
+
 
     
  }

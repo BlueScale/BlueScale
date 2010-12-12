@@ -26,7 +26,9 @@ package com.bss.telco.api
 
 trait TelcoServer {
 
-   	def createConnection(destPhone:String, callerId:String) : SipConnection //should switch this to take an outoging. 
+   	def createConnection(destPhone:String, callerId:String) : SipConnection //should switch this to take an outoging.
+
+   	def createConnection(destPhone:String, callerId:String, disconnectOnUnjoin:Boolean) : SipConnection
   	  
    	def findConnection(connectionId:String) : SipConnection; 
   

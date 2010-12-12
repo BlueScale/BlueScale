@@ -74,7 +74,7 @@ class JmfMediaConnection(file:String,
 		f()
 	}
 
-	override def join(call:Joinable, f:()=>Unit) = wrapLock {
+	override def join(call:Joinable[_], f:()=>Unit) = wrapLock {
 		call.reconnect(listeningSdp, ()=>
 			this.reconnect(call.sdp, ()=>{
 				this.joinedTo = Some(call)
@@ -83,6 +83,8 @@ class JmfMediaConnection(file:String,
 			})
 		)
 	}
+
+	override def unjoin() = cancel(null)
 
 	override def hold(f:()=>Unit) = wrapLock {
 		//TODO: pause? cancel? 

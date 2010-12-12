@@ -27,7 +27,7 @@ import com.bss.telco._
 
 trait SipConnection 
 	extends Connectable[SipConnection] 
-	with Joinable 
+	with Joinable[SipConnection] 
 	with Answerable {
 
 	def connectionid : String

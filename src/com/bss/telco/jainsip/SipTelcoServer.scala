@@ -47,9 +47,21 @@ class SipTelcoServer(val ip:String, val port:Int, destIp:String, val destPort:In
 	protected[jainsip] val internal = new JainSipInternal(this, ip, port, destIp, destPort)
  
  
+   	override def createConnection(dest:String, callerid:String, disconnectOnUnjoin:Boolean) : SipConnection = {
+   	    val conn = new JainSipConnection( null, dest, callerid, new OUTGOING, this)  //this gets in the connections map when an ID is created
+   	    conn.disconnectCallback = disconnectedCallback
+   	    conn.unjoinCallback = 
+   	        disconnectOnUnjoin match {
+   	            case true => Some((c:SipConnection)=>conn.disconnect( ()=>conn.disconnectCallback.foreach( _(conn)) ))
+   	            case false => None
+   	        }
+   	    return conn
+   	}
+
+   	
    	override def createConnection(dest:String, callerid:String) = 
-	  new JainSipConnection( null, dest, callerid, new OUTGOING, this) //this gets in the connections map when an ID is created
- 		
+        createConnection(dest, callerid, true) 
+	   		
 	override def findConnection(id:String): SipConnection = 
 		connections.get(id)
 	
