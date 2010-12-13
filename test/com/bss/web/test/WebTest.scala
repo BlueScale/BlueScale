@@ -56,7 +56,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
     val testWS  = new SimpleWebServer(8100)
 
-    val latch = new CountDownLatch(1)
+    var latch:CountDownLatch = null
 
 	@Before
    	override def setUp() {
@@ -64,6 +64,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 		telcoServer.start()
 		ws.start()
 		testWS.start()
+		latch = new CountDownLatch(1)
 	}	
 	
     @After
@@ -77,21 +78,19 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
     @Test
     def testIncomingCall() {
         println("test")  
-        var callId:Option[String] = None
+        var callid:Option[String] = None
         val inConn = b2bServer.createConnection("7147773456", "7145555555")
 
         //BlueScale API is goign to post back an incoming call to in
         testWS.setNextResponse( request=> {
-            callId = Some( request.getParameter("CallId") )
+            callid = Some( request.getParameter("CallId") )
             getDialResponse("9494443333")
         })
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything
-        testWS.setNextResponse( (request:HttpServletRequest)=> {
-            println("CONNECTED CALLBACK ExECUTING, " + inConn.connectionState)
+        testWS.setNextResponse( (request:HttpServletRequest)=> { 
             assertEquals( inConn.connectionState, CONNECTED() )
             inConn.disconnect( ()=>println("disconnected") )
-
             latch.countDown()
             ""
         })
@@ -99,39 +98,26 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         latch.await()
     } 
-
-
-
-    //inConn-> BlueScaleWS -> SimpleWS
-    //@Test
 /*
-    def XtestOutogingRemoteHangup() {
-         testWS.setNextResponse( (request:HttpServletRequest) => {
-                 println("ok, connected. Let's make sure this worked")
-                 //assertEquals everything worked...
-                 getDialResponse("9497773456") 
-            })
-        testWS.setNextResponse( (request:HttpServletRequest) =>{
-            println("ok they're joined now..., hang them up! now")
-            //hangup code here...
-            latch.countDown()
-            ""
-        }) 
-        val responseXml = BlueML.postToUrl( "127.0.0.1:80", 
-                                             Map("To"->"9497773456",
-                                                 "From"->"5555555555",
-                                                 "Url"->"127.0.0.1:81"))
+    @Test
+    def testClickToCall() {
+        var callid:String = null
         
-        latch.await()
-        //TODO: assert they are disconnected.             
+        testWS.setNextResponse( request=> getDialResponse("9494443333") )
+        
+        testWS.setNextResponse( request=> {
+            println("should be joined")
+            WebUtil.postToUrl("
+        })
+
+        val callid = WebUtil.postToUrl("http://localhost:8200/Calls/", Map("To"->"7147470982",
+                                                                          "From"->"4445556666",
+                                                                          "Url"->"http://localhost:8100")) 
     }
 */
 
 
-    def XtestOutgoingInitiatedHangup() {
-        println("blah") 
-    }
-
+  
     def getDialResponse(dest:String) : String =
         return (<Response>
                     <Dial>

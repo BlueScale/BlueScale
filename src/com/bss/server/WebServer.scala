@@ -74,6 +74,15 @@ class CallServlet(telcoServer:TelcoServer,
                   engine:Engine) extends HttpServlet {
     
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) {
+        Option(request.getParameter("Callid")) match { 
+            case Some(callid) => modifyCall(callid, request, response)
+            case None => newCall(request, response)
+        }
+               //print out XML to the page!
+        
+    }
+
+    def newCall(request:HttpServletRequest, response:HttpServletResponse) {
         val to      = request.getParameter("To")
         val from    = request.getParameter("From") 
         val url     = request.getParameter("Url")
@@ -83,8 +92,11 @@ class CallServlet(telcoServer:TelcoServer,
             () => engine.handleConnect(url, conn)
             //send status to the url
         )
-        //print out XML to the page!
         //val response = WebUtil.getCallResponse(conn.connectionid, to, from, "progressing")
+    }
+
+    def modifyCall(callid:String, request:HttpServletRequest, response:HttpServletResponse) {
+        
     }
  
 }
