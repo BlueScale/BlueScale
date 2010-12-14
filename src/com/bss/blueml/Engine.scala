@@ -27,7 +27,7 @@ package com.bss.blueml
 import com.bss.telco.api._
 import com.bss.util.WebUtil
 
-class Engine(telcoServer:TelcoServer) {
+class Engine(telcoServer:TelcoServer, defaultUrl:String) {
    
     def handleBlueML(conn:SipConnection, str:String) : Unit  =
         handleBlueML(conn, BlueMLParser.parse(str))
@@ -61,12 +61,15 @@ class Engine(telcoServer:TelcoServer) {
 
     
     def handleIncomingCall(url:String, conn:SipConnection) = 
-        postCallStatus(url, getConnectionMap(conn), (s:String)=>handleBlueML(conn, s) )
-    
+        postCallStatus(url, conn)
+
     def handleConnect(url:String, conn:SipConnection) =
-          postCallStatus(url, getConnectionMap(conn), (s:String)=>handleBlueML(conn, s) )
-    
-    def postCallStatus(url:String, map:Map[String,String], handleResponse:(String)=>Unit) =
+          postCallStatus(url, conn)
+
+    def postCallStatus(url:String, conn:SipConnection) : Unit =
+        postCallStatus(url, getConnectionMap(conn),  (s:String)=>handleBlueML(conn, s) )
+
+    def postCallStatus(url:String, map:Map[String,String], handleResponse:(String)=>Unit) : Unit =
         Option( WebUtil.postToUrl(url, map) ) match {
             case Some(xml)  => handleResponse(xml)
             case None       => //ok...
@@ -92,6 +95,28 @@ class Engine(telcoServer:TelcoServer) {
                     case true => "Connected"
                     case false=> "ConnectionFailed"
                     }
+
+    
+     def newCall(to:String, from:String, url:String) {
+         //todo: make sure it's all valid
+        val conn = telcoServer.createConnection(to, from)
+        conn.connect(
+            () => handleConnect(url, conn)
+            //send status to the url
+        )
+        //val response = WebUtil.getCallResponse(conn.connectionid, to, from, "progressing")
+    }
+
+    def modifyCall(callid:String, action:BlueMLVerb) {
+        //val f = ()=> postCallStatus( "url", getConnectionMap(conn), 
+        val conn = telcoServer.findConnection(callid)
+        action match {
+            case h:Hangup =>  conn.disconnect( ()=> postCallStatus("url", conn) )
+            case p:Play =>    println("join to media!")
+            //case t:Transfer =>println("join to someone")
+        }
+    }
+
 
 }
 

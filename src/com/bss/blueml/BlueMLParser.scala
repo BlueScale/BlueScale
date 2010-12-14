@@ -60,19 +60,14 @@ object BlueMLParser {
 trait BlueMLVerb
 
 
-class Play(val loop:Int,
-           val url:String) extends BlueMLVerb {
-   
+case class Play(val loop:Int,
+                val mediaUrl:String,
+                val url:String) extends BlueMLVerb 
 
-}
-
-class Dial(val number:String,
+case class Dial(val number:String,
            val callerId:String,
-           val url:String) extends BlueMLVerb {
+           val url:String) extends BlueMLVerb
 
-}
-
- 
-
+case class Hangup(val url:String) extends BlueMLVerb 
 
 

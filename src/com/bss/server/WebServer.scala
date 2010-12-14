@@ -50,7 +50,7 @@ class WebServer(apiPort:Int,
     
     private val wserver = new Server()
     initWebServer()
-    val engine = new Engine(telcoServer)    
+    val engine = new Engine(telcoServer, callbackUrl)    
     telcoServer.setIncomingCallback( (conn:SipConnection)=>engine.handleIncomingCall(callbackUrl,conn) )
 
 
@@ -74,32 +74,23 @@ class CallServlet(telcoServer:TelcoServer,
                   engine:Engine) extends HttpServlet {
     
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) {
-        Option(request.getParameter("Callid")) match { 
-            case Some(callid) => modifyCall(callid, request, response)
-            case None => newCall(request, response)
+        val arr = request.getServletPath.split("/")
+        //getSErvletPath
+
+        if (arr.length < 2 ) 
+            engine.newCall(request.getParameter("To"),request.getParameter("From"), request.getParameter("Url"))
+
+        else {
+            val callid = arr(2)
+            val action = arr(3) match {
+                case "Hangup" => new Hangup(request.getParameter("Url"))
+                case "Play"   => new Play(0, request.getParameter("mediaUrl"), request.getParameter("Url"))
+                case _ => null//TODO: have an error message
+            }
+            engine.modifyCall(callid, action)
         }
-               //print out XML to the page!
-        
     }
 
-    def newCall(request:HttpServletRequest, response:HttpServletResponse) {
-        val to      = request.getParameter("To")
-        val from    = request.getParameter("From") 
-        val url     = request.getParameter("Url")
-        //todo: make sure it's all valid
-        val conn = telcoServer.createConnection(to, from)
-        conn.connect(
-            () => engine.handleConnect(url, conn)
-            //send status to the url
-        )
-        //val response = WebUtil.getCallResponse(conn.connectionid, to, from, "progressing")
-    }
-
-    def modifyCall(callid:String, request:HttpServletRequest, response:HttpServletResponse) {
-        
-    }
- 
-}
-
+ } 
 
 
