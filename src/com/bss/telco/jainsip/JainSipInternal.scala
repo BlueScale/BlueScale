@@ -86,6 +86,14 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	val messageFactory = sipFactory.createMessageFactory()
 	val udpListeningPoint = sipStack.createListeningPoint(ip, port, transport)
 	val sipProvider = sipStack.createSipProvider(udpListeningPoint)
+
+	def stop() {
+		sipStack.stop()
+  	}
+   
+	def start() {
+		sipStack.start()
+	}
  
 	val inviteCreator = new InviteCreator(this)
 	sipProvider.addSipListener(this)
@@ -297,11 +305,5 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		}
   	} 
 
-  	def stop() {
-		sipStack.stop()
-  	}
-   
-	def start() {
-		sipStack.start()
-	}
+
 }

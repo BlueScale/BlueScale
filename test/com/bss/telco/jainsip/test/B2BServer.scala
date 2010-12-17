@@ -41,7 +41,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   
 	var portCounter = 0; 
   
-	private val b2bTelcoServer    = new SipTelcoServer( ip, port, destIp, destPort)
+	private val b2bTelcoServer    = new SipTelcoServer(ip, port, destIp, destPort)
 	  
  
 	val sdpFactory = SdpFactory.getInstance()

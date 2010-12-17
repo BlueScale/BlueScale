@@ -48,11 +48,13 @@ object WebUtil {
         urlConn.setDoOutput(true)
         val os = new OutputStreamWriter(urlConn.getOutputStream())
         try {
+            println("==============blah==========posting to " + url)
             os.write(data)
             os.flush()
             val reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream() ))
             val response = readAll(reader)
             reader.close()
+            println("=======================done posting and reading================")
             return response
         } finally {
             os.close()

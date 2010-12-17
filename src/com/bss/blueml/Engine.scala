@@ -45,9 +45,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) {
         conn.connectionState match {
             //need to figure out how you can transfer/hold 
             case u:UNCONNECTED  => conn.accept( ()=> {
-                                                println("ACCEPTED, dial = " + dial.url)
                                                 val destConn = telcoServer.createConnection(dial.number,"2222222222")
-                                                println("about to connect for destConn to " + dial.number )
                                                 destConn.connect( ()=>{ println("destConn connected!")
                                                     conn.join(destConn, 
                                                              ()=> postCallStatus(dial.url, getJoinedMap(conn, destConn), (s:String)=>println("shurg"))
@@ -98,7 +96,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) {
 
     
      def newCall(to:String, from:String, url:String) {
-         //todo: make sure it's all valid
+        //todo: make sure it's all valid
         val conn = telcoServer.createConnection(to, from)
         conn.connect(
             () => handleConnect(url, conn)
@@ -108,13 +106,13 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) {
     }
 
     def modifyCall(callid:String, action:BlueMLVerb) {
-        //val f = ()=> postCallStatus( "url", getConnectionMap(conn), 
         val conn = telcoServer.findConnection(callid)
         action match {
             case h:Hangup =>  conn.disconnect( ()=> postCallStatus("url", conn) )
             case p:Play =>    println("join to media!")
             //case t:Transfer =>println("join to someone")
         }
+
     }
 
 

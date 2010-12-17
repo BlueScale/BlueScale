@@ -42,6 +42,7 @@ import com.bss.telco.jainsip.SipTelcoServer
 import java.net._
 import scala.xml._
 import com.bss.blueml._
+import scala.tools.nsc.Interpreter._
 
 class WebServer(apiPort:Int,
                 adminPort:Int,
@@ -49,10 +50,9 @@ class WebServer(apiPort:Int,
                 callbackUrl:String) {
     
     private val wserver = new Server()
-    initWebServer()
     val engine = new Engine(telcoServer, callbackUrl)    
     telcoServer.setIncomingCallback( (conn:SipConnection)=>engine.handleIncomingCall(callbackUrl,conn) )
-
+    initWebServer()
 
     def initWebServer() {
         val apiConnector = new SocketConnector()
@@ -73,24 +73,43 @@ class WebServer(apiPort:Int,
 class CallServlet(telcoServer:TelcoServer,
                   engine:Engine) extends HttpServlet {
     
-    override def doGet(request:HttpServletRequest, response:HttpServletResponse) {
+    override def doGet(request:HttpServletRequest, response:HttpServletResponse) = {
         val arr = request.getServletPath.split("/")
-        //getSErvletPath
+        break(List(arr))
+        var status = HttpServletResponse.SC_OK
+       
 
-        if (arr.length < 2 ) 
-            engine.newCall(request.getParameter("To"),request.getParameter("From"), request.getParameter("Url"))
-
-        else {
-            val callid = arr(2)
-            val action = arr(3) match {
-                case "Hangup" => new Hangup(request.getParameter("Url"))
-                case "Play"   => new Play(0, request.getParameter("mediaUrl"), request.getParameter("Url"))
-                case _ => null//TODO: have an error message
+        try {
+            if (arr.length < 2 ) {
+               engine.newCall(request.getParameter("To"),request.getParameter("From"), request.getParameter("Url"))
+            } else {
+                val callid = arr(2)
+                val action = arr(3) match {
+                    case "Hangup" => new Hangup(request.getParameter("url"))
+                    case "Play"   => new Play(0, request.getParameter("mediaUrl"), request.getParameter("url"))
+                    case _ => status = HttpServletResponse.SC_BAD_REQUEST
+                             null
+                }
+                engine.modifyCall(callid, action)
             }
-            engine.modifyCall(callid, action)
+        } catch {    
+            case ex:Exception => 
+                ex.printStackTrace()
+                status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         }
+            
+        response.setContentType("text/xml") //XML
+        response.setStatus(status)
+        response.getWriter().println( "here")
+        response.getWriter().flush()
+        response.getWriter().close()
     }
+    
 
- } 
+    override def doPost(request:HttpServletRequest, response:HttpServletResponse) {
+        doGet(request, response)
+    }
+   
+} 
 
 
