@@ -38,7 +38,6 @@ object WebUtil {
    
     
     def postToUrl(url:String, params:Map[String, String]) : String = {
-        println("posting to " + url)
         val data = params
                     .map({ case (key, value) =>  
                         URLEncoder.encode( key, "UTF-8") + "=" +URLEncoder.encode( value, "UTF-8") })
@@ -48,13 +47,11 @@ object WebUtil {
         urlConn.setDoOutput(true)
         val os = new OutputStreamWriter(urlConn.getOutputStream())
         try {
-            println("==============blah==========posting to " + url)
             os.write(data)
             os.flush()
             val reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream() ))
             val response = readAll(reader)
             reader.close()
-            println("=======================done posting and reading================")
             return response
         } finally {
             os.close()

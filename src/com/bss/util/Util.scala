@@ -25,7 +25,7 @@
 package com.bss.util
 
 
-object Util {
+trait Util {
 
     def StrOption(s:String) =
         Option(s) match {

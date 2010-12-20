@@ -74,19 +74,17 @@ class CallServlet(telcoServer:TelcoServer,
                   engine:Engine) extends HttpServlet {
     
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) = {
-        val arr = request.getServletPath.split("/")
-        break(List(arr))
+        val arr = request.getPathInfo().split("/")
+        //break(List(arr))
         var status = HttpServletResponse.SC_OK
-       
-
         try {
-            if (arr.length < 2 ) {
+            if (arr.length == 2 && arr(1).equals("Calls")) {
                engine.newCall(request.getParameter("To"),request.getParameter("From"), request.getParameter("Url"))
             } else {
                 val callid = arr(2)
                 val action = arr(3) match {
-                    case "Hangup" => new Hangup(request.getParameter("url"))
-                    case "Play"   => new Play(0, request.getParameter("mediaUrl"), request.getParameter("url"))
+                    case "Hangup" => new Hangup(request.getParameter("Url"))
+                    case "Play"   => new Play(0, request.getParameter("MediaUrl"), request.getParameter("Url"))
                     case _ => status = HttpServletResponse.SC_BAD_REQUEST
                              null
                 }
@@ -100,7 +98,6 @@ class CallServlet(telcoServer:TelcoServer,
             
         response.setContentType("text/xml") //XML
         response.setStatus(status)
-        response.getWriter().println( "here")
         response.getWriter().flush()
         response.getWriter().close()
     }

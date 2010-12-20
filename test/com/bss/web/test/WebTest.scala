@@ -40,7 +40,7 @@ object WebApiFunctionalTest {
     def main(args:Array[String]) {
         val wt = new WebApiFunctionalTest()
         wt.setUp()
-        //wt.testClickToCall()
+        wt.testClickToCall()
         //wt.testIncomingCall()
         
     }
@@ -76,7 +76,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         ws.stop()
         testWS.stop()
     }
-
+/*
     @Test
     def testIncomingCall() {
         println("test")  
@@ -100,17 +100,21 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         latch.await()
     }
-/*
+    */
+
     @Test
     def testClickToCall() {
         println("testClickTocall")
         var callid:String = null
         val joinedLatch = new CountDownLatch(1)
        
-        testWS.setNextResponse( request=> getDialResponse("9494443333") )
+        testWS.setNextResponse( request=> {
+                callid = request.getParameter("CallId")
+                getDialResponse("9494443333") 
+            })
         
         testWS.setNextResponse( request=> {
-            println("should be joined")
+            println(" joined NOW!")
             joinedLatch.countDown()
             ""
         })
@@ -121,14 +125,14 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
             ""
         })
 
-        callid = WebUtil.postToUrl("http://127.0.0.1:8200/Calls", Map("To"->"7147470982",
-                                                                      "From"->"4445556666",
-                                                                      "Url"->"http://localhost:8100"))
+        WebUtil.postToUrl("http://127.0.0.1:8200/Calls", Map("To"->"7147470982",
+                                                                   "From"->"4445556666",
+                                                                    "Url"->"http://localhost:8100"))
         joinedLatch.await()
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid+"/Hangup", Map("Url"->"http://localhost:8100"))
         latch.await()
     }
-    */
+    
 
 
 

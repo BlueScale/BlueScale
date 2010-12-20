@@ -82,11 +82,8 @@ class CallbackServlet(ws:SimpleWebServer) extends HttpServlet {
         
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) = 
         ws.getNextResponse().foreach( cb =>{
-            println("executing our callback we recieved")
             response.setContentType("text/xml") //XML
-            val output = cb(request)
             response.setStatus(HttpServletResponse.SC_OK)
-            //response.getWriter().println( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>") 
             response.getWriter().println( cb(request) )
             response.getWriter().flush()
             response.getWriter().close()
