@@ -107,14 +107,12 @@ class JainSipConnection protected[telco](
 
 	//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
 	override def join(otherCall:Joinable[_], joinCallback:()=>Unit) = wrapLock {
-		debug("OtherCall = " + otherCall)
+		//debug("OtherCall = " + otherCall)
 		otherCall.reconnect(localSdp,()=>{
 		   	this.reconnect(otherCall.sdp, ()=>{
     		    this.joinedTo = Some(otherCall)  
 		        this.joinedTo.get.joinedTo = Some(this) 
-	    		
-	    		println("executing our join callback")
-	    		joinCallback() 
+	    		joinCallback()
 	    	}) })
 	}
 
