@@ -84,19 +84,24 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	val headerFactory 	= sipFactory.createHeaderFactory()
 	val addressFactory = sipFactory.createAddressFactory()
 	val messageFactory = sipFactory.createMessageFactory()
-	val udpListeningPoint = sipStack.createListeningPoint(ip, port, transport)
-	val sipProvider = sipStack.createSipProvider(udpListeningPoint)
+	
+	var udpListeningPoint:Option[ListeningPoint] = None //
+	var sipProvider:Option[SipProvider] = None
+	val inviteCreator = new InviteCreator(this)
+
+	def start() {
+		sipStack.start()
+		udpListeningPoint = Some( sipStack.createListeningPoint(ip, port, transport) )
+        sipProvider = Some( sipStack.createSipProvider(udpListeningPoint.get) )
+	    sipProvider.get.addSipListener(this)
+	}
 
 	def stop() {
 		sipStack.stop()
-  	}
-   
-	def start() {
-		sipStack.start()
+		udpListeningPoint.foreach( sipStack.deleteListeningPoint(_) )
 	}
+   
  
-	val inviteCreator = new InviteCreator(this)
-	sipProvider.addSipListener(this)
   
 	 
 	override def processRequest(requestEvent:RequestEvent) {
@@ -246,7 +251,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : String = {
 		val request = inviteCreator.getInviteRequest(conn.origin, conn.destination, sdp.toString().getBytes())
 		conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
-		conn.clientTx = Some( sipProvider.getNewClientTransaction(request) )
+		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
 		conn.clientTx.get.sendRequest()
         return getCallId(request)
 	}
@@ -256,13 +261,13 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		conn.contactHeader.foreach( request.addHeader(_) )//neccessary?
 		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
-		conn.clientTx = Some( sipProvider.getNewClientTransaction(request) )
+		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
    		conn.dialog.get.sendRequest(conn.clientTx.get)
 	}
  
 	def sendByeRequest(conn:JainSipConnection) = {
         val byeRequest = conn.dialog.get.createRequest(Request.BYE)
-        conn.clientTx =	Some(this.sipProvider.getNewClientTransaction(byeRequest))
+        conn.clientTx =	Some(this.sipProvider.get.getNewClientTransaction(byeRequest))
         conn.dialog.get.sendRequest(conn.clientTx.get)
 	} 
     

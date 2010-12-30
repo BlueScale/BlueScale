@@ -60,6 +60,8 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
     var latch:CountDownLatch = null
 
+    println("=============WebAPI functional Test BEING RUN===================")
+
 	@Before
    	override def setUp() {
    		b2bServer.start()
@@ -76,7 +78,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         ws.stop()
         testWS.stop()
     }
-/*
+
     @Test
     def testIncomingCall() {
         println("test")  
@@ -100,10 +102,10 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         latch.await()
     }
-    */
+   
 
     @Test
-    def testClickToCall() {
+    def testClickToCall() { 
         println("testClickTocall")
         var callid:String = null
         val joinedLatch = new CountDownLatch(1)
@@ -120,18 +122,19 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         })
 
         testWS.setNextResponse( request=> {
-            println("hung up")
+            println("hung up click to call")
             latch.countDown()
             ""
         })
 
         WebUtil.postToUrl("http://127.0.0.1:8200/Calls", Map("To"->"7147470982",
-                                                                   "From"->"4445556666",
-                                                                    "Url"->"http://localhost:8100"))
+                                                            "From"->"4445556666",
+                                                            "Url"->"http://localhost:8100"))
         joinedLatch.await()
         Thread.sleep(200)//our post might happen before the join callback finishes, could be a benign race conidtion in our test
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid+"/Hangup", Map("Url"->"http://localhost:8100"))
         latch.await()
+        
     }
     
 

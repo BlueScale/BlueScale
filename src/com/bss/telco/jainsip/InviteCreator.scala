@@ -57,9 +57,9 @@ class InviteCreator(val sipServer:JainSipInternal) {
 
 			// Create ViaHeaders
 			val viaHeaders = new ArrayList[ViaHeader]
-			val ipAddress = sipServer.udpListeningPoint.getIPAddress()//FIXME?
+			val ipAddress = sipServer.udpListeningPoint.get.getIPAddress()//FIXME?
 			val viaHeader = sipServer.headerFactory.createViaHeader(ipAddress,
-                                                           			sipServer.sipProvider.getListeningPoint(sipServer.transport).getPort(),
+                                                           			sipServer.sipProvider.get.getListeningPoint(sipServer.transport).getPort(),
                                                            			sipServer.transport, 
                                                            			null)
 
@@ -69,7 +69,7 @@ class InviteCreator(val sipServer:JainSipInternal) {
 		 	// Create ContentTypeHeader
 			val contentTypeHeader = sipServer.headerFactory.createContentTypeHeader("application", "sdp")
  			// Create a new CallId header
-			val callIdHeader = sipServer.sipProvider.getNewCallId()
+			val callIdHeader = sipServer.sipProvider.get.getNewCallId()
  			// Create a new Cseq header
 			val cSeqHeader = sipServer.headerFactory.createCSeqHeader(1L,Request.INVITE)
  			// Create a new MaxForwardsHeader
@@ -85,12 +85,12 @@ class InviteCreator(val sipServer:JainSipInternal) {
                                                   		  		maxForwards)
 			// Create contact headers
 			val contactUrl = sipServer.addressFactory.createSipURI(fromName, sipServer.ip)
-			contactUrl.setPort(sipServer.udpListeningPoint.getPort())
+			contactUrl.setPort(sipServer.udpListeningPoint.get.getPort())
 			contactUrl.setLrParam()
 
 			// Create the contact name address.
 			val contactURI = sipServer.addressFactory.createSipURI(fromName, sipServer.ip)
-			contactURI.setPort(sipServer.sipProvider.getListeningPoint(sipServer.transport).getPort())
+			contactURI.setPort(sipServer.sipProvider.get.getListeningPoint(sipServer.transport).getPort())
 			val contactAddress = sipServer.addressFactory.createAddress(contactURI)
 
 			// Add the contact address.
