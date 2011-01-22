@@ -67,6 +67,8 @@ case class Dial(val number:String,
            val callerId:String,
            val url:String) extends BlueMLVerb
 
-case class Hangup(val url:String) extends BlueMLVerb 
+case class Hangup(val url:String) extends BlueMLVerb
+
+case class Hold() extends BlueMLVerb
 
 

@@ -27,7 +27,7 @@ import com.bss.ccxml._
 import com.bss.ccxml.tags._
 import scala.xml._
 import java.net.URL
-
+import com.bss.telco.jainsip._
 
 class Launcher {
 	println("test")
@@ -37,12 +37,23 @@ object Launcher {
 	def main(args:Array[String]) : Unit = {
 		val config = new ConfigParser("BlueScaleConfig.xml")
 		//TODO: determine what engine to start with... (ccxml, BlueML)
+        val telcoServer  = new SipTelcoServer(  config.localIp(), 
+                                                config.localPort(), 
+                                                config.destIp(),
+                                                config.destPort())
+
+        val ws = new WebServer(config.webPort(), 8080, telcoServer, config.callbackUrl())
+
+
+        /*
 		val s = new Server( getCCXML(config.startUrl()),
 						config.localIp(),
 					   	config.localPort(),
 						config.destIp(),
 				   		config.destPort())
-		s.start()
+		*/
+		telcoServer.start()
+		ws.start()
 		println("main here")
 	}
 
@@ -55,6 +66,7 @@ object Launcher {
 		val xml = getXML(url)	
 		return (new CCXMLDoc(filename, xml))
 	}
+	
 
 	def getXML(url:String) : Elem = 
 		url.startsWith("http://") match {

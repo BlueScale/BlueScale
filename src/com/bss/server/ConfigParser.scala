@@ -32,16 +32,24 @@ class ConfigParser(val filename:String) {
 
 	private val nodes = XML.loadFile(filename)
 	
-	def localIp() : String = parseTelcoTags("ListeningAddress")
+	private def parseTags(tag:String) : String = ((nodes \\ tag) \ "@value").text
+	
+	def localIp() : String = parseTags("ListeningAddress")
 			
-	def localPort()  = Integer.parseInt(parseTelcoTags("ListeningPort"))
+	def localPort()  = Integer.parseInt(parseTags("ListeningPort"))
 
-	def destIp() : String = parseTelcoTags("DestAddress")
+	def destIp() : String = parseTags("DestAddress")
 
-	def destPort() = Integer.parseInt(parseTelcoTags("DestPort"))
+	def destPort() = Integer.parseInt(parseTags("DestPort"))
 
-	private def parseTelcoTags(tag:String) : String = ((nodes \\ tag) \ "@value").text
+	def startUrl() : String = parseTags("StartingDoc")
 
-	def startUrl() : String = parseTelcoTags("StartingDoc")
+	def webPort()  = Integer.parseInt(parseTags("WebPort"))
+
+	def webIP() : String = parseTags("WebIP")
+
+	def callbackUrl() : String = parseTags("CallbackUrl")
+
+
 	
 }

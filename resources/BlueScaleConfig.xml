@@ -9,9 +9,19 @@
 			<DestPort value = "4001"/>
 		</TelcoServer>
 
+		<WebServer>
+            <Protocol="REST"/>
+            <CallbackUrl="localhost:8080"/>
+            <WebIP="127.0.0.1"/>
+            <WebPort="8080"/>
+		</WebServer>
+
+
+
 		<!-- NOTE: JMF does not play nice with 127.0.0.1 as a dest address, so you will need to change the IP to a real IP
 			 future types will be jlibrtp, MSML, etc.-->
 		<MediaServer type="LocalJMF"/> 
+		
 		<!--
 		<Logging>
 		</Logging>
