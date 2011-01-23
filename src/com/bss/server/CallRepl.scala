@@ -33,7 +33,7 @@ class CallRepl(telco:TelcoServer) {
     var callmap = Map[String,SipConnection]()
 	
 	
-	def CallREPL(line:String) : String = {
+	def evalLine(line:String) : String = {
 	    if ( processing ) return "please try again when your previous action completes"
         val command  = line.split(" ")(0)
         val callnum = line.split(" ")(1) 

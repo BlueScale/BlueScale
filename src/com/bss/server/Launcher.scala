@@ -44,17 +44,12 @@ object Launcher {
 
         val ws = new WebServer(config.webPort(), 8080, telcoServer, config.callbackUrl())
 
-
-        /*
-		val s = new Server( getCCXML(config.startUrl()),
-						config.localIp(),
-					   	config.localPort(),
-						config.destIp(),
-				   		config.destPort())
-		*/
 		telcoServer.start()
 		ws.start()
-		println("main here")
+		val repl = new CallRepl(telcoServer)
+        while (true) {
+            println( repl.evalLine(readLine()) )
+        }
 	}
 
 	def getCCXML(url:String) : CCXMLDoc = {
