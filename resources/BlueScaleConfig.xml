@@ -10,10 +10,10 @@
 		</TelcoServer>
 
 		<WebServer>
-            <Protocol="REST"/>
-            <CallbackUrl="localhost:8080"/>
-            <WebIP="127.0.0.1"/>
-            <WebPort="8080"/>
+            <Protocol value="REST"/>
+            <CallbackUrl value="localhost:8080"/>
+            <WebIP value="127.0.0.1"/>
+            <WebPort value="8080"/>
 		</WebServer>
 
 

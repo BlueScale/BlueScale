@@ -26,17 +26,15 @@ import com.bss.telco.jainsip.SipTelcoServer
 import java.net._
 import scala.xml._
 import java.io._
+import scala.collection.immutable.PagedSeq
 
 object WebUtil {
 
-    
-    def readAll(reader:BufferedReader) : String = 
-        Option( reader.readLine() ) match {
-            case None   => ""
-            case Some(x)=> x.concat(readAll(reader))
-        }                   
    
-    
+    def readAll(reader:BufferedReader) : String =
+        PagedSeq.fromReader(reader).mkString
+
+
     def postToUrl(url:String, params:Map[String, String]) : String = {
         val data = params
                     .map({ case (key, value) =>  
@@ -51,6 +49,7 @@ object WebUtil {
             os.flush()
             val reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream() ))
             val response = readAll(reader)
+            print(response)
             reader.close()
             return response
         } finally {

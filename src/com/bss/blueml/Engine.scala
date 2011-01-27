@@ -30,7 +30,7 @@ import com.bss.util._
 class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
    
     protected def handleBlueML(conn:SipConnection, str:String) : Unit = {
-       StrOption(str) match {
+       StrOption(str.trim()) match {
             case Some(x) => handleBlueML(conn, BlueMLParser.parse(str))
             case None => Unit
         }
