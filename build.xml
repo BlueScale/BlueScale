@@ -155,12 +155,13 @@
 		 *************************************
 	-->
 	<target name="jar" depends="init, clean, build.dist">
-		<jar destfile="${dist.dir}/temp/BlueScaleServer.jar">
+		<mkdir dir="${dest.dir}/temp"/>
+
+        <jar destfile="${dest.dir}/temp/BlueScaleServer.jar">
 			<fileset dir="${build.dir}"/>
 			<manifest>
 					<attribute name="Class-Path" 
 						value="lib/scala-library.jar lib/scala-compiler.jar lib/jmf.jar lib/js.jar lib/Log4j-1.2.8.jar lib/sip/jain-sip-api-1.2.jar lib/sip/jain-sip-ri-1.2.108.jar jain-sip-sdp-1.2.108.jar BlueScaleServer.jar ./ "/>
-				
 				<attribute name="Main-Class" value="com.bss.server.Launcher"/>
 			</manifest>
 		 </jar>
