@@ -155,9 +155,9 @@
 		 *************************************
 	-->
 	<target name="jar" depends="init, clean, build.dist">
-		<mkdir dir="${dest.dir}/temp"/>
+		<mkdir dir="${dist.dir}/temp"/>
 
-        <jar destfile="${dest.dir}/temp/BlueScaleServer.jar">
+        <jar destfile="${dist.dir}/temp/BlueScaleServer.jar">
 			<fileset dir="${build.dir}"/>
 			<manifest>
 					<attribute name="Class-Path" 
