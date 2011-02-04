@@ -46,6 +46,8 @@ object Launcher {
 
 		telcoServer.start()
 		ws.start()
+		println("Please make sure to set your BlueScaleConfig.xml")
+		println("Call REPL:")
 		val repl = new CallRepl(telcoServer)
         while (true) {
             println( repl.evalLine(readLine()) )

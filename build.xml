@@ -19,17 +19,19 @@
 		*************************************
 	-->	
 	<property name="scala.home"				value="${env.SCALA_HOME}"/>
-	<property name="scala-compiler.jar" value="${scala.home}/lib/scala-compiler.jar"/>
-	<property name="scala-library.jar" value="${scala.home}/lib/scala-library.jar"/>
+	<property name="scala-compiler.jar" value="${lib.dir}/scala-compiler.jar"/>
+	<property name="scala-library.jar" value="${lib.dir}/scala-library.jar"/>
+
+	<path id="lib.classpath">
+    	<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>	
+	</path>
 	
 	<path id="build.classpath">
-		<fileset dir="lib">
-			<include name="**/*.jar"/>
-		</fileset>
-		<pathelement location="${resources.dir}"/>
+        <path refid="lib.classpath"/>
+        <pathelement location="${resources.dir}"/>
 		<pathelement location="${build.dir}"/> 
-		<pathelement location="${scala-compiler.jar}"/>
-		<pathelement location="${scala-library.jar}"/>
  	</path>
 
 	<taskdef resource="scala/tools/ant/antlib.xml">
@@ -154,16 +156,18 @@
 		 DISTRIBUTION 
 		 *************************************
 	-->
-	<target name="jar" depends="init, clean, build.dist">
-		<mkdir dir="${dist.dir}/temp"/>
 
+   
+	<target name="jar" depends="init, clean, build.dist">
+
+		<mkdir dir="${dist.dir}/temp"/>
+        
+        <manifestclasspath property="jar.classpath" jarfile="${dist.dir}/temp/BlueScaleServer.jar">
+              <classpath refid="lib.classpath"/>
+        </manifestclasspath>    
+	
         <jar destfile="${dist.dir}/temp/BlueScaleServer.jar">
 			<fileset dir="${build.dir}"/>
-			<manifest>
-					<attribute name="Class-Path" 
-						value="lib/scala-library.jar lib/scala-compiler.jar lib/jmf.jar lib/js.jar lib/Log4j-1.2.8.jar lib/sip/jain-sip-api-1.2.jar lib/sip/jain-sip-ri-1.2.108.jar jain-sip-sdp-1.2.108.jar BlueScaleServer.jar ./ "/>
-				<attribute name="Main-Class" value="com.bss.server.Launcher"/>
-			</manifest>
 		 </jar>
 	</target>
 
@@ -174,7 +178,9 @@
 		<copy todir="${dist.dir}/temp/lib">
 			<fileset dir="${lib.dir}"/>
 		</copy>
-	
+
+        <copy todir="${dist.dir}/temp/lib" file="${dist.dir}/temp/BlueScaleServer.jar"/>
+
 		<copy todir="${dist.dir}/temp/lib" file="${scala-compiler.jar}"/>
 	
 		<copy todir="${dist.dir}/temp/lib" file="${scala-library.jar}"/>
