@@ -21,7 +21,7 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.jainsip.unittest
+package com.bss.telco.jainsip.sample
 
 import com.bss.telco.api._
 import com.bss.telco.jainsip._
@@ -37,6 +37,7 @@ class SampleJoinTwo {
 	var latch:CountDownLatch = null
  
 	val telcoServer = new SipTelcoServer("10.112.53.94", 5080, "209.133.53.210", 5080 )
+	telcoServer.start()
  	  
  	def handleDisconnect(conn:SipConnection) = {
  	    //this should be bob!
