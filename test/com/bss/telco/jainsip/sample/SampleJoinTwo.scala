@@ -77,7 +77,9 @@ class SampleJoinTwo {
 object SampleJoinTwo {
 
     def main(args:Array[String]) = {
-        new SampleJoinTwo().runConn()
+        val sample = new SampleJoinTwo()
+        val a = readLine()
+        sample.runConn()
     }
 }
 
