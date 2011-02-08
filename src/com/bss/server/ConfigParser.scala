@@ -50,6 +50,8 @@ class ConfigParser(val filename:String) {
 
 	def callbackUrl() : String = parseTags("CallbackUrl")
 
+	def isB2BTestServer() : String = parseTags("B2BTestServer")
+
 
 	
 }

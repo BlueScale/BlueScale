@@ -52,6 +52,7 @@ class CallRepl(telco:TelcoServer) {
                 val c2 = callmap(line.split(" ")(2))
                 c1.join(c2, ()=> println("..." + c1 + " joined to " + c2 ))
                 "joining..."
+
             case "hangup" =>
                 callmap(callnum).disconnect( ()=> println("..." + callnum + " is disconnected") )
                  //remove from map

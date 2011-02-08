@@ -7,6 +7,7 @@
 			<ListeningPort value ="4000"/>
 			<DestAddress value="127.0.0.1"/>
 			<DestPort value = "4001"/>
+			<B2BTestServer value="false"/>
 		</TelcoServer>
 
 		<WebServer>

@@ -22,7 +22,7 @@
 *
 */
 
-package com.bss.telco.jainsip.unittest
+package com.bss.telco.jainsip
 
 import java.net.InetAddress;
 import javax.sdp.MediaDescription;

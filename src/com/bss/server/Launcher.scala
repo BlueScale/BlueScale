@@ -36,22 +36,34 @@ object Launcher {
 
 	def main(args:Array[String]) : Unit = {
 		val config = new ConfigParser("BlueScaleConfig.xml")
-		//TODO: determine what engine to start with... (ccxml, BlueML)
-        val telcoServer  = new SipTelcoServer(  config.localIp(), 
-                                                config.localPort(), 
-                                                config.destIp(),
-                                                config.destPort())
 
-        val ws = new WebServer(config.webPort(), 8080, telcoServer, config.callbackUrl())
+	
+         config.isB2BTestServer() match {
+            case "true"  =>
+                val b = new B2BServer(  config.localIp(), 
+                                        config.localPort(), 
+                                        config.destIp(),
+                                        config.destPort())
 
-		telcoServer.start()
-		ws.start()
-		println("Please make sure to set your BlueScaleConfig.xml")
-		println("Call REPL:")
-		val repl = new CallRepl(telcoServer)
-        while (true) {
-            println( repl.evalLine(readLine()) )
-        }
+            case "false" => 
+                	//TODO: determine what engine to start with... (ccxml, BlueML)
+                val telcoServer  = new SipTelcoServer(  config.localIp(), 
+                                                    config.localPort(), 
+                                                    config.destIp(),
+                                                    config.destPort())
+
+                val ws = new WebServer(config.webPort(), 8080, telcoServer, config.callbackUrl())
+
+		        telcoServer.start()
+		        ws.start()
+		        println("Please make sure to set your BlueScaleConfig.xml")
+		        println("Call REPL:")
+		        val repl = new CallRepl(telcoServer)
+                while (true) {
+                    println( repl.evalLine(readLine()) )
+                }
+        
+        }   
 	}
 
 	def getCCXML(url:String) : CCXMLDoc = {
