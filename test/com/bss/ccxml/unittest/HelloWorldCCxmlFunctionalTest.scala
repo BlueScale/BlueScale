@@ -26,7 +26,6 @@ package com.bss.ccxml.unittest
 
 import org.junit._
 import Assert._
-import com.bss.telco.jainsip.unittest.B2BServer
 import com.bss.telco.jainsip._
 import com.bss.ccxml.Server
 import com.bss.ccxml.event._

@@ -27,7 +27,6 @@ package com.bss.web.test
 import org.junit._
 import Assert._
 import com.bss.server._
-import com.bss.telco.jainsip.unittest.B2BServer
 import java.net.URLEncoder
 import com.bss.telco.api._
 import com.bss.telco.jainsip._

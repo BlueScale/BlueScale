@@ -44,6 +44,7 @@ object Launcher {
                                         config.localPort(), 
                                         config.destIp(),
                                         config.destPort())
+                b.start()
 
             case "false" => 
                 	//TODO: determine what engine to start with... (ccxml, BlueML)

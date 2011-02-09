@@ -80,7 +80,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   	
   
  	def start() : Unit = {
- 		println("STARTED")
+ 		println("Test Server STARTED")
  	  b2bTelcoServer.setIncomingCallback(handleIncoming);
  	  b2bTelcoServer.start()
     }

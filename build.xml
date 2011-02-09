@@ -198,7 +198,7 @@
 
         <copy todir="${dist.dir}/temp/lib" file="${dist.dir}/temp/BlueScaleServer.jar"/>
 		
-		<copy todir="${dist.dir}/temp/" file="${resources.dir}/BlueScaleConfig.xml"/>
+		<copy todir="${dist.dir}/temp/" file="${resources.dir}/BlueScaleConfig.Sample.xml"/>
  
 		 <zip destfile="${dist.dir}/BSS_DIST.zip">
 			 <fileset dir="${dist.dir}/temp/"/>
