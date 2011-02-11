@@ -45,13 +45,13 @@ import com.bss.telco.api._
 import com.bss.util._
 
 protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
-										val ip:String, 
+										val listeningIp:String,
+										val contactIp:String,
 										val port:Int,
 										val destIp:String, 
 										val destPort:Int) extends SipListener 
 														 //with LogHelper
 														 {
-   
     val sipFactory = SipFactory.getInstance()
 	sipFactory.setPathName("gov.nist")
 	val properties = new Properties()
@@ -91,7 +91,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 
 	def start() {
 		sipStack.start()
-		udpListeningPoint = Some( sipStack.createListeningPoint(ip, port, transport) )
+		udpListeningPoint = Some( sipStack.createListeningPoint(listeningIp, port, transport) )
         sipProvider = Some( sipStack.createSipProvider(udpListeningPoint.get) )
 	    sipProvider.get.addSipListener(this)
 	}
@@ -180,7 +180,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	    conn.serverTx match {
             case Some(tx)=> 	val response = messageFactory.createResponse(responseCode,conn.serverTx.get.getRequest)
 		                        //response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
-		                        response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + ip + ":"+port)))
+		                        response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
                             	if ( null != content ) response.setContent(content,headerFactory.createContentTypeHeader("application", "sdp"))
 		                        tx.sendResponse(response)
             case None => println("Error, ServerTX not found for conn " + conn)

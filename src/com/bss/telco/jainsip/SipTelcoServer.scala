@@ -34,7 +34,10 @@ import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
 
 
-class SipTelcoServer(val ip:String, val port:Int, destIp:String, val destPort:Int) extends TelcoServer {
+class SipTelcoServer(val listeningIp:String, val contactIp:String, val port:Int, val destIp:String, val destPort:Int) extends TelcoServer {
+     
+     def this(ip:String, port:Int, destIp:String, destPort:Int) =
+        this(ip, ip, port, destIp, destPort)
  
 	private var incomingCallback:Option[SipConnection=>Unit] = None
 	
@@ -44,7 +47,7 @@ class SipTelcoServer(val ip:String, val port:Int, destIp:String, val destPort:In
  
 	private val connections = new ConcurrentHashMap[String, JainSipConnection]()
    
-	protected[jainsip] val internal = new JainSipInternal(this, ip, port, destIp, destPort)
+	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
  
  
    	override def createConnection(dest:String, callerid:String, disconnectOnUnjoin:Boolean) : SipConnection = {
@@ -119,3 +122,5 @@ class SipTelcoServer(val ip:String, val port:Int, destIp:String, val destPort:In
     }
 
 }
+
+

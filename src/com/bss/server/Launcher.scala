@@ -49,10 +49,11 @@ object Launcher {
             case "false" => 
                 	//TODO: determine what engine to start with... (ccxml, BlueML)
                 val telcoServer  = new SipTelcoServer(  config.localIp(), 
+                                                    config.contactIp(),
                                                     config.localPort(), 
                                                     config.destIp(),
                                                     config.destPort())
-
+                
                 val ws = new WebServer(config.webPort(), 8080, telcoServer, config.callbackUrl())
 
 		        telcoServer.start()

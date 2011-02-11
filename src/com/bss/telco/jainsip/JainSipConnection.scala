@@ -66,7 +66,7 @@ class JainSipConnection protected[telco](
  
 	private var progressingCallback:(SipConnection)=>Unit = null
   	
-	var localSdp  = SdpHelper.getBlankSdp(telco.ip) //Should be private, can't be for testing purposes, maybe make private anyway and use reflection?
+	var localSdp  = SdpHelper.getBlankSdp(telco.contactIp) //Should be private, can't be for testing purposes, maybe make private anyway and use reflection?
 
 	override def sdp = localSdp 
 
@@ -119,7 +119,7 @@ class JainSipConnection protected[telco](
  
  	override def hold(f:()=>Unit) = wrapLock {
 		//System.err.debug("holding! for" + dir.destination)
-		SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.ip))
+		SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.contactIp))
 	
       	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS	
       	stateFunc += new VERSIONED_HOLD(clientTx.get.getBranchId())->( ()=> {

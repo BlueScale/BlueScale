@@ -52,6 +52,6 @@ class ConfigParser(val filename:String) {
 
 	def isB2BTestServer() : String = parseTags("B2BTestServer")
 
+	def contactIp() : String = parseTags("ContactAddress")
 
-	
 }

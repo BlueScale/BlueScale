@@ -4,6 +4,7 @@
             <StartingDoc value="pickupHangup.xml" type="CCXML"/><!--other types are BlueML, specify either http:// or file://-->
             <!--<StartingDoc value="http://localhost:81/incoming" type="BlueML"/>-->
 			<ListeningAddress value="127.0.0.1"/>
+			<ContactAddress value="127.0.0.1" />
 			<ListeningPort value ="4000"/>
 			<DestAddress value="127.0.0.1"/>
 			<DestPort value = "4001"/>

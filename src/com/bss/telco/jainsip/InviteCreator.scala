@@ -41,7 +41,7 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			val toSipAddress = sipServer.destIp
 			
 			// create >From Header
-			val fromAddress = sipServer.addressFactory.createSipURI(callerid, sipServer.ip)
+			val fromAddress = sipServer.addressFactory.createSipURI(callerid, sipServer.listeningIp)
 			val fromNameAddress = sipServer.addressFactory.createAddress(fromAddress)
 			fromNameAddress.setDisplayName(fromDisplayName)
 			val fromHeader = sipServer.headerFactory.createFromHeader(fromNameAddress, "12345")
@@ -84,12 +84,12 @@ class InviteCreator(val sipServer:JainSipInternal) {
                                                   		  		viaHeaders, 
                                                   		  		maxForwards)
 			// Create contact headers
-			val contactUrl = sipServer.addressFactory.createSipURI(fromName, sipServer.ip)
+			val contactUrl = sipServer.addressFactory.createSipURI(fromName, sipServer.contactIp)
 			contactUrl.setPort(sipServer.udpListeningPoint.get.getPort())
 			contactUrl.setLrParam()
 
 			// Create the contact name address.
-			val contactURI = sipServer.addressFactory.createSipURI(fromName, sipServer.ip)
+			val contactURI = sipServer.addressFactory.createSipURI(fromName, sipServer.contactIp)
 			contactURI.setPort(sipServer.sipProvider.get.getListeningPoint(sipServer.transport).getPort())
 			val contactAddress = sipServer.addressFactory.createAddress(contactURI)
 

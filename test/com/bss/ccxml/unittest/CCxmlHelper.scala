@@ -34,7 +34,7 @@ import org.apache.log4j.BasicConfigurator
 import com.bss.server.ConfigParser
 
 trait CCxmlHelper extends junit.framework.TestCase {
- 	val config = new ConfigParser("resources/BlueScaleConfig.xml")
+ 	val config = new ConfigParser("resources/BlueScaleConfig.Sample.xml")
 		
  	val server = new Server(getRootDoc(), config.localIp(), config.localPort(), config.destIp(), config.destPort() )
 	
