@@ -34,8 +34,10 @@ import com.bss.telco.jainsip._
 
 class InviteCreator(val sipServer:JainSipInternal) {
 
-  def getInviteRequest(callerid:String, dest:String, sdp:Array[Byte]):Request =  {
-		  	val fromName = "BSSTest"
+    val magicSipCookie = "z9hG4bK"
+
+    def getInviteRequest(callerid:String, dest:String, sdp:Array[Byte]):Request =  {
+		  	val fromName = "BlueScaleServer"
 			val fromDisplayName = "test"
 
 			val toSipAddress = sipServer.destIp
@@ -57,11 +59,10 @@ class InviteCreator(val sipServer:JainSipInternal) {
 
 			// Create ViaHeaders
 			val viaHeaders = new ArrayList[ViaHeader]
-			val ipAddress = sipServer.udpListeningPoint.get.getIPAddress()//FIXME?
-			val viaHeader = sipServer.headerFactory.createViaHeader(ipAddress,
+			val viaHeader = sipServer.headerFactory.createViaHeader(sipServer.contactIp,
                                                            			sipServer.sipProvider.get.getListeningPoint(sipServer.transport).getPort(),
                                                            			sipServer.transport, 
-                                                           			null)
+                                                           			magicSipCookie + fromHeader.hashCode)
 
    
 			// add via headers

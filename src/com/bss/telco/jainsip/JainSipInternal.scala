@@ -100,9 +100,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		sipStack.stop()
 		udpListeningPoint.foreach( sipStack.deleteListeningPoint(_) )
 	}
-   
- 
-  
 	 
 	override def processRequest(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
@@ -128,7 +125,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		printHeaders(requestEvent.getRequest())
 		sendRegisterResponse(200, requestEvent)
     }
- 
+    /* 
 	def processNewRequest(requestEvent: RequestEvent, f:(RequestEvent)=>Unit) =
 		requestEvent.getServerTransaction() match {
 		  case null => { val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(requestEvent.getRequest())
@@ -137,17 +134,19 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		 
 		  case _ => error("request event that's not null...this shouldn't happen")
 			  }
-	
+	*/
   
 	def processInvite(requestEvent: RequestEvent) {
 		debug("request for " + requestEvent.getRequest())	
 		val request = requestEvent.getRequest()
 		Option(requestEvent.getServerTransaction) match {
+
 			case Some(transaction) => 	val conn = telco.getConnection(getCallId(request))
 			                            conn.execute( ()=>{
 											conn.serverTx = Some(transaction)
 											SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(request.getRawContent()) )					
-											sendResponse(200, conn, request.getRawContent()) 
+											sendResponse(200, conn, request.getRawContent())
+											//fixme: do we need to notify other things listening to this SDP session?
 										})
 			
 			case None => 	    val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
