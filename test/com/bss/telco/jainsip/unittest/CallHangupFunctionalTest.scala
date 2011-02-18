@@ -55,6 +55,7 @@ object CallHangupFunctionalTest {
 	def main(args:Array[String]) {
 		println("running")
 		val ch = new CallHangupFunctionalTest()
+		ch.setUp()
 		ch.runConn()
 		ch.getLatch.await()
 	}

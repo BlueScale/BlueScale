@@ -42,7 +42,6 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 	var portCounter = 0; 
   
 	private val b2bTelcoServer    = new SipTelcoServer(ip, port, destIp, destPort)
-	  
  
 	val sdpFactory = SdpFactory.getInstance()
      
@@ -80,9 +79,9 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 
   
  	def start() : Unit = {
- 		println("Test Server STARTED")
- 	  b2bTelcoServer.setIncomingCallback(handleIncoming);
- 	  b2bTelcoServer.start()
+ 	    println("Test Server STARTED")
+ 	    b2bTelcoServer.setIncomingCallback(handleIncoming);
+ 	    b2bTelcoServer.start()
     }
 
 	def stop() : Unit =

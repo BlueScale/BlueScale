@@ -44,13 +44,12 @@ class JoinTwoConnectedFunctionalTest extends TestHelper with JoinTwoConnected  {
 		 getLatch.await()
  	 
 	}
-
- 
 }
 
 object JoinTwoConnectedFunctionalTest {
 	def main(args:Array[String]) {
 		val jt = new JoinTwoConnectedFunctionalTest()
+	    jt.setUp()
 		jt.runConn()
 		jt.getLatch.await()
 	}

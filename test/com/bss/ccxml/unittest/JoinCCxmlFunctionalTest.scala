@@ -35,6 +35,7 @@ import com.bss.telco._
 import java.util.concurrent.CountDownLatch
 import scala.collection.mutable.ListBuffer
 
+
 class JoinCCxmlFunctionalTest extends CCxmlHelper {
 
 	val logList = new ListBuffer[String]

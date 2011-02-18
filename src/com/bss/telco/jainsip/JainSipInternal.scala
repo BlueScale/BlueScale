@@ -52,6 +52,9 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 										val destPort:Int) extends SipListener 
 														 //with LogHelper
 														 {
+
+	println("listeningIp = " + listeningIp)
+	println("contactIp = " + contactIp)
     val sipFactory = SipFactory.getInstance()
 	sipFactory.setPathName("gov.nist")
 	val properties = new Properties()

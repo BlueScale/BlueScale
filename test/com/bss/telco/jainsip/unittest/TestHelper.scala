@@ -30,13 +30,11 @@ import com.bss.telco.jainsip.test._
 import org.apache.log4j.BasicConfigurator
 
 trait TestHelper extends junit.framework.TestCase {
-  	
+    println(".......")	
 	val telcoServer  = new SipTelcoServer( "127.0.0.1", 4000, "127.0.0.1", 4001) 
 	val b2bServer = new B2BServer( "127.0.0.1", 4001, "127.0.0.1", 4000)
  
  	//BasicConfigurator.configure()
-	
-	
 
 	@Before
    	override def setUp() {
