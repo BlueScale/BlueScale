@@ -42,7 +42,10 @@ class CallRepl(telco:TelcoServer) {
             case "call" => 
                 val conn = telco.createConnection(callnum, "4443332222")
                 callmap += callnum->conn 
-                conn.connect( ()=> println("..." + callnum + " Connected") )
+                conn.connect( ()=> {
+                        println("..." + callnum + " Connected") 
+                        processing = false
+                    })
                 "connecting..."
 
             case "join" =>
@@ -50,11 +53,18 @@ class CallRepl(telco:TelcoServer) {
                     "must provide two numbers to join"
                 val c1 = callmap(callnum)
                 val c2 = callmap(line.split(" ")(2))
-                c1.join(c2, ()=> println("..." + c1 + " joined to " + c2 ))
+                c1.join(c2, ()=> {
+                        println("..." + c1 + " joined to " + c2 )
+                        processing = false
+                    }
+                )
                 "joining..."
 
             case "hangup" =>
-                callmap(callnum).disconnect( ()=> println("..." + callnum + " is disconnected") )
+                callmap(callnum).disconnect( ()=> {
+                        println("..." + callnum + " is disconnected") 
+                        processing = false
+                    })
                  //remove from map
                 "hanging up..."
         }
