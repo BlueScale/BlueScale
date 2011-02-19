@@ -36,6 +36,7 @@ import java.util.Vector
 import com.bss.telco.jainsip._
 import com.bss.telco.api._
 import com.bss.telco._
+import scala.collection.JavaConversions._
 
 class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   
@@ -64,6 +65,10 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 	  	SdpHelper.addMediaTo(conn.asInstanceOf[JainSipConnection].sdp, getFakeSdp(ip))
 		conn.accept(()=> println("b2bServer accepted call to " + conn.destination ) );
 	}
+
+    def findConnByDest(dest:String) : Option[SipConnection] = 
+        b2bTelcoServer.connections.values.find( conn => if (conn.destination == dest) true else false)
+            
    
    def getFakeSdp(ip:String) : SessionDescription = {
 		val sd =  sdpFactory.createSessionDescription()
@@ -75,7 +80,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		sd.getMediaDescriptions(true).asInstanceOf[Vector[MediaDescription]].
 		add(md)
 		return sd
-	}
+	}           
 
   
  	def start() : Unit = {

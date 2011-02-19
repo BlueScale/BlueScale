@@ -45,7 +45,7 @@ class SipTelcoServer(val listeningIp:String, val contactIp:String, val port:Int,
 	
 	private var failureCallback:Option[SipConnection=>Unit] = None
  
-	private val connections = new ConcurrentHashMap[String, JainSipConnection]()
+	protected[jainsip] val connections = new ConcurrentHashMap[String, JainSipConnection]()
 	
    
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)

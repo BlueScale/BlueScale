@@ -54,8 +54,9 @@ class JainSipConnection protected[telco](
 	private var state:VersionedState = VERSIONED_UNCONNECTED("")
 	 
 	var contactHeader:Option[ContactHeader] = None
-	 
 	
+	private var stateFunc = Map[VersionedState,()=> Unit]()
+ 	
  	override def connectionState = state.getState
  
 	override def connectionid = connid
@@ -92,20 +93,16 @@ class JainSipConnection protected[telco](
 		stateFunc +=  VERSIONED_UNCONNECTED(serverTx.get.getBranchId()) -> rejectCallback
 	}
  
-	override  def disconnect(cb:()=> Unit) = wrapLock {
+	override  def disconnect(disconnectCallback:()=> Unit) = wrapLock {
 		telco.internal.sendByeRequest(this)
         val f = ()=> {
-            joinedTo.foreach( joined=>{
-                joined.joinedTo = None
-                joinedTo = None 
-                joined.unjoin()
-            })
-            cb()
+                        onDisconnect()
+                        disconnectCallback()
         }
         stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) ->f 
   	}
 
-	//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
+  		//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
 	override def join(otherCall:Joinable[_], joinCallback:()=>Unit) = wrapLock {
 		//debug("OtherCall = " + otherCall)
 		otherCall.reconnect(localSdp,()=>{
@@ -129,10 +126,12 @@ class JainSipConnection protected[telco](
 		})
     }
 
-	override def unjoin() = disconnectOnUnjoin match {
+	override def unjoin() = wrapLock { 
+	    disconnectOnUnjoin match {
 	        case true => disconnect( ()=>disconnectCallback.foreach( _(this) )) 
 	        case false=> unjoinCallback.foreach( _(this) )
 	    }
+	}
 	   	    
   
 	override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit =  wrapLock {
@@ -145,8 +144,6 @@ class JainSipConnection protected[telco](
 	  	}
 	}
 
-	private var stateFunc = Map[VersionedState,()=> Unit]()
-
 
     protected[telco] def setState(s:VersionedState) : Unit = {	
 	 	lock()
@@ -156,7 +153,8 @@ class JainSipConnection protected[telco](
 			val func = stateFunc(state)
 			stateFunc(s)()
 		} else if ( state.getState == UNCONNECTED() ) { 
-		    //unrequested disconnect
+		    //If it wasn't in the map, it's an unrequested disconnect that happened remotely.
+            onDisconnect()  
 			disconnectCallback.foreach( _(this) )
 
         } else if ( state.getState != PROGRESSING()) {
@@ -166,6 +164,12 @@ class JainSipConnection protected[telco](
 		unlock() 
 	}
 
+    protected def onDisconnect() = 
+        joinedTo.foreach( joined=>{
+                joined.joinedTo = None
+                joinedTo = None 
+                joined.unjoin()
+            })
 
 	def debugStateMap(s:VersionedState) = {
 		debug(" ****** debug statemap ****** stateFunc size = " + stateFunc.size )
