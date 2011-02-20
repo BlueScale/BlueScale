@@ -25,33 +25,47 @@ package com.bss.server
 
 import com.bss.telco.api._
 import scala.collection.immutable._
+import scala.collection.mutable.Stack
+
+/*
+* This class is for testing call functionality from the server's command line.
+* not near as well tested as the rest of the app, shouldn't be actually used for production.
+*/
 
 class CallRepl(telco:TelcoServer) {
 
     var processing = false
 
     var callmap = Map[String,SipConnection]()
-	
+    
+    val labelStack = new Stack[String]()
+
+    labelStack.push("a") 
+    labelStack.push("b")
+    labelStack.push("c")
+    labelStack.push("d") 
 	
 	def evalLine(line:String) : String = {
 	    if ( processing ) return "please try again when your previous action completes"
         val command  = line.split(" ")(0)
-        val callnum = line.split(" ")(1) 
+        val arg = line.split(" ")(1) 
         processing = true
         return command match {
+
             case "call" => 
-                val conn = telco.createConnection(callnum, "4443332222")
-                callmap += callnum->conn 
+                val conn = telco.createConnection(arg, "4443332222")
+                val callLabel = labelStack.pop()
+                callmap += callLabel->conn 
                 conn.connect( ()=> {
-                        println("..." + callnum + " Connected") 
+                        println("..." + arg + " Connected. CallID = "+ callLabel) 
                         processing = false
                     })
                 "connecting..."
 
             case "join" =>
                 if ( line.split(" ").size < 3 )
-                    "must provide two numbers to join"
-                val c1 = callmap(callnum)
+                    "must provide two call labels to join"
+                val c1 = callmap(arg)
                 val c2 = callmap(line.split(" ")(2))
                 c1.join(c2, ()=> {
                         println("..." + c1 + " joined to " + c2 )
@@ -61,8 +75,9 @@ class CallRepl(telco:TelcoServer) {
                 "joining..."
 
             case "hangup" =>
-                callmap(callnum).disconnect( ()=> {
-                        println("..." + callnum + " is disconnected") 
+                callmap(arg).disconnect( ()=> { 
+                        println("...call" + arg + " is disconnected") 
+                        labelStack.push(arg)
                         processing = false
                     })
                  //remove from map
