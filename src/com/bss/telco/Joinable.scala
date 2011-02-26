@@ -22,21 +22,33 @@
 *
 */
 package com.bss.telco
+
 import javax.sdp.SessionDescription
 
 protected[telco] trait Joinable[T] {
 
   	var joinedTo:Option[Joinable[_]] = None
   	
-  	def hold(f:()=>Unit)
+  	//def hold(f:()=>Unit)
   
 	def join(connection:Joinable[_], f:()=>Unit)
 
-    def reconnect(sdp:SessionDescription, f:()=>Unit)
+    protected[telco] def reconnect(sdp:SessionDescription, f:()=>Unit)
 
     def sdp:SessionDescription
 
-    protected[telco] def unjoin() //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
+    protected[telco] def silence(f:()=>Unit)
+
+    protected[telco] def unjoin(f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
+
+    //protected[telco] def ujoin(f:()=>Unit, reason:UnjoinReason)
 
     var unjoinCallback:Option[(T)=>Unit] = None
 }
+
+
+trait UnjoinReason
+
+case class HoldUnjoin extends UnjoinReason
+
+case class DisconnectUnjoin extends UnjoinReason

@@ -45,6 +45,8 @@ trait JoinTwo {
  	    assertEquals(bob.connectionState, UNCONNECTED())
 		System.err.println("assert that alice is disconnected = " + alice.connectionState)
 		System.err.println("assert that bob is disconnected = " + bob.connectionState)
+		//
+		println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ COUNTING DOWN THE LATCH ~~~~~~~~")
 		latch.countDown()
  	}
 

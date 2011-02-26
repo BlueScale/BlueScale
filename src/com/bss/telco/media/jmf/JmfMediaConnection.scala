@@ -84,10 +84,12 @@ class JmfMediaConnection(file:String,
 		)
 	}
 
-	override def unjoin() = cancel(null)
+	override def silence(f:()=>Unit) = wrapLock {
+        //do nothing?  Stop listening? 
+	}
 
-	override def hold(f:()=>Unit) = wrapLock {
-		//TODO: pause? cancel? 
+	override def unjoin(f:()=>Unit) = wrapLock {
+        f()
 	}
 
 

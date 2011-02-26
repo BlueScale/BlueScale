@@ -99,7 +99,7 @@ class JainSipConnection protected[telco](
                         onDisconnect()
                         disconnectCallback()
         }
-        stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) ->f 
+        stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) ->f
   	}
 
   		//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
@@ -113,26 +113,28 @@ class JainSipConnection protected[telco](
 	    	}) })
 	}
 
- 
- 	override def hold(f:()=>Unit) = wrapLock {
-		//System.err.debug("holding! for" + dir.destination)
-		SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.contactIp))
+    override def silence(f:()=>Unit) = wrapLock {
+    	SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.contactIp))
 	
       	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS	
-      	stateFunc += new VERSIONED_HOLD(clientTx.get.getBranchId())->( ()=> {
-			joinedTo.foreach( _.joinedTo = None)
-			joinedTo = None
-			f()
-		})
+      	stateFunc += new VERSIONED_HOLD(clientTx.get.getBranchId())->f
+		       
     }
 
-	override def unjoin() = wrapLock { 
+    override def hold(f:()=>Unit) : Unit = wrapLock {
+        joinedTo match {
+            case None => silence(f)
+            case Some(otherConn) => otherConn.silence(()=>hold(f))
+        }
+    }    
+
+	override def unjoin(f:()=>Unit) = wrapLock {
+	    println(" UNJOIN>>>>>>")
 	    disconnectOnUnjoin match {
 	        case true => disconnect( ()=>disconnectCallback.foreach( _(this) )) 
 	        case false=> unjoinCallback.foreach( _(this) )
 	    }
 	}
-	   	    
   
 	override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit =  wrapLock {
 		joinedTo match {	
@@ -140,7 +142,7 @@ class JainSipConnection protected[telco](
 	  						telco.internal.sendReinvite(this, sdp) //TODO: fix race condition, should pass in the stateFunc stuff to the sendReinvite method...
 	  						stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->f
 	  				 	
-	  		case Some(x) => x.hold( ()=>this.reconnect(sdp, f) )
+	  		case Some(otherConn) => otherConn.silence( ()=>this.reconnect(sdp, f) )
 	  	}
 	}
 
@@ -164,12 +166,15 @@ class JainSipConnection protected[telco](
 		unlock() 
 	}
 
-    protected def onDisconnect() = 
+    protected def onDisconnect() = wrapLock {
+        println("ON DiSCONNECT")
         joinedTo.foreach( joined=>{
-                joined.joinedTo = None
                 joinedTo = None 
-                joined.unjoin()
-            })
+                joined.joinedTo = None
+                joined.unjoin(()=>Unit)
+                //disconnect on unjoin should go here?
+         })
+    }
 
 	def debugStateMap(s:VersionedState) = {
 		debug(" ****** debug statemap ****** stateFunc size = " + stateFunc.size )

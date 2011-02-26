@@ -30,14 +30,16 @@ trait SipConnection
 	with Joinable[SipConnection] 
 	with Answerable {
 
-	def connectionid : String
+	def connectionid:String
 
-	def connectionState : ConnectionState //Possibly not needed here...
+	def connectionState:ConnectionState //Possibly not needed here...
  
 	def protocol:String
 
     def destination:String
 
     def origin:String
+
+    def hold(f:()=>Unit):Unit
 }
 
