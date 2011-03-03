@@ -21,14 +21,15 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.jainsip.unittest
+package com.bss.telco.jainsip.unittest.load
 
 
 import org.junit._
 import Assert._
-import com.bss.telco.jainsip.test._
+import com.bss.telco.jainsip.unittest._
 import java.util._
 import com.bss.telco.jainsip._
+
 
 class LeakJoinUnconnected  extends junit.framework.TestCase with JoinTwo  {
 	

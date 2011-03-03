@@ -21,17 +21,16 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.jainsip.unittest
+package com.bss.telco.jainsip.unittest.load
  
 
 import org.junit._
 import Assert._
-import com.bss.telco.jainsip.test._
 import java.util._
 
 import com.bss.telco.jainsip._
-
 import scala.actors.Actor
+import com.bss.telco.jainsip.unittest._
 import scala.actors.Actor._
 import com.bss.ccxml.event._
 import java.util.concurrent.atomic.AtomicInteger

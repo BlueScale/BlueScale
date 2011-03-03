@@ -22,12 +22,12 @@
 *
 */
 
-package com.bss.telco.jainsip.unittest
+package com.bss.telco.jainsip.unittest.load
  
 
+import com.bss.telco.jainsip.unittest._
 import org.junit._
 import Assert._
-import com.bss.telco.jainsip.test._
 import java.util._
 import com.bss.telco.jainsip._
 
@@ -37,7 +37,9 @@ class LeakCallHangup  extends junit.framework.TestCase with SimpleCall  {
 	val b2bServer = new B2BServer( "127.0.0.1", 4001, "127.0.0.1", 4000)
  
 	def getCounter = None
-	 
+	
+    System.setProperty("actors.enableForkJoin", "false")
+
 	b2bServer.start()
 	telcoServer.start()
  
@@ -58,6 +60,9 @@ class LeakCallHangup  extends junit.framework.TestCase with SimpleCall  {
 	  	for (i <- 1 to 1000) {
 	  		 runConn()
 	  		 getLatch.await()
+	  		 println("===================================\\n==========================\\n    " + i + "\n")
+	  		 Thread.sleep(100)
+	  		          
 	   	}
 	   
 	  System.gc()
@@ -67,7 +72,16 @@ class LeakCallHangup  extends junit.framework.TestCase with SimpleCall  {
 	   
  	 
 	}
-  
- 
+
+}
+
+object LeakCallHangup {
+    def main(args:Array[String]) {
+        val lch = new LeakCallHangup()
+        lch.testNoLeaks()
+        val r = readLine()
+
+    }
+
 }
  

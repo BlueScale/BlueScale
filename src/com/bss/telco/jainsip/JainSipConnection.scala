@@ -102,7 +102,6 @@ class JainSipConnection protected[telco](
         stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) ->f
   	}
 
-  		//IF ANYWHERE IS A RACE CONDITION CLUSTER FUCK, THIS IS IT
 	override def join(otherCall:Joinable[_], joinCallback:()=>Unit) = wrapLock {
 		//debug("OtherCall = " + otherCall)
 		otherCall.reconnect(localSdp,()=>{
@@ -118,7 +117,6 @@ class JainSipConnection protected[telco](
 	
       	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS	
       	stateFunc += new VERSIONED_HOLD(clientTx.get.getBranchId())->f
-		       
     }
 
     override def hold(f:()=>Unit) : Unit = wrapLock {
@@ -152,7 +150,6 @@ class JainSipConnection protected[telco](
  		//debugStateMap(s)
  		state = s
  		if (stateFunc.contains(state) && stateFunc(state) != null) {
-			val func = stateFunc(state)
 			stateFunc(s)()
 		} else if ( state.getState == UNCONNECTED() ) { 
 		    //If it wasn't in the map, it's an unrequested disconnect that happened remotely.

@@ -68,7 +68,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
 
 	def error(s:String) {
-		println(s)
+		//println(s)
 	}
 	
  
