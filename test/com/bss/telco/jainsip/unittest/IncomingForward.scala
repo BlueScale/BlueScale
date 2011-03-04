@@ -32,50 +32,27 @@ import com.bss.telco.api._
 import org.junit._
 import Assert._
 
-trait IncomingForward {
-/*	
-  	val latch = new CountDownLatch(1)
- 
-	def getLatch = latch
-	
- 	def getTelcoServer() : TelcoServer
-  
- 	def handleDisconnect(conn:SipConnection) = println("disconnected!")
+class IncomingForward extends TestHelper {
 
- 
-	def firstJoined() {
-		println("joined, now waiting for moviepHONE!!")
-		System.err.println("are both connected = ? " + getTelcoServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
-        assertTrue(getTelcoServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
-        //Thread.sleep(30)
-		moviePhone1.connect( ()=>
-                         	 	{println("this should implicitly put desk on hold.")
-                                moviePhone1.join(cell, ()=>joined(moviePhone1, cell))
-                         	 })
-	 }
-	
-	def disconnected(c:SipConnection): Unit  = {
-		 println("hil");
-	}
- 
-	def joined(c1:SipConnection, c2:SipConnection) : Unit = {
-	    println("OK now we should hear moviephone and not each other....")
-        assertTrue(getTelcoServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
-	    System.err.println("are both connected = ? " + getTelcoServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
-        assertTrue(SdpHelper.isBlankSdp(desk.asInstanceOf[JainSipConnection].sdp))
-	    System.err.println("desk should be  on hold? " + SdpHelper.isBlankSdp(desk.asInstanceOf[JainSipConnection].sdp) ) //b2bServer.areTwoConnected(desk.asInstanceOf[SipConnection], )
-	    latch.countDown
-	}
- 
-	def runConn() = {
-    	    
-	        
-	}
+    @Test
+    def testIncomingForward() : Unit = {
+        //add ignoring phone number to b2bServer
+        //b2bServer.addIgnore
 
-	def tryCall {
-		val call1 = getTelcoServer().createConnection("", "")
-		call1.connect( ()=> println("connected"))
-	}
-*/
+        //add answerCall callback to sipServer.
+
+        //b2b.createConnection
+        
+
+        //b2bServer.createConnection("")
+
+    }
+
+    def answerCall() : Unit ={
+        //try the call that they're trying to go for. 
+        
+        //cancel, try another call.
+
+    }
 		
 }
