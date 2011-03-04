@@ -40,8 +40,8 @@ class JoinTwoConnectedFunctionalTest extends TestHelper with JoinTwoConnected  {
 	  println("hi");
 		assertEquals("blah", "blah")
 	 
-		 //runConn()
-		 //getLatch.await()
+		 runConn()
+		 getLatch.await()
  	 
 	}
 }

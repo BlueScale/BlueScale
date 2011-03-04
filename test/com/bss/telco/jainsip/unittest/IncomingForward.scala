@@ -32,8 +32,8 @@ import com.bss.telco.api._
 import org.junit._
 import Assert._
 
-trait JoinTwoConnected {
-	
+trait IncomingForward {
+/*	
   	val latch = new CountDownLatch(1)
  
 	def getLatch = latch
@@ -42,12 +42,7 @@ trait JoinTwoConnected {
   
  	def handleDisconnect(conn:SipConnection) = println("disconnected!")
 
- 	var cell:SipConnection = null 
  
-	var desk:SipConnection = null
-
-	var moviePhone1:SipConnection = null
-                   
 	def firstJoined() {
 		println("joined, now waiting for moviepHONE!!")
 		System.err.println("are both connected = ? " + getTelcoServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
@@ -73,25 +68,14 @@ trait JoinTwoConnected {
 	}
  
 	def runConn() = {
-	    getTelcoServer().setDisconnectedCallback(disconnected)
-	    cell 			= getTelcoServer().createConnection("9495550982", "7147579999")
-	    desk   		    = getTelcoServer().createConnection("7147579999", "9495550982")
-	    moviePhone1 	= getTelcoServer().createConnection("9497773456", "9495550982")
-		cell.connect( ()=>{
-			 			println("cellphoneconnected")
-                    	desk.connect( ()=>{
-                    						println("moviephone connected")
-                                            cell.join(desk, firstJoined _)
-                                          })
-                  })
-   
-    
+    	    
+	        
 	}
 
 	def tryCall {
 		val call1 = getTelcoServer().createConnection("", "")
 		call1.connect( ()=> println("connected"))
 	}
-
+*/
 		
 }

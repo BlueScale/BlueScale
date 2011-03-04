@@ -1,0 +1,273 @@
+Buildfile: build.xml
+
+init:
+
+run:
+     [echo] Running! com.bss.telco.jainsip.unittest.JoinTwoConnectedFunctionalTest
+     [java] listeningIp = 127.0.0.1
+     [java] contactIp = 127.0.0.1
+     [java] createSipStack gov.nist.javax.sip.SipStackImpl@6ef137d
+     [java] listeningIp = 127.0.0.1
+     [java] contactIp = 127.0.0.1
+     [java] createSipStack gov.nist.javax.sip.SipStackImpl@6581ed9e
+     [java] Test Server STARTED
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =9495550982
+     [java] my state = VERSIONED_PROGRESSING(z9hG4bK1)
+     [java] made it past the lock
+     [java] request for INVITE sip:9495550982@127.0.0.1 SIP/2.0
+     [java] Call-ID: 59f3e93e34cfcb3698277df0866fdb3a@127.0.0.1
+     [java] CSeq: 1 INVITE
+     [java] From: "test" <sip:7147579999@127.0.0.1>;tag=12345
+     [java] To: "9495550982" <sip:9495550982@127.0.0.1>
+     [java] Via: SIP/2.0/UDP 127.0.0.1:4000;branch=z9hG4bK1
+     [java] Max-Forwards: 70
+     [java] Contact: "BlueScaleServer" <sip:BlueScaleServer@127.0.0.1:4000>
+     [java] Content-Type: application/sdp
+     [java] Call-Info: <http://www.antd.nist.gov>
+     [java] Content-Length: 104
+     [java] 
+     [java] v=0
+     [java] o=bss 1498770706 1 IN IP4 127.0.0.1
+     [java] s=bssession
+     [java] c=IN IP4 0.0.0.0
+     [java] t=0 0
+     [java] m=audio 1111 RTP/AVP 0
+     [java] 
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_PROGRESSING(z9hG4bK1)
+     [java] VERSIONED_CONNECTED(z9hG4bK1)-><function0>
+     [java] HANDLE INCOMING 
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =9495550982
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK1)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_CONNECTED(z9hG4bK1)
+     [java] VERSIONED_CONNECTED(z9hG4bK1)-><function0>
+     [java] executing
+     [java] cellphoneconnected
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =9495550982
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK1)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_PROGRESSING(z9hG4bK2)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_PROGRESSING(z9hG4bK2)
+     [java] VERSIONED_CONNECTED(z9hG4bK2)-><function0>
+     [java] s =VERSIONED_CONNECTED(z9hG4bK1)
+     [java] VERSIONED_CONNECTED(z9hG4bK1)-><function0>
+     [java] executing
+     [java] b2bServer accepted call to 9495550982
+     [java] request for INVITE sip:7147579999@127.0.0.1 SIP/2.0
+     [java] Call-ID: 1797dca4bebf39283a63c7c5ed9295ef@127.0.0.1
+     [java] CSeq: 1 INVITE
+     [java] From: "test" <sip:9495550982@127.0.0.1>;tag=12345
+     [java] To: "7147579999" <sip:7147579999@127.0.0.1>
+     [java] Via: SIP/2.0/UDP 127.0.0.1:4000;branch=z9hG4bK2
+     [java] Max-Forwards: 70
+     [java] Contact: "BlueScaleServer" <sip:BlueScaleServer@127.0.0.1:4000>
+     [java] Content-Type: application/sdp
+     [java] Call-Info: <http://www.antd.nist.gov>
+     [java] Content-Length: 104
+     [java] 
+     [java] v=0
+     [java] o=bss 1180915164 1 IN IP4 127.0.0.1
+     [java] s=bssession
+     [java] c=IN IP4 0.0.0.0
+     [java] t=0 0
+     [java] m=audio 1111 RTP/AVP 0
+     [java] 
+     [java] HANDLE INCOMING 
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK2)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_CONNECTED(z9hG4bK2)
+     [java] VERSIONED_CONNECTED(z9hG4bK2)-><function0>
+     [java] executing
+     [java] moviephone connected
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK2)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_CONNECTED(z9hG4bK2)
+     [java] VERSIONED_CONNECTED(z9hG4bK2)-><function0>
+     [java] executing
+     [java] b2bServer accepted call to 7147579999
+     [java] request for INVITE sip:127.0.0.1:4001 SIP/2.0
+     [java] Via: SIP/2.0/UDP 127.0.0.1:4000;branch=z9hG4bK005a407390f299a542fc338f79a74010
+     [java] CSeq: 2 INVITE
+     [java] Call-ID: 1797dca4bebf39283a63c7c5ed9295ef@127.0.0.1
+     [java] From: "test" <sip:9495550982@127.0.0.1>;tag=12345
+     [java] To: "7147579999" <sip:7147579999@127.0.0.1>;tag=813d9114
+     [java] Max-Forwards: 70
+     [java] Contact: <sip:127.0.0.1:4000;transport=udp>,"BlueScaleServer" <sip:BlueScaleServer@127.0.0.1:4000>
+     [java] Content-Type: application/sdp
+     [java] Content-Length: 103
+     [java] 
+     [java] v=0
+     [java] o=bss 1498770706 2 IN IP4 127.0.0.1
+     [java] s=bssession
+     [java] c=IN IP4 127.0.0.1
+     [java] t=0 0
+     [java] m=audio 1 RTP/AVP 0
+     [java] 
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK005a407390f299a542fc338f79a74010)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 2
+     [java] s =VERSIONED_CONNECTED(z9hG4bK005a407390f299a542fc338f79a74010)
+     [java] VERSIONED_CONNECTED(z9hG4bK2)-><function0>
+     [java] VERSIONED_CONNECTED(z9hG4bK005a407390f299a542fc338f79a74010)-><function0>
+     [java] executing
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK005a407390f299a542fc338f79a74010)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_CONNECTED(z9hG4bK005a407390f299a542fc338f79a74010)
+     [java] VERSIONED_CONNECTED(z9hG4bK2)-><function0>
+     [java] request for INVITE sip:127.0.0.1:4001 SIP/2.0
+     [java] Via: SIP/2.0/UDP 127.0.0.1:4000;branch=z9hG4bKfc80c9008879c38d10c9b0874ff8da4b
+     [java] CSeq: 2 INVITE
+     [java] Call-ID: 59f3e93e34cfcb3698277df0866fdb3a@127.0.0.1
+     [java] From: "test" <sip:7147579999@127.0.0.1>;tag=12345
+     [java] To: "9495550982" <sip:9495550982@127.0.0.1>;tag=7c2dc2e0
+     [java] Max-Forwards: 70
+     [java] Contact: <sip:127.0.0.1:4000;transport=udp>,"BlueScaleServer" <sip:BlueScaleServer@127.0.0.1:4000>
+     [java] Content-Type: application/sdp
+     [java] Content-Length: 103
+     [java] 
+     [java] v=0
+     [java] o=bss 1180915164 3 IN IP4 127.0.0.1
+     [java] s=bssession
+     [java] c=IN IP4 127.0.0.1
+     [java] t=0 0
+     [java] m=audio 1 RTP/AVP 0
+     [java] 
+     [java] are both connected = ? true
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =9495550982
+     [java] my state = VERSIONED_CONNECTED(z9hG4bKfc80c9008879c38d10c9b0874ff8da4b)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 2
+     [java] s =VERSIONED_CONNECTED(z9hG4bKfc80c9008879c38d10c9b0874ff8da4b)
+     [java] VERSIONED_CONNECTED(z9hG4bK1)-><function0>
+     [java] VERSIONED_CONNECTED(z9hG4bKfc80c9008879c38d10c9b0874ff8da4b)-><function0>
+     [java] executing
+     [java] joined, now waiting for moviepHONE!!
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =9495550982
+     [java] my state = VERSIONED_CONNECTED(z9hG4bKfc80c9008879c38d10c9b0874ff8da4b)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_CONNECTED(z9hG4bKfc80c9008879c38d10c9b0874ff8da4b)
+     [java] VERSIONED_CONNECTED(z9hG4bK1)-><function0>
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =9497773456
+     [java] my state = VERSIONED_PROGRESSING(z9hG4bK3)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_PROGRESSING(z9hG4bK3)
+     [java] VERSIONED_CONNECTED(z9hG4bK3)-><function0>
+     [java] request for INVITE sip:9497773456@127.0.0.1 SIP/2.0
+     [java] Call-ID: 4859e63da61b3a7fae953d72ce279356@127.0.0.1
+     [java] CSeq: 1 INVITE
+     [java] From: "test" <sip:9495550982@127.0.0.1>;tag=12345
+     [java] To: "9497773456" <sip:9497773456@127.0.0.1>
+     [java] Via: SIP/2.0/UDP 127.0.0.1:4000;branch=z9hG4bK3
+     [java] Max-Forwards: 70
+     [java] Contact: "BlueScaleServer" <sip:BlueScaleServer@127.0.0.1:4000>
+     [java] Content-Type: application/sdp
+     [java] Call-Info: <http://www.antd.nist.gov>
+     [java] Content-Length: 103
+     [java] 
+     [java] v=0
+     [java] o=bss 597295774 1 IN IP4 127.0.0.1
+     [java] s=bssession
+     [java] c=IN IP4 0.0.0.0
+     [java] t=0 0
+     [java] m=audio 1111 RTP/AVP 0
+     [java] 
+     [java] HANDLE INCOMING 
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =9497773456
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK3)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_CONNECTED(z9hG4bK3)
+     [java] VERSIONED_CONNECTED(z9hG4bK3)-><function0>
+     [java] executing
+     [java] this should implicitly put desk on hold.
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =9497773456
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK3)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 1
+     [java] s =VERSIONED_CONNECTED(z9hG4bK3)
+     [java] VERSIONED_CONNECTED(z9hG4bK3)-><function0>
+     [java] executing
+     [java] b2bServer accepted call to 9497773456
+     [java] ~~~~~~~~~~SILENCING MYSELF dest = 7147579999
+     [java] bbbbbbbbranch ID for the tx = z9hG4bK068ad23f0868cfc59ea5ea1e4adc376c
+     [java] request for INVITE sip:127.0.0.1:4001 SIP/2.0
+     [java] Via: SIP/2.0/UDP 127.0.0.1:4000;branch=z9hG4bK068ad23f0868cfc59ea5ea1e4adc376c
+     [java] CSeq: 3 INVITE
+     [java] Call-ID: 1797dca4bebf39283a63c7c5ed9295ef@127.0.0.1
+     [java] From: "test" <sip:9495550982@127.0.0.1>;tag=12345
+     [java] To: "7147579999" <sip:7147579999@127.0.0.1>;tag=813d9114
+     [java] Max-Forwards: 70
+     [java] Contact: <sip:127.0.0.1:4000;transport=udp>,"BlueScaleServer" <sip:BlueScaleServer@127.0.0.1:4000>
+     [java] Content-Type: application/sdp
+     [java] Content-Length: 104
+     [java] 
+     [java] v=0
+     [java] o=bss 1180915164 4 IN IP4 127.0.0.1
+     [java] s=bssession
+     [java] c=IN IP4 0.0.0.0
+     [java] t=0 0
+     [java] m=audio 1111 RTP/AVP 0
+     [java] 
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_HOLD(z9hG4bK068ad23f0868cfc59ea5ea1e4adc376c)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 3
+     [java] s =VERSIONED_HOLD(z9hG4bK068ad23f0868cfc59ea5ea1e4adc376c)
+     [java] VERSIONED_CONNECTED(z9hG4bK2)-><function0>
+     [java] VERSIONED_CONNECTED(z9hG4bK005a407390f299a542fc338f79a74010)-><function0>
+     [java] VERSIONED_HOLD(z9hG4bK068ad23f0868cfc59ea5ea1e4adc376c)-><function0>
+     [java] executing
+     [java] ~~~~~~~~~~SILENCING MYSELF dest = 7147579999
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_CONNECTED(z9hG4bK068ad23f0868cfc59ea5ea1e4adc376c)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 0
+     [java] s =VERSIONED_CONNECTED(z9hG4bK068ad23f0868cfc59ea5ea1e4adc376c)
+     [java] bbbbbbbbranch ID for the tx = z9hG4bKdc568f59bca5ff4359a1a19b3b652a03
+     [java] request for INVITE sip:127.0.0.1:4001 SIP/2.0
+     [java] Via: SIP/2.0/UDP 127.0.0.1:4000;branch=z9hG4bKdc568f59bca5ff4359a1a19b3b652a03
+     [java] CSeq: 4 INVITE
+     [java] Call-ID: 1797dca4bebf39283a63c7c5ed9295ef@127.0.0.1
+     [java] From: "test" <sip:9495550982@127.0.0.1>;tag=12345
+     [java] To: "7147579999" <sip:7147579999@127.0.0.1>;tag=813d9114
+     [java] Max-Forwards: 70
+     [java] Contact: <sip:127.0.0.1:4000;transport=udp>,"BlueScaleServer" <sip:BlueScaleServer@127.0.0.1:4000>
+     [java] Content-Type: application/sdp
+     [java] Content-Length: 104
+     [java] 
+     [java] v=0
+     [java] o=bss 1180915164 6 IN IP4 127.0.0.1
+     [java] s=bssession
+     [java] c=IN IP4 0.0.0.0
+     [java] t=0 0
+     [java] m=audio 1111 RTP/AVP 0
+     [java] 
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_CONNECTED(z9hG4bKdc568f59bca5ff4359a1a19b3b652a03)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 4
+     [java] s =VERSIONED_CONNECTED(z9hG4bKdc568f59bca5ff4359a1a19b3b652a03)
+     [java] VERSIONED_CONNECTED(z9hG4bK2)-><function0>
+     [java] VERSIONED_CONNECTED(z9hG4bK005a407390f299a542fc338f79a74010)-><function0>
+     [java] VERSIONED_HOLD(z9hG4bK068ad23f0868cfc59ea5ea1e4adc376c)-><function0>
+     [java] VERSIONED_HOLD(z9hG4bKdc568f59bca5ff4359a1a19b3b652a03)-><function0>
+     [java] ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =7147579999
+     [java] my state = VERSIONED_CONNECTED(z9hG4bKdc568f59bca5ff4359a1a19b3b652a03)
+     [java] made it past the lock
+     [java]  ****** debug statemap ****** stateFunc size = 0
+     [java] s =VERSIONED_CONNECTED(z9hG4bKdc568f59bca5ff4359a1a19b3b652a03)

@@ -43,6 +43,8 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 	var portCounter = 0; 
   
 	private val b2bTelcoServer    = new SipTelcoServer(ip, port, destIp, destPort)
+
+	private var doNotAnswer = Set[String]()
  
 	val sdpFactory = SdpFactory.getInstance()
      
@@ -62,6 +64,9 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 	def handleIncoming(conn:SipConnection) : Unit = { 
 		//set the joinedTo.get.sdp
 		println("HANDLE INCOMING ")
+		if (doNotAnswer.contains(conn.destination))
+		    return
+		    
 	  	SdpHelper.addMediaTo(conn.asInstanceOf[JainSipConnection].sdp, getFakeSdp(ip))
 		conn.accept(()=> println("b2bServer accepted call to " + conn.destination ) );
 	}
@@ -81,6 +86,9 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		add(md)
 		return sd
 	}           
+    
+    def addNoAnswer(number:String) : Unit = 
+        doNotAnswer += number
 
   
  	def start() : Unit = {

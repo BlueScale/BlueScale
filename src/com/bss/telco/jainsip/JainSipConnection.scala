@@ -113,9 +113,11 @@ class JainSipConnection protected[telco](
 	}
 
     override def silence(f:()=>Unit) = wrapLock {
+        println("~~~~~~~~~~SILENCING MYSELF dest = " + destination)
     	SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.contactIp))
 	
-      	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS	
+      	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS
+      	println("bbbbbbbbranch ID for the tx = " + clientTx.get.getBranchId())
       	stateFunc += new VERSIONED_HOLD(clientTx.get.getBranchId())->f
     }
 
@@ -140,16 +142,23 @@ class JainSipConnection protected[telco](
 	  						telco.internal.sendReinvite(this, sdp) //TODO: fix race condition, should pass in the stateFunc stuff to the sendReinvite method...
 	  						stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->f
 	  				 	
-	  		case Some(otherConn) => otherConn.silence( ()=>this.reconnect(sdp, f) )
+	  		case Some(otherConn) => otherConn.silence( ()=>{
+	  		    otherConn.joinedTo = None
+	  		    joinedTo = None
+	  		    this.reconnect(sdp, f)} )
 	  	}
 	}
 
 
-    protected[telco] def setState(s:VersionedState) : Unit = {	
+    protected[telco] def setState(s:VersionedState) : Unit = {
+        println("ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =" +destination )
+	 	println("my state = " + s)
 	 	lock()
- 		//debugStateMap(s)
+	 	println("made it past the lock")
+ 		debugStateMap(s)
  		state = s
  		if (stateFunc.contains(state) && stateFunc(state) != null) {
+ 		    println("executing")
 			stateFunc(s)()
 		} else if ( state.getState == UNCONNECTED() ) { 
 		    //If it wasn't in the map, it's an unrequested disconnect that happened remotely.
