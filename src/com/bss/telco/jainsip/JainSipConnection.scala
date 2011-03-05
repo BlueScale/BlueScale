@@ -28,7 +28,7 @@ import com.bss.telco._
 import com.bss.telco.api._
 import scala.collection.immutable.Map
 import javax.sip.header._
-import javax.sip.ServerTransaction
+//import javax.sip.ServerTransaction
 import javax.sdp.SessionDescription
 import scala.actors.Actor
 import scala.actors.Actor._
@@ -83,13 +83,18 @@ class JainSipConnection protected[telco](
   		setState(VERSIONED_PROGRESSING( clientTx.get.getBranchId() ))
 	}
  	
-	override  def accept(connectedCallback:()=> Unit) = wrapLock { 
-		telco.internal.sendResponse(200, this, localSdp.toString().getBytes())
-  	  	stateFunc +=VERSIONED_CONNECTED(serverTx.get.getBranchId()) -> connectedCallback
+	override  def accept(connectedCallback:()=> Unit) = wrapLock {
+	    connectionState match {
+            case UNCONNECTED()=>
+		        telco.internal.sendResponse(200, serverTx, localSdp.toString().getBytes())
+  	  	        stateFunc +=VERSIONED_CONNECTED(serverTx.get.getBranchId()) -> connectedCallback
+	        case _ => 
+	            throw new Exception("Can't accept a connection because it's " + connectionState)
+	    }
 	}
  
 	override  def reject(rejectCallback:()=> Unit) = wrapLock {
-		telco.internal.sendResponse(606, this, localSdp.toString().getBytes())
+		telco.internal.sendResponse(606, serverTx, localSdp.toString().getBytes())
 		stateFunc +=  VERSIONED_UNCONNECTED(serverTx.get.getBranchId()) -> rejectCallback
 	}
  
@@ -100,6 +105,29 @@ class JainSipConnection protected[telco](
                         disconnectCallback()
         }
         stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) ->f
+  	}
+
+  	override def cancel(f:()=>Unit) =  
+  	    dir match {
+            case INCOMING() => cancelIncoming(f)
+            case OUTGOING() => cancelOutgoing(f)
+      	}
+
+  	protected def cancelIncoming(f:()=>Unit) = wrapLock {
+        connectionState match {
+            case UNCONNECTED() => 
+                state = VERSIONED_CANCELED("") //not waiting on anything, no need
+                //OK CANCEL THE INVITE TOO
+                telco.internal.sendResponse(487, serverTx, null)
+                telco.internal.sendResponse(200, serverCancelTx, null)
+                f()
+
+            case CONNECTED() => println("too late!")//don't think I gotta do anything here according to SIP
+        }
+  	}
+
+  	protected def cancelOutgoing(f:()=>Unit) = wrapLock {
+       //to implement 
   	}
 
 	override def join(otherCall:Joinable[_], joinCallback:()=>Unit) = wrapLock {
@@ -113,11 +141,9 @@ class JainSipConnection protected[telco](
 	}
 
     override def silence(f:()=>Unit) = wrapLock {
-        println("~~~~~~~~~~SILENCING MYSELF dest = " + destination)
     	SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.contactIp))
 	
       	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS
-      	println("bbbbbbbbranch ID for the tx = " + clientTx.get.getBranchId())
       	stateFunc += new VERSIONED_HOLD(clientTx.get.getBranchId())->f
     }
 
@@ -129,7 +155,6 @@ class JainSipConnection protected[telco](
     }    
 
 	override def unjoin(f:()=>Unit) = wrapLock {
-	    println(" UNJOIN>>>>>>")
 	    disconnectOnUnjoin match {
 	        case true => disconnect( ()=>disconnectCallback.foreach( _(this) )) 
 	        case false=> unjoinCallback.foreach( _(this) )
@@ -151,14 +176,10 @@ class JainSipConnection protected[telco](
 
 
     protected[telco] def setState(s:VersionedState) : Unit = {
-        println("ABOUT TO LOCK, LETS SEE IF WE BLOCK my destination =" +destination )
-	 	println("my state = " + s)
 	 	lock()
-	 	println("made it past the lock")
- 		debugStateMap(s)
+ 		//debugStateMap(s)
  		state = s
  		if (stateFunc.contains(state) && stateFunc(state) != null) {
- 		    println("executing")
 			stateFunc(s)()
 		} else if ( state.getState == UNCONNECTED() ) { 
 		    //If it wasn't in the map, it's an unrequested disconnect that happened remotely.
@@ -173,7 +194,6 @@ class JainSipConnection protected[telco](
 	}
 
     protected def onDisconnect() = wrapLock {
-        println("ON DiSCONNECT")
         joinedTo.foreach( joined=>{
                 joinedTo = None 
                 joined.joinedTo = None

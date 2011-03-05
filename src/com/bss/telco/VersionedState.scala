@@ -45,5 +45,9 @@ case class VERSIONED_PROGRESSING(version:String) extends VersionedState {
 	def getState = PROGRESSING()
 }
 
+case class VERSIONED_CANCELED(version:String) extends VersionedState {
+    def getState = CANCELED()
+}
+
 
 

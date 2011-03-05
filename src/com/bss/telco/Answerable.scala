@@ -33,7 +33,7 @@ case class OUTGOING extends DIRECTION
 
 protected[telco] trait Answerable {
     
-  	def direction : DIRECTION
+  	def direction : DIRECTION //should probably be in SipConnection
 
  	def accept(f:()=> Unit)
   

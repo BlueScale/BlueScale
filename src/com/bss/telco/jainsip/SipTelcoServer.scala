@@ -87,13 +87,12 @@ class SipTelcoServer(val listeningIp:String, val contactIp:String, val port:Int,
 			
 	override def setDisconnectedCallback(f:(SipConnection)=> Unit) = disconnectedCallback = Some(f)
 	
-	def fireFailure(c:SipConnection) 		= failureCallback.foreach( _(c) ) //maybeFire(c,failureCallback)
-					
-	def fireDisconnected(c:SipConnection) 	= disconnectedCallback.foreach( _(c) ) //maybeFire(c, disconnectedCallback)
+	def fireFailure(c:SipConnection) 		= failureCallback.foreach( _(c) ) 
+
+	def fireDisconnected(c:SipConnection) 	= disconnectedCallback.foreach( _(c) ) 
 	
-	def fireIncoming(c:SipConnection) = {
-		incomingCallback.foreach( _(c) )
-    }
+	def fireIncoming(c:SipConnection) = incomingCallback.foreach( _(c) )
+    
 
     override def areTwoConnected(conn1:SipConnection, conn2:SipConnection) : Boolean = {
         val mediatrans1 =  conn1.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];

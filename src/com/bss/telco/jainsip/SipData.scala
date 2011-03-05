@@ -27,6 +27,9 @@ import javax.sip._;
 
 trait SipData {
     protected[jainsip] var serverTx:Option[ServerTransaction] = None
+    protected[jainsip] var serverCancelTx:Option[ServerTransaction] = None
+
     protected[jainsip] var clientTx:Option[ClientTransaction] = None
+   
     protected[jainsip] var dialog:Option[Dialog] = None
 }

@@ -113,7 +113,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		  case Request.ACK 		=> processAck(requestEvent, requestEvent.getRequest())
 		  case Request.BYE 		=> processBye(requestEvent, requestEvent.getRequest(), requestEvent.getServerTransaction())
 		  case Request.REGISTER => processRegister(requestEvent)
-		  case Request.CANCEL 	=> println("processCancel(requestEvent, serverTransactionId)") //TODO: handle cancels...may be too late for most things but we can try to cancel.
+		  case Request.CANCEL 	=> processCancel(requestEvent)		    
+		    //TODO: handle cancels...may be too late for most things but we can try to cancel.
 		  case _ =>/*serverTransactionId.sendResponse( messageFactory.createResponse( 202, request ) )
 					// send one back
 					val prov = requestEvent.getSource()
@@ -138,8 +139,16 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		  case _ => error("request event that's not null...this shouldn't happen")
 			  }
 	*/
+
+	def processCancel(requestEvent:RequestEvent) {
+	    val request = requestEvent.getRequest()
+	    val conn = telco.getConnection(getCallId(request))
+	    conn.execute(()=>
+	    conn.cancel( ()=> println("done"))
+	    )
+	}
   
-	def processInvite(requestEvent: RequestEvent) {
+	def processInvite(requestEvent:RequestEvent) {
 		debug("request for " + requestEvent.getRequest())	
 		val request = requestEvent.getRequest()
 		Option(requestEvent.getServerTransaction) match {
@@ -148,7 +157,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			                            conn.execute( ()=>{
 											conn.serverTx = Some(transaction)
 											SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(request.getRawContent()) )					
-											sendResponse(200, conn, request.getRawContent())
+											sendResponse(200, conn.serverTx, request.getRawContent())
 											//fixme: do we need to notify other things listening to this SDP session?
 										})
 			
@@ -178,14 +187,14 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
  
 	//TODO: deal with dead transactions...
-	def sendResponse(responseCode:Int, conn:JainSipConnection, content:Array[Byte] ) = 
-	    conn.serverTx match {
-            case Some(tx)=> 	val response = messageFactory.createResponse(responseCode,conn.serverTx.get.getRequest)
+	def sendResponse(responseCode:Int, transaction:Option[ServerTransaction], content:Array[Byte] ) = 
+	    transaction match {
+            case Some(tx)=> 	val response = messageFactory.createResponse(responseCode,tx.getRequest)
 		                        //response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
 		                        response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
                             	if ( null != content ) response.setContent(content,headerFactory.createContentTypeHeader("application", "sdp"))
 		                        tx.sendResponse(response)
-            case None => println("Error, ServerTX not found for conn " + conn)
+            case None => println("Error, ServerTX not found!")
 	    }
 	 
 	

@@ -35,5 +35,7 @@ case class PROGRESSING() extends ConnectionState
 
 case class ALERTING() extends ConnectionState
 
+case class CANCELED() extends ConnectionState
+
 
 //DO WE WANT A JOINED STATE?

@@ -26,6 +26,8 @@ package com.bss.telco
 protected[telco] trait Connectable[T] {
   
 	def connect(f:()=> Unit)
+
+	def cancel(f:()=> Unit)
 		
  	def disconnect(f:()=> Unit)
 

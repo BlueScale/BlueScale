@@ -49,7 +49,8 @@ trait OrderedExecutable
          	  case _ => error("Something was sent to the execute method of " + this + " That shouldn't have been!") 
     	 }}  
      }
-  
+ 
+    //typesafe messaging? 
     def execute(f:()=>Unit) = act ! f
 
 }

@@ -25,6 +25,7 @@ package com.bss.telco.jainsip.unittest
 
 
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import com.bss.telco._
 
 import com.bss.telco.jainsip._
@@ -34,11 +35,23 @@ import Assert._
 
 class IncomingForward extends TestHelper {
 
+    val alice = telcoServer.createConnection("7147579999","555444333")
+
+    val bob = telcoServer.createConnection("9495554444", "234567789")
+
+    val latch = new CountDownLatch(1)
+
+    var bobJoined = false
+
     @Test
     def testIncomingForward() : Unit = {
         //add ignoring phone number to b2bServer
-        //b2bServer.addIgnore
-
+        b2bServer.addIgnore("7147579999")
+        val testCall = b2bServer.createConnection("7147579999", "5554443333")
+        
+        telcoServer.setIncomingCallback(answerCall)
+        latch.await(5, TimeUnit.SECONDS)
+        assertTrue(true)
         //add answerCall callback to sipServer.
 
         //b2b.createConnection
@@ -48,11 +61,30 @@ class IncomingForward extends TestHelper {
 
     }
 
-    def answerCall() : Unit ={
-        //try the call that they're trying to go for. 
-        
+    def answerCall(call:SipConnection) : Unit ={
+        //try the call that they're trying to go for.
+        alice.connect( ()=> 
+        call.join(alice, ()=>
+        latch.countDown()
+        ) )
+        //start a timer, 
+        Thread.sleep(2000)
+        alice.cancel( ()=> 
+        bob.connect( ()=>
+        call.join(bob, ()=>println("here")
+        //latch.countDown()
+        )))
         //cancel, try another call.
 
     }
-		
+	
+}
+
+object IncomingForward {
+    def main(args:Array[String]) { 
+        val test = new IncomingForward()
+        test.setUp()
+        test.testIncomingForward()
+        test.tearDown()
+    }
 }
