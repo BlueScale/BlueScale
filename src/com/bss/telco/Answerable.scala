@@ -35,9 +35,9 @@ protected[telco] trait Answerable {
     
   	def direction : DIRECTION //should probably be in SipConnection
 
- 	def accept(f:()=> Unit)
+ 	def accept(f:()=> Unit) : Unit
   
- 	def reject(f:()=> Unit)
+ 	def reject(f:()=> Unit) : Unit
 }
 
 

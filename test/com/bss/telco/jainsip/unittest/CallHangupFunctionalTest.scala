@@ -44,11 +44,7 @@ class CallHangupFunctionalTest extends TestHelper with SimpleCall  {
 		runConn()
 
 		getLatch.await()
- 	 
 	}
- 
-
-
 }
 
 object CallHangupFunctionalTest {

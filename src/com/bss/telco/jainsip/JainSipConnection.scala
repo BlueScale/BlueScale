@@ -83,7 +83,7 @@ class JainSipConnection protected[telco](
   		setState(VERSIONED_PROGRESSING( clientTx.get.getBranchId() ))
 	}
  	
-	override  def accept(connectedCallback:()=> Unit) = wrapLock {
+	override def accept(connectedCallback:()=> Unit) = wrapLock {
 	    connectionState match {
             case UNCONNECTED()=>
 		        telco.internal.sendResponse(200, serverTx, localSdp.toString().getBytes())
@@ -93,12 +93,12 @@ class JainSipConnection protected[telco](
 	    }
 	}
  
-	override  def reject(rejectCallback:()=> Unit) = wrapLock {
+	override def reject(rejectCallback:()=> Unit) = wrapLock {
 		telco.internal.sendResponse(606, serverTx, localSdp.toString().getBytes())
 		stateFunc +=  VERSIONED_UNCONNECTED(serverTx.get.getBranchId()) -> rejectCallback
 	}
  
-	override  def disconnect(disconnectCallback:()=> Unit) = wrapLock {
+	override def disconnect(disconnectCallback:()=> Unit) = wrapLock {
 		telco.internal.sendByeRequest(this)
         val f = ()=> {
                         onDisconnect()
@@ -117,7 +117,7 @@ class JainSipConnection protected[telco](
         connectionState match {
             case UNCONNECTED() => 
                 state = VERSIONED_CANCELED("") //not waiting on anything, no need
-                //OK CANCEL THE INVITE TOO
+                //need to wipe the state map!
                 telco.internal.sendResponse(487, serverTx, null)
                 telco.internal.sendResponse(200, serverCancelTx, null)
                 f()
@@ -127,7 +127,15 @@ class JainSipConnection protected[telco](
   	}
 
   	protected def cancelOutgoing(f:()=>Unit) = wrapLock {
-       //to implement 
+        //to implement
+        connectionState match {
+            case PROGRESSING() | UNCONNECTED() =>
+                telco.internal.sendCancel(this)
+                stateFunc += VERSIONED_CANCELED(clientTx.get.getBranchId())->f
+            
+            case CONNECTED() => 
+                throw new Exception("TOO LATE")
+        }
   	}
 
 	override def join(otherCall:Joinable[_], joinCallback:()=>Unit) = wrapLock {

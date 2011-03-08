@@ -39,43 +39,40 @@ class IncomingForward extends TestHelper {
 
     val bob = telcoServer.createConnection("9495554444", "234567789")
 
-    val latch = new CountDownLatch(1)
+    val joinedLatch = new CountDownLatch(1)
 
     var bobJoined = false
+
+    var incomingCall:SipConnection = null
 
     @Test
     def testIncomingForward() : Unit = {
         //add ignoring phone number to b2bServer
         b2bServer.addIgnore("7147579999")
         val testCall = b2bServer.createConnection("7147579999", "5554443333")
-        
         telcoServer.setIncomingCallback(answerCall)
-        latch.await(5, TimeUnit.SECONDS)
-        assertTrue(true)
-        //add answerCall callback to sipServer.
+        testCall.connect( ()=> println("connected") )
+        joinedLatch.await()
 
-        //b2b.createConnection
-        
-
-        //b2bServer.createConnection("")
-
+        println(        telcoServer.areTwoConnected(incomingCall, bob) )
     }
 
     def answerCall(call:SipConnection) : Unit ={
         //try the call that they're trying to go for.
-        alice.connect( ()=> 
-        call.join(alice, ()=>
-        latch.countDown()
-        ) )
+        call.accept( ()=> {
+        incomingCall = call
+        alice.connect( ()=>assertFalse(true) ) //shouldn't succeed...
         //start a timer, 
-        Thread.sleep(2000)
+        Thread.sleep(1000)
         alice.cancel( ()=> 
-        bob.connect( ()=>
-        call.join(bob, ()=>println("here")
-        //latch.countDown()
-        )))
-        //cancel, try another call.
-
+            bob.connect( ()=> {
+                bob.join(incomingCall, ()=>{
+                //call.join(bob, ()=> {
+                    println("~~~~~~~JOINED~~~~~~")
+                    joinedLatch.countDown()
+                    })
+            }))
+        })
     }
 	
 }
