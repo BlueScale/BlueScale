@@ -119,10 +119,27 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 conn.disconnect( ()=> postCallStatus(h.url, conn) )
             case p:Play =>    
                 println("join to media!")
+            //case c:Connect =>
+            //    println("connecting to another leg")
+            //    handleConnect(conn)
+
             //case t:Transfer =>println("join to someone")
         }
-
     }
+
+    def handleConnect(conn:SipConnection) {
+        
+        try {
+            println("not supported now")     
+        } catch {
+        case ex:InvalidStateException => println("its OK, it was already connected")
+        case ex:Exception => 
+            
+            println(ex)
+        }
+    }
+
+    //note if the conn state map changed, we have to abandon the state change!
 
 
 }

@@ -28,11 +28,11 @@ import com.bss.telco._
 import com.bss.telco.api._
 import scala.collection.immutable.Map
 import javax.sip.header._
-//import javax.sip.ServerTransaction
 import javax.sdp.SessionDescription
 import scala.actors.Actor
 import scala.actors.Actor._
 import com.bss.util._
+import com.bss.telco.Types._
 
 class JainSipConnection protected[telco](
                         var connid:String,
@@ -41,11 +41,13 @@ class JainSipConnection protected[telco](
                         val dir:DIRECTION, 
                         val telco:SipTelcoServer,
                         val disconnectOnUnjoin:Boolean)
+                
                         extends SipConnection
-                     	with SipData
-                     	with LogHelper 
-                     	with Lockable 
-                     	with OrderedExecutable {
+                     	    with SipData
+                     	    with LogHelper 
+                     	    with Lockable 
+                     	    with OrderedExecutable 
+                     	    with StateExecutor {
 	  
     override def destination = to
     
@@ -53,9 +55,7 @@ class JainSipConnection protected[telco](
 	
 	private var state:VersionedState = VERSIONED_UNCONNECTED("")
 	 
-	var contactHeader:Option[ContactHeader] = None
-	
-	private var stateFunc = Map[VersionedState,()=> Unit]()
+	//private var stateFunc = Map[VersionedState,FinishFunction]()
  	
  	override def connectionState = state.getState
  
@@ -64,8 +64,8 @@ class JainSipConnection protected[telco](
 	override def direction = dir
  
 	override def protocol = "SIP"
- 
-	private var progressingCallback:(SipConnection)=>Unit = null
+
+	private var progressingCallback:Option[(SipConnection)=>Unit] = None 
   	
 	var localSdp  = SdpHelper.getBlankSdp(telco.contactIp) //Should be private, can't be for testing purposes, maybe make private anyway and use reflection?
 
@@ -73,72 +73,72 @@ class JainSipConnection protected[telco](
 
 	protected[jainsip] def setConnectionid(id:String) = connid = id
  
-
- 	override def connect( f:()=> Unit) = connect(localSdp, f)
+ 	override def connect( f:FinishFunction) = connect(localSdp, f)
   
-	private def connect(sdp:SessionDescription, connectedCallback:()=> Unit) = wrapLock { 	
+	private def connect(sdp:SessionDescription, connectedCallback:FinishFunction) = wrapLock { 	
  	   	connid = telco.internal.sendInvite(this, sdp)
  	   	telco.addConnection(this)
-	  	stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->connectedCallback   	
-  		setState(VERSIONED_PROGRESSING( clientTx.get.getBranchId() ))
+ 	    setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback)
+        progressingCallback.foreach( _(this) )
 	}
  	
-	override def accept(connectedCallback:()=> Unit) = wrapLock {
+	override def accept(connectedCallback:FinishFunction) = wrapLock {
 	    connectionState match {
             case UNCONNECTED()=>
 		        telco.internal.sendResponse(200, serverTx, localSdp.toString().getBytes())
-  	  	        stateFunc +=VERSIONED_CONNECTED(serverTx.get.getBranchId()) -> connectedCallback
+                setFinishFunction(VERSIONED_CONNECTED(serverTx.get.getBranchId()), connectedCallback)
 	        case _ => 
 	            throw new Exception("Can't accept a connection because it's " + connectionState)
 	    }
 	}
  
-	override def reject(rejectCallback:()=> Unit) = wrapLock {
+	override def reject(rejectCallback:FinishFunction) = wrapLock {
 		telco.internal.sendResponse(606, serverTx, localSdp.toString().getBytes())
-		stateFunc +=  VERSIONED_UNCONNECTED(serverTx.get.getBranchId()) -> rejectCallback
+		setFinishFunction(VERSIONED_UNCONNECTED(serverTx.get.getBranchId()), rejectCallback) 
 	}
  
-	override def disconnect(disconnectCallback:()=> Unit) = wrapLock {
+	override def disconnect(disconnectCallback:FinishFunction) = wrapLock {
 		telco.internal.sendByeRequest(this)
         val f = ()=> {
                         onDisconnect()
                         disconnectCallback()
         }
-        stateFunc +=  VERSIONED_UNCONNECTED(clientTx.get.getBranchId()) ->f
+        setFinishFunction(VERSIONED_UNCONNECTED(clientTx.get.getBranchId()), f)
   	}
 
-  	override def cancel(f:()=>Unit) =  
+  	override def cancel(f:FinishFunction) =  
   	    dir match {
             case INCOMING() => cancelIncoming(f)
             case OUTGOING() => cancelOutgoing(f)
       	}
 
-  	protected def cancelIncoming(f:()=>Unit) = wrapLock {
+  	protected def cancelIncoming(cancelCallback:FinishFunction) = wrapLock {
         connectionState match {
             case UNCONNECTED() => 
                 state = VERSIONED_CANCELED("") //not waiting on anything, no need
                 //need to wipe the state map!
                 telco.internal.sendResponse(487, serverTx, null)
                 telco.internal.sendResponse(200, serverCancelTx, null)
-                f()
+                cancelCallback()//we need to make sure it got cancelled....?
+                //there is a race condition if someone had called accept, and it isn't connected yet, and then someone calls cancel
 
             case CONNECTED() => println("too late!")//don't think I gotta do anything here according to SIP
         }
   	}
 
-  	protected def cancelOutgoing(f:()=>Unit) = wrapLock {
+  	protected def cancelOutgoing(cancelCallback:FinishFunction) = wrapLock {
         //to implement
         connectionState match {
             case PROGRESSING() | UNCONNECTED() =>
                 telco.internal.sendCancel(this)
-                stateFunc += VERSIONED_CANCELED(clientTx.get.getBranchId())->f
+                setFinishFunction(VERSIONED_CANCELED(clientTx.get.getBranchId()), cancelCallback)
             
             case CONNECTED() => 
                 throw new Exception("TOO LATE")
         }
   	}
 
-	override def join(otherCall:Joinable[_], joinCallback:()=>Unit) = wrapLock {
+	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
 		//debug("OtherCall = " + otherCall)
 		otherCall.reconnect(localSdp,()=>{
 		   	this.reconnect(otherCall.sdp, ()=>{
@@ -148,44 +148,57 @@ class JainSipConnection protected[telco](
 	    	}) })
 	}
 
-    override def silence(f:()=>Unit) = wrapLock {
+    override def silence(silenceCallback:FinishFunction) = wrapLock {
     	SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.contactIp))
 	
       	telco.internal.sendReinvite(this,localSdp) //SWAPED THIS
-      	stateFunc += new VERSIONED_HOLD(clientTx.get.getBranchId())->f
+        setFinishFunction(new VERSIONED_HOLD(clientTx.get.getBranchId()), silenceCallback)
     }
 
-    override def hold(f:()=>Unit) : Unit = wrapLock {
+    override def hold(f:FinishFunction) : Unit = wrapLock {
         joinedTo match {
             case None => silence(f)
             case Some(otherConn) => otherConn.silence(()=>hold(f))
         }
     }    
 
-	override def unjoin(f:()=>Unit) = wrapLock {
+	override def unjoin(f:FinishFunction) = wrapLock {
 	    disconnectOnUnjoin match {
 	        case true => disconnect( ()=>disconnectCallback.foreach( _(this) )) 
 	        case false=> unjoinCallback.foreach( _(this) )
 	    }
 	}
   
-	override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit =  wrapLock {
+	override def reconnect(sdp:SessionDescription, reconnectCallback:FinishFunction) : Unit =  wrapLock {
 		joinedTo match {	
-	  		case None 	=> 	//System.err.println("in reconnect, Nothing is joined, we can reconnect now!")                                                        
-	  						telco.internal.sendReinvite(this, sdp) //TODO: fix race condition, should pass in the stateFunc stuff to the sendReinvite method...
-	  						stateFunc += new VERSIONED_CONNECTED(clientTx.get.getBranchId())->f
+	  		case None 	=> 	telco.internal.sendReinvite(this, sdp) //TODO: fix race condition, should pass in the stateFunc stuff to the sendReinvite method...
+	  						setFinishFunction(new VERSIONED_CONNECTED(clientTx.get.getBranchId()), reconnectCallback)
 	  				 	
 	  		case Some(otherConn) => otherConn.silence( ()=>{
 	  		    otherConn.joinedTo = None
 	  		    joinedTo = None
-	  		    this.reconnect(sdp, f)} )
+	  		    this.reconnect(sdp, reconnectCallback)} )
 	  	}
 	}
 
 
     protected[telco] def setState(s:VersionedState) : Unit = {
 	 	lock()
+	 	//debugStateExecutor()
+        state = s
+        if (state.getState.equals( PROGRESSING() ))
+            progressingCallback.foreach( _(this) )
+        else if (setAndExecute(state))
+            println("success")
+        else if (state.getState.equals(UNCONNECTED() )) {
+            onDisconnect()
+            disconnectCallback.foreach( _(this) )
+        }
+        unlock()
+
+
  		//debugStateMap(s)
+ 		/*
  		state = s
  		if (stateFunc.contains(state) && stateFunc(state) != null) {
 			stateFunc(s)()
@@ -199,7 +212,11 @@ class JainSipConnection protected[telco](
 			telco.fireFailure(this)
 		}
 		unlock() 
+		*/
 	}
+	
+	override def toString() = 
+	    "JainSipConnection " + direction + " TO:"+destination
 
     protected def onDisconnect() = wrapLock {
         joinedTo.foreach( joined=>{
@@ -209,13 +226,15 @@ class JainSipConnection protected[telco](
                 //disconnect on unjoin should go here?
          })
     }
-
+    /*
 	def debugStateMap(s:VersionedState) = {
 		debug(" ****** debug statemap ****** stateFunc size = " + stateFunc.size )
 		debug( "s =" + s)
 		for ( (key, value) <- stateFunc ) 
 			debug( key + "->" + value )
 	}
+    */
+
     
 }
  

@@ -80,7 +80,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
     @Test
     def testIncomingCall() {
-        println("test")  
+        println("test incomingCall")  
         var callid:Option[String] = None
         val inConn = b2bServer.createConnection("7147773456", "7145555555")
 
@@ -100,6 +100,17 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         inConn.connect( ()=> println("connected!") )
 
         latch.await()
+    }
+
+    @Test
+    def testIncomingForward() {
+        println("test incoming forward")
+        val clientNumber    = "4445556666"
+        val aliceNumber     = "7778889999"
+        val bobNumber       = "1112223333"
+
+        //val inConn = b2bserver.createConnection(clientNumber
+
     }
    
 

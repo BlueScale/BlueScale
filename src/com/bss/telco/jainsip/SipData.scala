@@ -23,10 +23,15 @@
 */
 package com.bss.telco.jainsip
 
-import javax.sip._;
+import javax.sip._
+import javax.sip.header._
 
 trait SipData {
+
+    protected[jainsip] var contactHeader:Option[ContactHeader] = None
+    
     protected[jainsip] var serverTx:Option[ServerTransaction] = None
+    
     protected[jainsip] var serverCancelTx:Option[ServerTransaction] = None
 
     protected[jainsip] var clientTx:Option[ClientTransaction] = None

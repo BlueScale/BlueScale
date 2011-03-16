@@ -21,37 +21,9 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.api
+package com.bss.telco
 
-import com.bss.telco._
-
-trait SipConnection 
-	extends Connectable[SipConnection] 
-	with Joinable[SipConnection] 
-	with Answerable {
-
-	def connectionid:String
-
-	def connectionState:ConnectionState //Possibly not needed here...
- 
-	def protocol:String
-
-    def destination:String
-
-    def origin:String
-
-    def hold(f:()=>Unit):Unit
-
-}
-
-class InvalidStateException(val expected:ConnectionState,
-                            val actual:ConnectionState)
-                            extends Exception {
-    override def toString() =
-        "Expected state " + expected + " but actual state was " + actual
-
+object Types {
     
-                            
-
+    type FinishFunction = ()=>Unit
 }
-

@@ -41,6 +41,6 @@ trait Util {
             case None    => str2
         }
     }
-    
-
 }
+
+
