@@ -48,7 +48,7 @@ object BlueMLParser extends Util {
         new Dial( GetNonEmpty((n \ "Number").text, n.text),
                   (n \ "CallerId").text,
                   (n \ "Action").text,
-                  parseInt((n \  "ringLimit").text))
+                  parseInt((n \ "RingLimit").text))
                   
    private def parsePlay(n:Node) : Play = {
         return null
@@ -59,7 +59,6 @@ object BlueMLParser extends Util {
            case Some(s) => Integer.parseInt(s)
            case None => -1
         }
-
 }
 
 

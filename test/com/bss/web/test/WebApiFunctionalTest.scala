@@ -44,6 +44,7 @@ object WebApiFunctionalTest {
         
     }
 }
+
 class WebApiFunctionalTest extends junit.framework.TestCase {
     
  	val config = new ConfigParser("resources/BlueScaleConfig.Sample.xml")
@@ -108,7 +109,12 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         val clientNumber    = "4445556666"
         val aliceNumber     = "7778889999"
         val bobNumber       = "1112223333"
+        var callid:Option[String] = None
 
+        testWS.setNextResponse( request=>{
+            callid = Some( request.getParameter("callId") )
+        getForwardResponse(aliceNumber, bobNumber)
+        })
         //val inConn = b2bserver.createConnection(clientNumber
 
     }
@@ -147,7 +153,18 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         
     }
     
-
+    def getForwardResponse(dest:String, dest2:String) : String = 
+        return (<Response>
+                    <Dial>
+                        <Number>{dest}</Number>
+                        <Action>http://localhost:8100</Action>
+                        <RingLimit>4</RingLimit>
+                    </Dial>
+                    <Dial>
+                        <Number>{dest2}</Number>
+                        <Action>http://localhost:8100</Action>
+                    </Dial>
+                </Response>).toString()
 
 
   

@@ -36,32 +36,49 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         }
     }
     
-    protected def handleBlueML(conn:SipConnection, verbs:Seq[BlueMLVerb]) : Unit = 
-        verbs.foreach( _ match { 
+    protected def handleBlueML(conn:SipConnection, verbs:Seq[BlueMLVerb]) : Unit = {
+        if (verbs.isEmpty)
+            return
+
+        verbs.head match {
+            case dial:Dial => handleDial(conn, dial, verbs.tail)
+            case play:Play => println("playing...")
+                              handleBlueML(conn, verbs.tail)
+        }
+    }
+               /*verbs.foreach( _ match { 
                 case dial:Dial => handleDial(conn, dial)
 
                 case play:Play => println("play")
             })
+        */
 
     
-    protected def handleDial(conn:SipConnection, dial:Dial) = 
+    protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = 
         conn.connectionState match {
             case c:CONNECTED =>
-                                dialJoin(conn, dial)
+                                dialJoin(conn, dial, verbs)
                                 
             //need to figure out how you can transfer/hold 
             case u:UNCONNECTED  => 
-                            conn.accept( ()=> dialJoin(conn, dial ) )
+                            conn.accept( ()=> dialJoin(conn, dial, verbs) )
            
            case p:PROGRESSING  => 
                                 println("progressing") //TODO: should we sleep and call again? 
         }
     
 
-    protected def dialJoin(conn:SipConnection, dial:Dial) = {
+    protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
         val destConn = telcoServer.createConnection(dial.number,"2222222222")
         destConn.connect( ()=> 
-            conn.join(destConn, ()=> postCallStatus(dial.url, getJoinedMap(conn, destConn), None) ))  
+            conn.join(destConn, ()=> postCallStatus(dial.url, getJoinedMap(conn, destConn), None) ))
+        dial.ringLimit match {
+            case -1 => println("ok nothing to do but hope it connects")
+
+            case _ => 
+                Thread.sleep(dial.ringLimit*(1000))
+                destConn.cancel( ()=> handleBlueML(conn, verbs) )                
+        }
     }
 
     
