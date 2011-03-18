@@ -46,13 +46,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                               handleBlueML(conn, verbs.tail)
         }
     }
-               /*verbs.foreach( _ match { 
-                case dial:Dial => handleDial(conn, dial)
-
-                case play:Play => println("play")
-            })
-        */
-
     
     protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = 
         conn.connectionState match {
@@ -136,11 +129,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 conn.disconnect( ()=> postCallStatus(h.url, conn) )
             case p:Play =>    
                 println("join to media!")
-            //case c:Connect =>
-            //    println("connecting to another leg")
-            //    handleConnect(conn)
-
-            //case t:Transfer =>println("join to someone")
         }
     }
 
@@ -149,8 +137,8 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         try {
             println("not supported now")     
         } catch {
-        case ex:InvalidStateException => println("its OK, it was already connected")
-        case ex:Exception => 
+            case ex:InvalidStateException => println("its OK, it was already connected")
+            case ex:Exception => 
             
             println(ex)
         }
