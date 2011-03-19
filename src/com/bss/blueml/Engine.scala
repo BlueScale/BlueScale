@@ -70,7 +70,13 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
             case _ => 
                 Thread.sleep(dial.ringLimit*(1000))
-                destConn.cancel( ()=> handleBlueML(conn, verbs) )                
+                try {
+                    destConn.cancel( ()=> handleBlueML(conn, verbs) )
+
+                } catch {
+                    case ex:InvalidStateException => println("first connect succeeded")
+                    case ex:Exception=> throw ex
+                }
         }
     }
 

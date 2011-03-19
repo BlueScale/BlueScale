@@ -88,7 +88,7 @@ class JainSipConnection protected[telco](
 		        telco.internal.sendResponse(200, serverTx, localSdp.toString().getBytes())
                 setFinishFunction(VERSIONED_CONNECTED(serverTx.get.getBranchId()), connectedCallback)
 	        case _ => 
-	            throw new Exception("Can't accept a connection because it's " + connectionState)
+	            throw new InvalidStateException(new UNCONNECTED(), connectionState)
 	    }
 	}
  
@@ -133,8 +133,8 @@ class JainSipConnection protected[telco](
                 telco.internal.sendCancel(this)
                 setFinishFunction(VERSIONED_CANCELED(clientTx.get.getBranchId()), cancelCallback)
             
-            case CONNECTED() => 
-                throw new Exception("TOO LATE")
+            case _ => 
+                throw new InvalidStateException(new PROGRESSING(), connectionState )
         }
   	}
 
@@ -181,6 +181,13 @@ class JainSipConnection protected[telco](
 	  	}
 	}
 
+    protected def onDisconnect() = wrapLock {
+        joinedTo.foreach( joined=>{
+                joinedTo = None 
+                joined.joinedTo = None
+                joined.unjoin(()=>Unit)
+         })
+    }
 
     protected[telco] def setState(s:VersionedState) : Unit = {
 	 	lock()
@@ -195,47 +202,12 @@ class JainSipConnection protected[telco](
             disconnectCallback.foreach( _(this) )
         }
         unlock()
-
-
- 		//debugStateMap(s)
- 		/*
- 		state = s
- 		if (stateFunc.contains(state) && stateFunc(state) != null) {
-			stateFunc(s)()
-		} else if ( state.getState == UNCONNECTED() ) { 
-		    //If it wasn't in the map, it's an unrequested disconnect that happened remotely.
-            onDisconnect()  
-			disconnectCallback.foreach( _(this) )
-
-        } else if ( state.getState != PROGRESSING()) {
-			stateFunc = Map[VersionedState,()=> Unit]()//WIPE IT ALL, shit happened not in the order we expected!
-			telco.fireFailure(this)
-		}
-		unlock() 
-		*/
 	}
 	
 	override def toString() = 
 	    "JainSipConnection " + direction + " TO:"+destination
 
-    protected def onDisconnect() = wrapLock {
-        joinedTo.foreach( joined=>{
-                joinedTo = None 
-                joined.joinedTo = None
-                joined.unjoin(()=>Unit)
-                //disconnect on unjoin should go here?
-         })
-    }
-    /*
-	def debugStateMap(s:VersionedState) = {
-		debug(" ****** debug statemap ****** stateFunc size = " + stateFunc.size )
-		debug( "s =" + s)
-		for ( (key, value) <- stateFunc ) 
-			debug( key + "->" + value )
-	}
-    */
-
-    
+       
 }
  
 

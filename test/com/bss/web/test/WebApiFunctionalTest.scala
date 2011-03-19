@@ -60,8 +60,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
     var latch:CountDownLatch = null
 
-    println("=============WebAPI functional Test BEING RUN===================")
-
 	@Before
    	override def setUp() {
    		b2bServer.start()
@@ -115,6 +113,9 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
             callid = Some( request.getParameter("callId") )
         getForwardResponse(aliceNumber, bobNumber)
         })
+
+        
+
         //val inConn = b2bserver.createConnection(clientNumber
 
     }

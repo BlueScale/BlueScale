@@ -21,8 +21,14 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco
+package com.bss.telco.api
 
-trait StateMappable {
+import com.bss.telco._
 
-   }
+class InvalidStateException(val expected:ConnectionState,
+                            val actual:ConnectionState)
+                            extends Exception {
+    override def toString() =
+        "Expected state " + expected + " but actual state was " + actual
+
+}

@@ -44,14 +44,5 @@ trait SipConnection
 
 }
 
-class InvalidStateException(val expected:ConnectionState,
-                            val actual:ConnectionState)
-                            extends Exception {
-    override def toString() =
-        "Expected state " + expected + " but actual state was " + actual
 
-    
-                            
-
-}
 

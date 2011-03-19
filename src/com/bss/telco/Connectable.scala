@@ -34,3 +34,5 @@ protected[telco] trait Connectable[T] {
     var disconnectCallback:Option[(T)=>Unit] = None
   
 }
+
+

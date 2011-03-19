@@ -29,8 +29,6 @@ protected[telco] trait Joinable[T] {
 
   	var joinedTo:Option[Joinable[_]] = None
   	
-  	//def hold(f:()=>Unit)
-  
 	def join(connection:Joinable[_], f:()=>Unit)
 
     protected[telco] def reconnect(sdp:SessionDescription, f:()=>Unit)
@@ -40,8 +38,6 @@ protected[telco] trait Joinable[T] {
     protected[telco] def silence(f:()=>Unit)
 
     protected[telco] def unjoin(f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
-
-    //protected[telco] def ujoin(f:()=>Unit, reason:UnjoinReason)
 
     var unjoinCallback:Option[(T)=>Unit] = None
 }
