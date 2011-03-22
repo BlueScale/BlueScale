@@ -95,10 +95,13 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
  	    println("Test Server STARTED")
  	    b2bTelcoServer.setIncomingCallback(handleIncoming);
  	    b2bTelcoServer.start()
+ 	    
     }
 
-	def stop() : Unit =
+	def stop() : Unit = {
 		b2bTelcoServer.stop()
+        ignore = Set[String]()
+	}
  	
   	
   	def handleConnected() = {

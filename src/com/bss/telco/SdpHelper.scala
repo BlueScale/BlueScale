@@ -39,7 +39,8 @@ import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
 import java.util.Vector
 import com.bss.util._
-//FIXME: lets make this a lttle smarter on figuring out what kind of stuff we can transmit 
+//FIXME: lets make this a lttle smarter on figuring out what kind of stuff we can transmit
+
 object SdpHelper {
 
 	private val RTP = "RTP/AVP"

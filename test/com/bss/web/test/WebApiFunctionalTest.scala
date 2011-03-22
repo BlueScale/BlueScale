@@ -91,34 +91,57 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> { 
+            println("  JJJJJJJJOOOOOOINED")
             assertEquals( inConn.connectionState, CONNECTED() )
             inConn.disconnect( ()=>println("disconnected") )
+            //latch.countDown()
+            ""
+        })
+
+        testWS.setNextResponse( (request:HttpServletRequest)=> {
+            assertEquals( inConn.connectionState, UNCONNECTED() )
+            //check that it's posting the right info
+            println("-------------------------------------------------------")
             latch.countDown()
             ""
         })
+
         inConn.connect( ()=> println("connected!") )
 
         latch.await()
+        println("Finished testINcomingCall")
     }
 
+    //NOTE. issue is we are posting back antoher connected when we only want the joined.
+/*
     @Test
     def testIncomingForward() {
         println("test incoming forward")
-        val clientNumber    = "4445556666"
+        val gatewayNumber    = "4445556666"
         val aliceNumber     = "7778889999"
         val bobNumber       = "1112223333"
+        
         var callid:Option[String] = None
+
+        val clientConn = b2bServer.createConnection(gatewayNumber, "1112223333")
 
         testWS.setNextResponse( request=>{
             callid = Some( request.getParameter("callId") )
-        getForwardResponse(aliceNumber, bobNumber)
+            getForwardResponse(aliceNumber, bobNumber)
         })
 
+        testWS.setNextResponse( request=> {
+           println("CONNECTED")
+           ""
+        })
+
+        b2bServer.addIgnore(aliceNumber)
         
 
         //val inConn = b2bserver.createConnection(clientNumber
 
     }
+    */
    
 
     @Test
@@ -153,6 +176,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         latch.await()
         
     }
+    
     
     def getForwardResponse(dest:String, dest2:String) : String = 
         return (<Response>

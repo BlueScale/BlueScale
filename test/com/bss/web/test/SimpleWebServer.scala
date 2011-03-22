@@ -80,7 +80,9 @@ class SimpleWebServer(port:Int) {
 
 class CallbackServlet(ws:SimpleWebServer) extends HttpServlet {
         
-    override def doGet(request:HttpServletRequest, response:HttpServletResponse) = 
+    override def doGet(request:HttpServletRequest, response:HttpServletResponse) = { 
+        println(" REQUEST = " + request + " ConversationStatus = " + request.getParameter("ConversationStatus"))
+        println(" REQUEST CallStatus = " + request.getParameter("CallStatus") )
         ws.getNextResponse().foreach( cb =>{
             response.setContentType("text/xml") //XML
             response.setStatus(HttpServletResponse.SC_OK)
@@ -88,7 +90,7 @@ class CallbackServlet(ws:SimpleWebServer) extends HttpServlet {
             response.getWriter().flush()
             response.getWriter().close()
             })
-    
+    }
     
 
     override def doPost(request:HttpServletRequest, response:HttpServletResponse) {

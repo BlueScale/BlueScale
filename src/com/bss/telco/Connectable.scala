@@ -32,7 +32,6 @@ protected[telco] trait Connectable[T] {
  	def disconnect(f:()=> Unit)
 
     var disconnectCallback:Option[(T)=>Unit] = None
-  
 }
 
 

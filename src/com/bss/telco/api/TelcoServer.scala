@@ -23,6 +23,8 @@
 */
 package com.bss.telco.api
 
+import com.bss.telco._
+
 
 trait TelcoServer {
 
@@ -32,11 +34,13 @@ trait TelcoServer {
   	  
    	def findConnection(connectionId:String) : SipConnection; 
   
-  	def setFailureCallback(f:(SipConnection)=>Unit)
+  	def setFailureCallback(f:(SipConnection) => Unit)
   	
-	def setIncomingCallback(f:(SipConnection)=> Unit)
+	def setIncomingCallback(f:(SipConnection) => Unit)
   	
-  	def setDisconnectedCallback(f:(SipConnection)=> Unit)
+  	def setDisconnectedCallback(f:(SipConnection) => Unit)
+
+  	def setUnjoinCallback(f:(Joinable[_],SipConnection) => Unit)
   
   	def start()
 

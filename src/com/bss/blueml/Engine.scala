@@ -26,11 +26,16 @@ package com.bss.blueml
 
 import com.bss.telco.api._
 import com.bss.util._
+import java.util.concurrent._
 
 class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
+
+
+    val conversationMap = new ConcurrentHashMap[SipConnection,ConversationInfo]()
+
    
     protected def handleBlueML(conn:SipConnection, str:String) : Unit = {
-       StrOption(str.trim()) match {
+        StrOption(str.trim()) match {
             case Some(x) => handleBlueML(conn, BlueMLParser.parse(str))
             case None => Unit
         }
@@ -62,9 +67,11 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
-        val destConn = telcoServer.createConnection(dial.number,"2222222222")
+        val destConn = telcoServer.createConnection(dial.number, dial.callerId)
         destConn.connect( ()=> 
-            conn.join(destConn, ()=> postCallStatus(dial.url, getJoinedMap(conn, destConn), None) ))
+            conn.join(destConn, () => postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
+        )
+        
         dial.ringLimit match {
             case -1 => println("ok nothing to do but hope it connects")
 
@@ -80,6 +87,12 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         }
     }
 
+    def addConvoInfo(url:String, conn1:SipConnection, conn2:SipConnection) : ConversationInfo = {
+        val ci = new ConversationInfo(conn1, conn2, url)
+        conversationMap.put(conn1, ci)
+        conversationMap.put(conn2, ci)
+        return ci
+    }
     
     def handleIncomingCall(url:String, conn:SipConnection) = 
         postCallStatus(url, conn)
@@ -95,7 +108,9 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case Some(xml)  => handleResponse.foreach( _(xml) )
             case None       => //ok...
         }
-   
+
+    def postConversationStatus(convo:ConversationInfo) = 
+        postCallStatus(convo.url,getJoinedMap(convo),None)
     
     protected def getConnectionMap(conn:SipConnection) = 
         Map( "CallId"->conn.connectionid,
@@ -105,17 +120,17 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
              "Direction" -> conn.direction.toString() )    
     
     
-    protected def getJoinedMap(conn1:SipConnection, conn2:SipConnection) = 
-        Map( "FirstCallId"->conn1.connectionid,
-             "SecondCallId"->conn2.connectionid,
-             "ConversationStatus"-> getJoinedState(conn1, conn2) )
+    protected def getJoinedMap(convo:ConversationInfo) = 
+        Map( "FirstCallId"->convo.conn1.connectionid,
+             "SecondCallId"->convo.conn2.connectionid,
+             "ConversationStatus"-> getJoinedState(convo))
 
 
-    protected def getJoinedState(conn1:SipConnection, conn2:SipConnection) : String =
-        telcoServer.areTwoConnected(conn1,conn2) match {
-                    case true => "Connected"
-                    case false=> "ConnectionFailed"
-                    }
+    protected def getJoinedState(convo:ConversationInfo) : String =
+        telcoServer.areTwoConnected(convo.conn1,convo.conn2) match {
+            case true => "Connected"
+            case false=> "Unconnected"
+        }
 
     
      def newCall(to:String, from:String, url:String) {
@@ -132,14 +147,24 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         action match {
             case h:Hangup =>  
                 println("hanging up.....")
-                conn.disconnect( ()=> postCallStatus(h.url, conn) )
+                conn.disconnect( ()=> println("no need to postCall status, should be posting joined status soon"))//postCallStatus(h.url, conn) )
             case p:Play =>    
                 println("join to media!")
         }
     }
 
+    def handleDisconnect(url:String, conn:SipConnection) {
+        //ok, wtf. do we post a join callback? or what?
+    }
+
+    def handleUnjoin(url:String, unjoiner:Joinable[_], conn:SipConnection) = {
+        val convo = conversationMap.get(conn)
+        postConversationStatus(convo)
+        conversationMap.remove(convo.conn1)
+        conversationMap.remove(convo.conn2)
+    }
+
     def handleConnect(conn:SipConnection) {
-        
         try {
             println("not supported now")     
         } catch {
@@ -152,6 +177,14 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
     //note if the conn state map changed, we have to abandon the state change!
 
+}
+
+class ConversationInfo( val conn1:SipConnection, 
+                        val conn2:SipConnection,
+                        val url:String) {
+    
 
 }
+
+
 

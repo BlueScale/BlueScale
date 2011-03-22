@@ -51,7 +51,10 @@ class WebServer(apiPort:Int,
     
     private val wserver = new Server()
     val engine = new Engine(telcoServer, callbackUrl)    
-    telcoServer.setIncomingCallback( (conn:SipConnection)=>engine.handleIncomingCall(callbackUrl,conn) )
+    telcoServer.setIncomingCallback( conn => engine.handleIncomingCall(callbackUrl,conn) )
+    telcoServer.setUnjoinCallback( (unjoiner, conn) => engine.handleUnjoin(callbackUrl, unjoiner, conn) )
+    //we don't care about the disconnectCallbacks as muchas  conversation callbacks:w
+    //telcoServer.setDisconnectedCallback( conn => engine.handleDisconnect(callbackUrl, conn) )
     initWebServer()
 
     def initWebServer() {

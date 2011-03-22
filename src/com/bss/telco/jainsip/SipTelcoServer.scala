@@ -34,7 +34,12 @@ import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
 
 
-class SipTelcoServer(val listeningIp:String, val contactIp:String, val port:Int, val destIp:String, val destPort:Int) extends TelcoServer {
+class SipTelcoServer(
+    val listeningIp:String, 
+    val contactIp:String, 
+    val port:Int,
+    val destIp:String,
+    val destPort:Int) extends TelcoServer {
      
      def this(ip:String, port:Int, destIp:String, destPort:Int) =
         this(ip, ip, port, destIp, destPort)
@@ -44,19 +49,19 @@ class SipTelcoServer(val listeningIp:String, val contactIp:String, val port:Int,
 	private var disconnectedCallback:Option[SipConnection=>Unit] = None
 	
 	private var failureCallback:Option[SipConnection=>Unit] = None
- 
+
+	private var unjoinCallback:Option[(Joinable[_],SipConnection) => Unit] = None
+
 	protected[jainsip] val connections = new ConcurrentHashMap[String, JainSipConnection]()
 	
-   
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
- 
  
    	override def createConnection(dest:String, callerid:String, disconnectOnUnjoin:Boolean) : SipConnection = {
    	    val conn = new JainSipConnection( null, dest, callerid, new OUTGOING, this, disconnectOnUnjoin)  //this gets in the connections map when an ID is created
    	    conn.disconnectCallback = disconnectedCallback
+   	    conn.unjoinCallback = unjoinCallback
    	    return conn
    	}
-
    	
    	override def createConnection(dest:String, callerid:String) = 
         createConnection(dest, callerid, true) 
@@ -71,7 +76,6 @@ class SipTelcoServer(val listeningIp:String, val contactIp:String, val port:Int,
     
     protected[jainsip] def removeConnection(conn:SipConnection) : Unit = 
     	connections.remove(conn.connectionid)
- 
     
 	override def start() {
 		internal.start()
@@ -81,43 +85,45 @@ class SipTelcoServer(val listeningIp:String, val contactIp:String, val port:Int,
 		internal.stop()
 	}
  
-	override def setFailureCallback(f:(SipConnection)=>Unit) = failureCallback = Some(f)
+	override def setFailureCallback(f:(SipConnection) => Unit) = failureCallback = Some(f)
 		
-	override def setIncomingCallback(f:(SipConnection)=> Unit) = incomingCallback = Some(f)
+	override def setIncomingCallback(f:(SipConnection) => Unit) = incomingCallback = Some(f)
 			
-	override def setDisconnectedCallback(f:(SipConnection)=> Unit) = disconnectedCallback = Some(f)
+	override def setDisconnectedCallback(f:(SipConnection) => Unit) = disconnectedCallback = Some(f)
+
+	override def setUnjoinCallback(f:(Joinable[_],SipConnection) => Unit) = unjoinCallback = Some(f)
 	
 	def fireFailure(c:SipConnection) 		= failureCallback.foreach( _(c) ) 
 
 	def fireDisconnected(c:SipConnection) 	= disconnectedCallback.foreach( _(c) ) 
 	
-	def fireIncoming(c:SipConnection) = incomingCallback.foreach( _(c) )
-    
+	def fireIncoming(c:SipConnection)   = incomingCallback.foreach( _(c) )
 
-    override def areTwoConnected(conn1:SipConnection, conn2:SipConnection) : Boolean = {
-        val mediatrans1 =  conn1.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-        val medialist1 = conn2.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+    override def areTwoConnected(c1:SipConnection, c2:SipConnection) : Boolean = {
       
-        val mediatrans2 =  conn2.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-        val medialist2 = conn1.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-      
-        //TODO: Check Media Connection!
-      
-        if ( mediatrans1.getMedia().getMediaPort != medialist1.getMedia().getMediaPort() ) 
-    	    return false
-      
-        if ( mediatrans2.getMedia().getMediaPort != medialist2.getMedia().getMediaPort() ) 
+        if ( c1.connectionState != CONNECTED() || c2.connectionState != CONNECTED() ) 
             return false
       
-        if ( conn1.connectionState != CONNECTED() || conn2.connectionState != CONNECTED() ) 
-            return false
+        if ( c1.joinedTo == None || c2.joinedTo == None ) 
+    	    return false
+    	
+    	c1.asInstanceOf[JainSipConnection].joinedTo.foreach( conn1 =>
+            c2.asInstanceOf[JainSipConnection].joinedTo.foreach( conn2 => {
+
+            val mediatrans1 =  conn1.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+            val medialist1 = conn2.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
       
-        if ( conn1.joinedTo == None || conn2.joinedTo == None ) 
-    	    return false
-             
-        if ( !conn1.joinedTo.get.equals(conn2) || !conn2.joinedTo.get.equals(conn1) ) 
-    	    return false
-            
+            val mediatrans2 =  conn2.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+            val medialist2 = conn1.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+      
+            //TODO: Check Media Connection!
+      
+            if ( mediatrans1.getMedia().getMediaPort != medialist2.getMedia().getMediaPort() ) 
+    	        return false
+      
+            if ( mediatrans2.getMedia().getMediaPort != medialist1.getMedia().getMediaPort() ) 
+                return false
+        }))
         return true
     }
 

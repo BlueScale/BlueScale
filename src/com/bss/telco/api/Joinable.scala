@@ -21,11 +21,11 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco
+package com.bss.telco.api
 
 import javax.sdp.SessionDescription
 
-protected[telco] trait Joinable[T] {
+trait Joinable[T] {
 
   	var joinedTo:Option[Joinable[_]] = None
   	
@@ -37,9 +37,9 @@ protected[telco] trait Joinable[T] {
 
     protected[telco] def silence(f:()=>Unit)
 
-    protected[telco] def unjoin(f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
+    protected[telco] def unjoin(j:Joinable[_], f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
 
-    var unjoinCallback:Option[(T)=>Unit] = None
+    var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
 }
 
 

@@ -88,7 +88,7 @@ class JmfMediaConnection(file:String,
         //do nothing?  Stop listening? 
 	}
 
-	override def unjoin(f:()=>Unit) = wrapLock {
+	override def unjoin(unjoiner:Joinable[_],f:()=>Unit) = wrapLock {
         f()
 	}
 
