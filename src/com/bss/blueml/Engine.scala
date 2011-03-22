@@ -147,7 +147,11 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         action match {
             case h:Hangup =>  
                 println("hanging up.....")
-                conn.disconnect( ()=> println("no need to postCall status, should be posting joined status soon"))//postCallStatus(h.url, conn) )
+                conn.disconnect( () => conn.joinedTo match {
+                    case Some(x) => println("The unjoin will fire and post back the status, no need to tell it we're hanging up")
+                    case None => postCallStatus(h.url, conn)
+                })
+                //conn.disconnect( ()=> println("no need to postCall status, should be posting joined status soon"))//postCallStatus(h.url, conn) )
             case p:Play =>    
                 println("join to media!")
         }

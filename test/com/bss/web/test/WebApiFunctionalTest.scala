@@ -101,7 +101,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         testWS.setNextResponse( (request:HttpServletRequest)=> {
             assertEquals( inConn.connectionState, UNCONNECTED() )
             //check that it's posting the right info
-            println("-------------------------------------------------------")
             latch.countDown()
             ""
         })
@@ -112,8 +111,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         println("Finished testINcomingCall")
     }
 
-    //NOTE. issue is we are posting back antoher connected when we only want the joined.
-/*
     @Test
     def testIncomingForward() {
         println("test incoming forward")
@@ -141,7 +138,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         //val inConn = b2bserver.createConnection(clientNumber
 
     }
-    */
    
 
     @Test
