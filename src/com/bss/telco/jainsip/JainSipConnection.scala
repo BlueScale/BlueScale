@@ -202,7 +202,7 @@ class JainSipConnection protected[telco](
         if (state.getState.equals( PROGRESSING() ))
             progressingCallback.foreach( _(this) )
         else if (setAndExecute(state))
-            println("success")
+            print("")
         else if (state.getState.equals(UNCONNECTED() )) {
             onDisconnect()
             disconnectCallback.foreach( _(this) )

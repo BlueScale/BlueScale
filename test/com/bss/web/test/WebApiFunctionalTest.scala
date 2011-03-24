@@ -38,9 +38,11 @@ import com.bss.util.WebUtil
 object WebApiFunctionalTest {
     def main(args:Array[String]) {
         val wt = new WebApiFunctionalTest()
+        println(" TEEEEEEEST" )
         wt.setUp()
-        wt.testClickToCall()
+        //wt.testClickToCall()
         //wt.testIncomingCall()
+        wt.testIncomingForward()
         
     }
 }
@@ -89,6 +91,8 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
             getDialResponse("9494443333")
         })
 
+        testWS.setNextResponse( request=> "" ) //this is telling us the callID of the other end...
+
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> { 
             println("  JJJJJJJJOOOOOOINED")
@@ -114,35 +118,55 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
     @Test
     def testIncomingForward() {
         println("test incoming forward")
+        val joinedLatch = new CountDownLatch(1)
+        
         val gatewayNumber    = "4445556666"
         val aliceNumber     = "7778889999"
         val bobNumber       = "1112223333"
-        
         var callid:Option[String] = None
 
         val clientConn = b2bServer.createConnection(gatewayNumber, "1112223333")
 
         testWS.setNextResponse( request=>{
-            callid = Some( request.getParameter("callId") )
+            callid = Some( request.getParameter("CallId") )
             getForwardResponse(aliceNumber, bobNumber)
         })
 
         testWS.setNextResponse( request=> {
-           println("CONNECTED")
-           ""
+            println(" ok i'm connected here")
+            assertEquals(request.getParameter("To"), bobNumber)
+            ""
+        })
+
+        testWS.setNextResponse( request=> {
+            println("......joined")
+            assertEquals(request.getParameter("ConversationStatus"), "Connected")
+            joinedLatch.countDown()
+            ""
+        })
+
+        testWS.setNextResponse( request=> {
+            println("disconnected")
+            latch.countDown()
+            ""
         })
 
         b2bServer.addIgnore(aliceNumber)
         
 
-        //val inConn = b2bserver.createConnection(clientNumber
-
+        val inConn = b2bServer.createConnection(gatewayNumber, "4443332222")
+        inConn.connect( ()=> println("connected") ) 
+        joinedLatch.await()
+        WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
+        latch.await()
+        println("finished testIncomingForward")
     }
    
 
     @Test
     def testClickToCall() { 
         println("testClickTocall")
+        
         var callid:String = null
         val joinedLatch = new CountDownLatch(1)
        
@@ -150,7 +174,10 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
                 callid = request.getParameter("CallId")
                 getDialResponse("9494443333") 
             })
-        
+        testWS.setNextResponse( request=> {
+            println("connected")
+            ""
+        })
         testWS.setNextResponse( request=> {
             println(" joined NOW!")
             joinedLatch.countDown()
@@ -167,10 +194,11 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
                                                             "From"->"4445556666",
                                                             "Url"->"http://localhost:8100"))
         joinedLatch.await()
-        Thread.sleep(200)//our post might happen before the join callback finishes, could be a benign race conidtion in our test
+        Thread.sleep(900)//our post might happen before the join callback finishes, could be a benign race conidtion in our test
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid+"/Hangup", Map("Url"->"http://localhost:8100"))
         latch.await()
         
+        println("finisehd click to call")
     }
     
     

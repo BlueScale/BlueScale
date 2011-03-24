@@ -68,9 +68,11 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
         val destConn = telcoServer.createConnection(dial.number, dial.callerId)
-        destConn.connect( ()=> 
-            conn.join(destConn, () => postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
-        )
+        destConn.connect( ()=>{ 
+            postCallStatus(dial.url, destConn)
+            conn.join(destConn, () => 
+                postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
+        })
         
         dial.ringLimit match {
             case -1 => println("ok nothing to do but hope it connects")
@@ -104,7 +106,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         postCallStatus(url, getConnectionMap(conn), Some( (s:String)=>handleBlueML(conn, s) ) )
 
     def postCallStatus(url:String, map:Map[String,String], handleResponse:Option[(String)=>Unit]) : Unit =
-        Option( WebUtil.postToUrl(url, map) ) match {
+        Option( SequentialWebPoster.postToUrl(url, map) ) match {
             case Some(xml)  => handleResponse.foreach( _(xml) )
             case None       => //ok...
         }
@@ -146,10 +148,11 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         val conn = telcoServer.findConnection(callid)
         action match {
             case h:Hangup =>  
-                println("hanging up.....")
-                conn.disconnect( () => conn.joinedTo match {
+                val joinedTo = conn.joinedTo
+                conn.disconnect( () => joinedTo match {
                     case Some(x) => println("The unjoin will fire and post back the status, no need to tell it we're hanging up")
-                    case None => postCallStatus(h.url, conn)
+                    case None => 
+                        postCallStatus(h.url, conn)
                 })
                 //conn.disconnect( ()=> println("no need to postCall status, should be posting joined status soon"))//postCallStatus(h.url, conn) )
             case p:Play =>    
@@ -186,8 +189,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 class ConversationInfo( val conn1:SipConnection, 
                         val conn2:SipConnection,
                         val url:String) {
-    
-
 }
 
 

@@ -29,8 +29,7 @@ import java.io._
 import scala.collection.immutable.PagedSeq
 
 object WebUtil {
-
-   
+    
     def readAll(reader:BufferedReader) : String =
         PagedSeq.fromReader(reader).mkString
 
