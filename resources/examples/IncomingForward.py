@@ -31,7 +31,7 @@ class MyHandler(BaseHTTPRequestHandler):
                         <Number>
                         """ + number + """
                         </Number>
-                        <Action>http://localhost:8100/Status</Action>
+                        <Action>http://127.0.0.1:8081/Status</Action>
                     </Dial>
                 </Response>
             """
@@ -47,7 +47,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
 def main():
     try:
-        server = HTTPServer( ('', 8080), MyHandler)
+        server = HTTPServer( ('', 8081), MyHandler)
         print("started, forwarding to " + number)
         server.serve_forever()
         print("serving...")
