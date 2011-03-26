@@ -32,9 +32,7 @@ class MyHandler(BaseHTTPRequestHandler):
         str = """
                 <Response>
                     <Dial>
-                        <Number>
-                        """ + number + """
-                        </Number>
+                        <Number>""" + number + """</Number>
                         <Action>http://127.0.0.1:8081/Status</Action>
                     </Dial>
                 </Response>
