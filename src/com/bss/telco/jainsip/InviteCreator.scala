@@ -57,7 +57,7 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			val toHeader = sipServer.headerFactory.createToHeader(toNameAddress,null)
 
 			// create Request URI
-			val requestURI = sipServer.addressFactory.createSipURI(dest, sipServer.destIp)
+			val requestURI = sipServer.addressFactory.createSipURI(dest.trim(), sipServer.destIp)
 
 			// Create ViaHeaders
 			val viaHeaders = new ArrayList[ViaHeader]

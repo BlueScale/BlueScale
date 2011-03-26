@@ -35,6 +35,7 @@ object WebUtil {
 
 
     def postToUrl(url:String, params:Map[String, String]) : String = {
+        var response = ""
         val data = params
                     .map({ case (key, value) =>  
                         URLEncoder.encode( key, "UTF-8") + "=" +URLEncoder.encode( value, "UTF-8") })
@@ -42,18 +43,22 @@ object WebUtil {
         
         val urlConn = new URL(url).openConnection()
         urlConn.setDoOutput(true)
+        urlConn.setReadTimeout(50) //TODO: what's a good timeout? 
         val os = new OutputStreamWriter(urlConn.getOutputStream())
         try {
             os.write(data)
             os.flush()
             val reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream() ))
-            val response = readAll(reader)
+            response = readAll(reader)
             print(response)
             reader.close()
-            return response
+        } catch {
+            case ex:Exception => 
+                ex.printStackTrace()
         } finally {
             os.close()
         }
+        return response
     }
 
     

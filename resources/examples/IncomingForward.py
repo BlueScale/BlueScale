@@ -20,6 +20,10 @@ class MyHandler(BaseHTTPRequestHandler):
         params = self.parseParams()
         for field in params.keys():
             print( field + "=" + "".join(params[field]))
+        self.send_response(200)
+        self.send_headers("Content-Type", "text/html")
+        self.end_headers()
+        return
     
     def handleIncomingCall(self):
         self.send_response(200)
