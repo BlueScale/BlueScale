@@ -18,6 +18,7 @@
 	<property name="lib.dir"				value="lib"/>
 	<property name="dist.dir"				value="dist"/>
 	<property name="launch.dir"             value="${resources.dir}/launch"/>
+	<property name="examples.dir"           value="${resources.dir}/examples"/>
 
     <property name="log4j"                  value="-Dlog4j.configuration=${resources.dir}/log4j.properties" />
 	<property name="scala.home"				value="${env.SCALA_HOME}"/>
@@ -186,6 +187,7 @@
 		<mkdir dir="${dist.dir}/temp/lib"/>
 		<mkdir dir="${dist.dir}/temp/log"/>
 		<mkdir dir="${dist.dir}/temp/docs"/>
+		<mkdir dir="${dist.dir}/temp/examples"/>
 		
 		<copy todir="${dist.dir}/temp/">
             <fileset dir="${launch.dir}"/>
@@ -194,6 +196,10 @@
 		
 		<copy todir="${dist.dir}/temp/lib" flatten="true">
 			<fileset dir="${lib.dir}"/>
+		</copy>
+
+		<copy todir="${dist.dir}/temp/examples" flatten="true">
+            <fileset dir="${examples.dir}"/>
 		</copy>
 
         <copy todir="${dist.dir}/temp/lib" file="${dist.dir}/temp/BlueScaleServer.jar"/>
