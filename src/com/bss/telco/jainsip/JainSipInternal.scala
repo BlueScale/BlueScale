@@ -280,7 +280,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
-	    println(" =============================== sending REINVITE =====================")
 		val request = conn.dialog.get.createRequest(Request.INVITE)
 		conn.contactHeader.foreach( request.addHeader(_) )//neccessary?
 		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")

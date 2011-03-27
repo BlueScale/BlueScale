@@ -11,24 +11,25 @@ class MyHandler(BaseHTTPRequestHandler):
         return
 
     def do_POST(self):
+        print( "PAAAAAAATH = " + self.path )
         if self.path == "/Status":
-            self.handleStatus()
+            self.printParams()
+            self.printOK()
         else: 
             self.handleIncomingCall()   
 
-    def handleStatus(self):
+    def printParams(self):
         params = self.parseParams()
         for field in params.keys():
             print( field + "=" + "".join(params[field]))
-        self.send_response(200)
-        self.send_headers("Content-Type", "text/html")
-        self.end_headers()
-        return
     
-    def handleIncomingCall(self):
+    def postOK(self):
         self.send_response(200)
-        self.send_header("Content-type", "text/html")
+        self.send_header("Content-Type", "text/html")
         self.end_headers()
+        
+    def handleIncomingCall(self):
+        self.printOK()
         str = """
                 <Response>
                     <Dial>

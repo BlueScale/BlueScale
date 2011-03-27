@@ -81,15 +81,19 @@ class JainSipConnection protected[telco](
  	    setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback)
         progressingCallback.foreach( _(this) )
 	}
- 	
-	override def accept(connectedCallback:FinishFunction) = wrapLock {
-	    connectionState match {
+
+    override def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
+        connectionState match {
             case UNCONNECTED()=>
-		        telco.internal.sendResponse(200, serverTx, localSdp.toString().getBytes())
+		        telco.internal.sendResponse(200, serverTx, toJoin.sdp.toString().getBytes())
                 setFinishFunction(VERSIONED_CONNECTED(serverTx.get.getBranchId()), connectedCallback)
 	        case _ => 
 	            throw new InvalidStateException(new UNCONNECTED(), connectionState)
-	    }
+	    }       
+    }
+
+	override def accept(connectedCallback:FinishFunction) = wrapLock {
+	    accept(SdpHelper.getBlankJoinable(telco.contactIp), connectedCallback) 
 	}
  
 	override def reject(rejectCallback:FinishFunction) = wrapLock {

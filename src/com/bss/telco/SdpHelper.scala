@@ -39,6 +39,8 @@ import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
 import java.util.Vector
 import com.bss.util._
+
+import com.bss.telco.api._
 //FIXME: lets make this a lttle smarter on figuring out what kind of stuff we can transmit
 
 object SdpHelper {
@@ -47,6 +49,12 @@ object SdpHelper {
   	private val blank_port = 1111
    
   	val sdpFactory = SdpFactory.getInstance() 
+
+  	def getBlankJoinable(ip:String) : Joinable[_] = {
+        val j = new SdpJoinable()
+        j.mySdp = Some(getBlankSdp(ip))
+        return j
+  	}
     
 	 def getBlankSdp(ip:String) : SessionDescription = {
 	 	val sdpip = "0.0.0.0"
@@ -102,6 +110,29 @@ object SdpHelper {
 
 	class ProtocolNotSupportedException(str:String) extends Exception
 	
+}
+
+
+class SdpJoinable() extends Joinable[SdpJoinable] {
+    
+    var mySdp:Option[SessionDescription] = None
+    
+    override def join(c:Joinable[_], f:()=>Unit) : Unit =
+        return
+
+    override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit = return
+
+    override def sdp : SessionDescription = { 
+        mySdp match {
+            case Some(x) => return x
+            case None => throw new Exception("no SDP here")
+        }
+    }
+
+
+    override def silence(f:()=>Unit) : Unit = return
+
+    override def unjoin(j:Joinable[_], f:()=>Unit) : Unit = return
 }
 
  

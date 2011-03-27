@@ -46,24 +46,32 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             return
 
         verbs.head match {
-            case dial:Dial => handleDial(conn, dial, verbs.tail)
-            case play:Play => println("playing...")
-                              handleBlueML(conn, verbs.tail)
+            case dial:Dial => 
+                handleDial(conn, dial, verbs.tail)
+            case play:Play => 
+                println("playing...")
+                handleBlueML(conn, verbs.tail)
         }
     }
     
-    protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = 
+    protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = { 
+        println(" OK HERE WE GO $$$$$$$$$$$$##################$$$$$$$$$$$$$$$$$$$ ")
+        println(" conn " + conn + "connectionState = " + conn.connectionState )
         conn.connectionState match {
             case c:CONNECTED =>
                                 dialJoin(conn, dial, verbs)
                                 
             //need to figure out how you can transfer/hold 
             case u:UNCONNECTED  => 
-                            conn.accept( ()=> dialJoin(conn, dial, verbs) )
+                            conn.accept( ()=> {
+                                    println("accepted")
+                                    dialJoin(conn, dial, verbs) 
+                                })
            
            case p:PROGRESSING  => 
                                 println("progressing") //TODO: should we sleep and call again? 
         }
+    }
     
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
@@ -96,8 +104,10 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         return ci
     }
     
-    def handleIncomingCall(url:String, conn:SipConnection) = 
+    def handleIncomingCall(url:String, conn:SipConnection) = { 
+        println(" ================== handleIncoming =====================")
         postCallStatus(url, conn)
+    }
 
     def handleConnect(url:String, conn:SipConnection) =
           postCallStatus(url, conn)

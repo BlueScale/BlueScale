@@ -23,7 +23,7 @@
 */
 package com.bss.telco
 
-
+import com.bss.telco.api.Joinable
 
 case class DIRECTION
 
@@ -37,7 +37,10 @@ protected[telco] trait Answerable {
 
  	def accept(f:()=> Unit) : Unit
   
+    def accept(toJoin:Joinable[_], f:()=> Unit) : Unit
+
  	def reject(f:()=> Unit) : Unit
+
 }
 
 

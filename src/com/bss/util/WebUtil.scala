@@ -43,7 +43,7 @@ object WebUtil {
         
         val urlConn = new URL(url).openConnection()
         urlConn.setDoOutput(true)
-        urlConn.setReadTimeout(50) //TODO: what's a good timeout? 
+        //urlConn.setReadTimeout(50) //TODO: what's a good timeout? 
         val os = new OutputStreamWriter(urlConn.getOutputStream())
         try {
             os.write(data)

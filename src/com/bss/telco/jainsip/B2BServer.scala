@@ -67,15 +67,19 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		if (ignore.contains(conn.destination))
 		    return
 		    
-	  	SdpHelper.addMediaTo(conn.asInstanceOf[JainSipConnection].sdp, getFakeSdp(ip))
-		conn.accept(()=> println("b2bServer accepted call to " + conn.destination ) );
+		conn.accept(getFakeJoinable(ip), ()=> println("b2bServer accepted call to " + conn.destination ) );
 	}
 
     def findConnByDest(dest:String) : Option[SipConnection] = 
         b2bTelcoServer.connections.values.find( conn => if (conn.destination == dest) true else false)
             
-   
-   def getFakeSdp(ip:String) : SessionDescription = {
+    def getFakeJoinable(ip:String) : Joinable[_] = {
+        val s = new SdpJoinable()
+        s.mySdp = Some(getFakeSdp(ip))
+        return s
+    }
+
+    def getFakeSdp(ip:String) : SessionDescription = {
 		val sd =  sdpFactory.createSessionDescription()
 		sd.setOrigin(sdpFactory.createOrigin("bss", 13760799956958020L, 13760799956958020L, "IN", "IP4", ip))
 		sd.setSessionName(sdpFactory.createSessionName("bssession"))
@@ -108,5 +112,4 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		println("connected...now we play the waiting game....")
 	}
 }
-
 
