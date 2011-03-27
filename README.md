@@ -1,7 +1,7 @@
 #BlueScale
 
-BlueScale is an Open Source platform allowing web developers to create telcom and VoIP related products or services.
-It uses a simple REST front end to control the scalabe SIP server at it's core.  
+BlueScale is an Open Source platform allowing web developers to create telecom and VoIP related products or services.
+It uses a simple REST front end to control the scalable SIP server at its core.  
 
 
 

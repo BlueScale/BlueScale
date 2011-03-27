@@ -35,6 +35,8 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
    
     protected def handleBlueML(conn:SipConnection, str:String) : Unit = {
+        println(" OK Here's what is coming in = " + str )
+        
         StrOption(str.trim()) match {
             case Some(x) => handleBlueML(conn, BlueMLParser.parse(str))
             case None => Unit
@@ -55,8 +57,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     }
     
     protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = { 
-        println(" OK HERE WE GO $$$$$$$$$$$$##################$$$$$$$$$$$$$$$$$$$ ")
-        println(" conn " + conn + "connectionState = " + conn.connectionState )
         conn.connectionState match {
             case c:CONNECTED =>
                                 dialJoin(conn, dial, verbs)
