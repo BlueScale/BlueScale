@@ -28,9 +28,9 @@ Once you finish editing your config, launch the run.sh script and you're ready t
 
 ## Example: Forward Incoming Calls
 
- 1. BlueScale will post a call status with the following parameters to URL specified in BlueScaleConifg.xml.  A sample post may look like this:
-        
-    "CallId" = " ",
+ 1. BlueScale will post a call status with the following parameters to URL specified in BlueScaleConifg.xml.  
+
+    "CallId" = "A1234...",
     "From"   = "9494445566,
     "To"     = "7147779999,
     "CallStatus" = "Unconnected",
@@ -47,7 +47,7 @@ Once you finish editing your config, launch the run.sh script and you're ready t
     </Response>
 
   3. If and when the phone is answered that was specified in the Number tag, BlueScale will post a status for that call, with the same parameters as step 1.
-    "CallId" = "B6789",
+    "CallId" = "B6789...",
     "From"   = "9494445566"
     "To"     = "1112223333"
     "CallStatus" = "Connected",
