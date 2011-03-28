@@ -49,13 +49,12 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
         verbs.head match {
             case dial:Dial => 
-                handleDial(conn, dial, verbs.tail)
+                dialJoin(conn, dial, verbs.tail)
             case play:Play => 
                 println("playing...")
                 handleBlueML(conn, verbs.tail)
         }
     }
-    
     protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = { 
         conn.connectionState match {
             case c:CONNECTED =>
@@ -63,10 +62,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                                 
             //need to figure out how you can transfer/hold 
             case u:UNCONNECTED  => 
-                            conn.accept( ()=> {
-                                    println("accepted")
-                                    dialJoin(conn, dial, verbs) 
-                                })
+                                dialJoin(conn, dial, verbs) 
            
            case p:PROGRESSING  => 
                                 println("progressing") //TODO: should we sleep and call again? 
@@ -78,8 +74,20 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         val destConn = telcoServer.createConnection(dial.number, dial.callerId)
         destConn.connect( ()=>{ 
             postCallStatus(dial.url, destConn)
-            conn.join(destConn, () => 
-                postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
+
+            conn.connectionState match {
+
+                case c:CONNECTED =>
+                    conn.join(destConn, ()=>
+                        postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
+                        
+                case u:UNCONNECTED =>
+                    conn.accept( ()=> 
+                        conn.join(destConn, ()=>
+                            postConversationStatus(addConvoInfo(dial.url, conn, destConn))
+                        ))
+            }
+            
         })
         
         dial.ringLimit match {
