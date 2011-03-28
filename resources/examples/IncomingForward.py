@@ -10,13 +10,12 @@ class MyHandler(BaseHTTPRequestHandler):
         self.do_POST()
 
     def do_POST(self):
-        print( "PAAAAAAATH = " + self.path )
         if self.path == "/Status":
             print("PATH = STATUS")
             self.printParams()
             self.postOK()
-        else: 
-            if self.getParam("Direction").lowercase == "incoming"
+        else:
+            self.printParams()
             self.handleIncomingCall()   
 
     def printParams(self):
@@ -42,15 +41,10 @@ class MyHandler(BaseHTTPRequestHandler):
         self.wfile.write(str)
         return
 
-    def getParam(string, self):
-        params = self.parseParams()
-        return "".join(parseParams[string])
-
     def parseParams(self):
         length = int(self.headers.getheader('Content-Length'))
         params = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
         return params
-    
 
 
 def main():
