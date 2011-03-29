@@ -32,8 +32,6 @@ class MyHandler(BaseHTTPRequestHandler):
         params = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
         return params
 
-    def connectCall(self):
-
 
     def connectCall(self):
         self.postOK()
