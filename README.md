@@ -41,8 +41,8 @@ Once you finish editing your config, launch the run.sh script and you're ready t
     
     <Response>
         <Dial>
-            <Number>" + number + "</Number>
-                <Action>http://127.0.0.1:8081/Status</Action>
+            <Number>1112223333</Number>
+            <Action>http://127.0.0.1:8081/Status</Action>
         </Dial>
     </Response>
 
