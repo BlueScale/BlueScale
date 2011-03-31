@@ -25,7 +25,6 @@ package com.bss.telco.jainsip.unittest
 
 import org.junit._
 import Assert._
-import com.bss.telco.jainsip.test._
 import com.bss.telco.jainsip._
 
 class JoinTwoUnconnectedFunctionalTest extends TestHelper with JoinTwo {

@@ -26,7 +26,6 @@ package com.bss.telco.jainsip.unittest
 import org.junit._
 import com.bss.telco.jainsip._
 import com.bss.telco.api._
-import com.bss.telco.jainsip.test._
 import org.apache.log4j.BasicConfigurator
 
 trait TestHelper extends junit.framework.TestCase {
