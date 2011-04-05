@@ -15,6 +15,7 @@ class MyHandler(BaseHTTPRequestHandler):
             self.printParams()
             self.postOK()
         else:
+            self.printParams()
             self.connectCall()
         
     def printParams(self):
@@ -52,6 +53,7 @@ def main():
         server = HTTPServer( ('', 8081), MyHandler)
         print("going to connect " + number1 + " to " + number2)
         thread.start_new_thread(serveWeb, (server,))
+        postCall()
         
         while True:
             time.sleep(5)
@@ -68,7 +70,7 @@ def serveWeb(server):
 
 def postCall():
     data = urllib.urlencode({ "To" : "", "From":"", "Url" : "http:/127.0.0.1:8081/"})
-    f = urllib.urlopen("http://127.0.0.1",data)
+    f = urllib.urlopen("http://127.0.0.1:8081",data)
     r = f.read()
     print(r)
 

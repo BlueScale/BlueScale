@@ -79,6 +79,7 @@ class CallServlet(telcoServer:TelcoServer,
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) = {
         val arr = request.getPathInfo().split("/")
         //break(List(arr))
+        println( "Incoming Request = " + request) 
         var status = HttpServletResponse.SC_OK
         try {
             if (arr.length == 2 && arr(1).equals("Calls")) {

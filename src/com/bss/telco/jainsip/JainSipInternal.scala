@@ -178,7 +178,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				    conn.setConnectionid(getCallId(request))
 			        telco.addConnection(conn) //(getCallId(request), conn)
 					SdpHelper.addMediaTo( conn.localSdp, SdpHelper.getSdp(request.getRawContent()) )
-					telco.fireIncoming(conn) 
+					//println("incomingCallback = " + telco.incomingCallback + "!")
+					telco.fireIncoming(conn)
 				})
 		}
 		

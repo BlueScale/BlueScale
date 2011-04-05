@@ -95,7 +95,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> { 
-            println("  JJJJJJJJOOOOOOINED")
             assertEquals( inConn.connectionState, CONNECTED() )
             inConn.disconnect( ()=>println("disconnected") )
             //latch.countDown()
