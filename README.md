@@ -30,11 +30,11 @@ Once you finish editing your config, launch the run.sh script and you're ready t
 
 1. BlueScale will post a call status with the following parameters to URL specified in BlueScaleConifg.xml.  
 
-    "CallId" = "A1234...",
-    "From"   = "9494445566,
-    "To"     = "7147779999,
-    "CallStatus" = "Unconnected",
-    "Direction"  = "Incoming"
+     "CallId" = "A1234...",
+     "From"   = "9494445566,
+     "To"     = "7147779999,
+     "CallStatus" = "Unconnected",
+     "Direction"  = "Incoming"
 
 2. Your application will respond to the post with BlueML, an XML Dialect for controlling BlueScale.  This will cause the phone specified 
      in the number tag to ring, and connect it to the incoming call.  
@@ -47,16 +47,17 @@ Once you finish editing your config, launch the run.sh script and you're ready t
     </Response>
 
 3. If and when the phone is answered that was specified in the Number tag, BlueScale will post a status for that call, with the same parameters as step 1.
-    "CallId" = "B6789...",
-    "From"   = "9494445566"
-    "To"     = "1112223333"
-    "CallStatus" = "Connected",
-    "Direction"  = "Outgoing"
+ 
+     "CallId" = "B6789...",
+     "From"   = "9494445566"
+     "To"     = "1112223333"
+     "CallStatus" = "Connected",
+     "Direction"  = "Outgoing"
 
 
 4. BlueScale will then post a conversation status wtih the following parameters.
 
-    "FirstCallId"  = "A1234..."
-    "SecondCallId" = "B6789..."
-    "ConversationStatus" = "Connected"
+     "FirstCallId"  = "A1234..."
+     "SecondCallId" = "B6789..."
+     "ConversationStatus" = "Connected"
 
