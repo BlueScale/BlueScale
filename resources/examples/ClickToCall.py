@@ -70,7 +70,7 @@ def serveWeb(server):
 
 def postCall():
     data = urllib.urlencode({ "To" : "", "From":"", "Url" : "http:/127.0.0.1:8081/"})
-    f = urllib.urlopen("http://127.0.0.1:8081",data)
+    f = urllib.urlopen("http://127.0.0.1:8080",data)
     r = f.read()
     print(r)
 

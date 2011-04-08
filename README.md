@@ -46,7 +46,7 @@ Once you finish editing your config, launch the run.sh script and you're ready t
         </Dial>
     </Response>
 
-3. If and when the phone is answered that was specified in the Number tag, BlueScale will post a status for that call, with the same parameters as step 1.
+3. If and when the phone is answered that was specified in the Number tag, BlueScale will post a status for that call, with the same parameters as step one.
  
      "CallId" = "B6789...",
      "From"   = "9494445566"
