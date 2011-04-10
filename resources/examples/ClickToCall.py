@@ -74,7 +74,7 @@ def serveWeb(server):
     print("serving...")
 
 def postCall():
-    data = urllib.urlencode( {"To" : number1, "From": number2, "Url" : (listeningIp + ":" + str(listeningPort) + "/")} )
+    data = urllib.urlencode( {"To" : number1, "From": number2, "Url" : "http://" + (listeningIp + ":" + str(listeningPort) + "/")} )
     f = urllib.urlopen( "http://" + bluescaleIp + ":" + str(bluescalePort) + "/Calls/" ,data)
     r = f.read()
     print(r)
