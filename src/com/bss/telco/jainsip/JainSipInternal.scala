@@ -78,7 +78,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	properties.setProperty("gov.nist.javax.sip.SERVER_LOG","log/server_log" + port + ".log.txt")
 	properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS","false")
 	properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "ERROR")
-	properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "10")	
+	properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1")	
     properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "false") 
  
 	val sipStack = sipFactory.createSipStack(properties)

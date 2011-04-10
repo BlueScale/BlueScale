@@ -5,6 +5,11 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 number1 = ""
 number2 = ""
 
+listeningPort   = 8081
+listeningIp     = "127.0.0.1"
+bluescaleIp     = "127.0.0.1"
+bluescalePort   = 8080
+
 class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -40,7 +45,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 <Response>
                     <Dial>
                         <Number>""" + number2 + """</Number>
-                        <Action>http://127.0.0.1:8081/Status</Action>
+                        <Action>http://""" + listeningIp + ":" + str(listeningPort) + """/Status</Action>
                     </Dial>
                 </Response>
             """
@@ -50,7 +55,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
 def main():
     try:
-        server = HTTPServer( ('', 8081), MyHandler)
+        server = HTTPServer( (listeningIp, listeningPort), MyHandler)
         print("going to connect " + number1 + " to " + number2)
         thread.start_new_thread(serveWeb, (server,))
         postCall()
@@ -69,8 +74,8 @@ def serveWeb(server):
     print("serving...")
 
 def postCall():
-    data = urllib.urlencode({ "To" : "", "From":"", "Url" : "http:/127.0.0.1:8081/"})
-    f = urllib.urlopen("http://127.0.0.1:8080",data)
+    data = urllib.urlencode( {"To" : number1, "From": number2, "Url" : (listeningIp + ":" + str(listeningPort) + "/")} )
+    f = urllib.urlopen( "http://" + bluescaleIp + ":" + str(bluescalePort) + "/Calls/" ,data)
     r = f.read()
     print(r)
 

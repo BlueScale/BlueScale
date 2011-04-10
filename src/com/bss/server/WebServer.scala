@@ -43,6 +43,7 @@ import java.net._
 import scala.xml._
 import com.bss.blueml._
 import scala.tools.nsc.Interpreter._
+import scala.collection.JavaConversions._ 
 
 class WebServer(apiPort:Int,
                 adminPort:Int,
@@ -78,13 +79,13 @@ class CallServlet(telcoServer:TelcoServer,
     
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) = {
         val arr = request.getPathInfo().split("/")
-        //break(List(arr))
-        println( "Incoming Request = " + request) 
+        println("Path = " + request.getPathInfo())
+        printParams(request)
         var status = HttpServletResponse.SC_OK
         try {
-            if (arr.length == 2 && arr(1).equals("Calls")) {
+            if (arr.length == 2  && arr(1).equals("Calls")) {
                engine.newCall(request.getParameter("To"),request.getParameter("From"), request.getParameter("Url"))
-            } else {
+            } else if (arr.length == 3) {
                 val callid = arr(2)
                 val action = arr(3) match {
                     case "Hangup" => new Hangup(request.getParameter("Url"))
@@ -111,6 +112,10 @@ class CallServlet(telcoServer:TelcoServer,
     override def doPost(request:HttpServletRequest, response:HttpServletResponse) {
         doGet(request, response)
     }
+
+    protected def printParams(request:HttpServletRequest) =
+        request.getParameterNames.foreach( name => println(" " + name + " = " + request.getParameter(name.toString()) ) )
+        //{case (key, value) => println( " " + key + " = " + value.toString()) })
    
 } 
 
