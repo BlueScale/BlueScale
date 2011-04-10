@@ -41,7 +41,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def connectCall(self):
         self.postOK()
-        str = """
+        s = """
                 <Response>
                     <Dial>
                         <Number>""" + number2 + """</Number>
@@ -49,7 +49,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     </Dial>
                 </Response>
             """
-        self.wfile.write(str)
+        self.wfile.write(s)
         return
     
 
