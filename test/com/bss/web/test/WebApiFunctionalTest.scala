@@ -40,10 +40,10 @@ object WebApiFunctionalTest {
         val wt = new WebApiFunctionalTest()
         println(" TEEEEEEEST" )
         wt.setUp()
-        //wt.testClickToCall()
+        wt.testClickToCall()
         //wt.testIncomingCall()
-        wt.testIncomingForward()
-        
+        //wt.testIncomingForward()
+        println("Doooooooooooooone")
     }
 }
 

@@ -79,13 +79,13 @@ class CallServlet(telcoServer:TelcoServer,
     
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) = {
         val arr = request.getPathInfo().split("/")
-        println("Path = " + request.getPathInfo())
+        println("Path = " + request.getPathInfo() )
         printParams(request)
         var status = HttpServletResponse.SC_OK
         try {
             if (arr.length == 2  && arr(1).equals("Calls")) {
                engine.newCall(request.getParameter("To"),request.getParameter("From"), request.getParameter("Url"))
-            } else if (arr.length == 3) {
+            } else if (arr.length > 2) {
                 val callid = arr(2)
                 val action = arr(3) match {
                     case "Hangup" => new Hangup(request.getParameter("Url"))
