@@ -40,7 +40,7 @@ class InviteCreator(val sipServer:JainSipInternal) {
 
     def getInviteRequest(callerid:String, dest:String, sdp:Array[Byte]):Request =  {
 		  	val fromName = "BlueScaleServer"
-			val fromDisplayName = "test"
+			val fromDisplayName = callerid 
 
 			val toSipAddress = sipServer.destIp
 			

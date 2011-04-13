@@ -186,7 +186,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
 	
 	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent) = {
-    	//LETS DO THIS MORE SCALA STYLE
 		val response = messageFactory.createResponse(responseCode, requestEvent.getRequest() ) //transaction.getRequest())
 		response.addHeader( requestEvent.getRequest().getHeader("Contact"))
 		requestEvent.getServerTransaction().sendResponse(response)
@@ -224,7 +223,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
    //TODO: handle re-tries... we can't just let another setState happen, could fuck things up if something else had been set already...
 	override def processResponse(re:ResponseEvent) {
 		var transaction = re.getClientTransaction()
-		//FIXME: Highly concurrent JAIN-SIP txs have an error with transactions occasionally being null
+		//FIXME:  JAIN-SIP race condition with transactions occasionally being null ?
 		if ( null == transaction) {
 			debug("                                      transaction is null right away!?!?!? re = " + re.getDialog())
 		}
@@ -282,6 +281,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
 		val request = conn.dialog.get.createRequest(Request.INVITE)
+        request.removeHeader("contact")//The one from the createRequest is the listeningIP...
 		conn.contactHeader.foreach( request.addHeader(_) )//neccessary?
 		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
