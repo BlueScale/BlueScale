@@ -59,18 +59,7 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			// create Request URI
 			val requestURI = sipServer.addressFactory.createSipURI(dest.trim(), sipServer.destIp)
 
-			// Create ViaHeaders
-			val viaHeaders = new ArrayList[ViaHeader]
-			val viaHeader = sipServer.headerFactory.createViaHeader(sipServer.contactIp,
-                                                           			sipServer.port,
-                                                           			sipServer.transport, 
-                                                           			magicSipCookie + ctr )
-            ctr = ctr+1
-
-
-   
-			// add via headers
-		 	viaHeaders.add(viaHeader)
+			
 		 	// Create ContentTypeHeader
 			val contentTypeHeader = sipServer.headerFactory.createContentTypeHeader("application", "sdp")
  			// Create a new CallId header
@@ -86,7 +75,7 @@ class InviteCreator(val sipServer:JainSipInternal) {
                                                   		  		cSeqHeader, 
                                                   		  		fromHeader,
                                                   		  		toHeader, 
-                                                  		  		viaHeaders, 
+                                                  		  		getViaHeader(), 
                                                   		  		maxForwards)
 			// Create contact headers
 			val contactUrl = sipServer.addressFactory.createSipURI(fromName, sipServer.contactIp)
@@ -108,5 +97,18 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			request.addHeader(callInfoHeader)
 			return request
   	}
+
+  	def getViaHeader() : ArrayList[ViaHeader] = {
+        // Create ViaHeaders
+		val viaHeaders = new ArrayList[ViaHeader]
+		val viaHeader = sipServer.headerFactory.createViaHeader(sipServer.contactIp,
+                                                       			sipServer.port,
+                                                       			sipServer.transport, 
+                                                       			magicSipCookie + ctr )
+        ctr = ctr+1
+		// add via headers
+		viaHeaders.add(viaHeader)
+        return viaHeaders;
+    }
 }
 
