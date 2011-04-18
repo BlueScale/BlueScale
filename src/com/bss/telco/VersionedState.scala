@@ -26,27 +26,37 @@ package com.bss.telco
 import com.bss.telco.api._
 
 trait VersionedState {
+    val version:String
 	def getState: ConnectionState
 }
 
-case class VERSIONED_CONNECTED(version:String) extends VersionedState {
-	def getState = CONNECTED()
+class VERSIONED_HASMEDIA(val version:String) extends VersionedState {
+    override def getState = new HASMEDIA()
 }
 
-case class VERSIONED_HOLD(version:String) extends VersionedState {
-	def getState = HOLD()
+
+case class VERSIONED_CONNECTED(v:String) extends VERSIONED_HASMEDIA(v) {
+	override def getState = CONNECTED()
 }
 
-case class VERSIONED_UNCONNECTED(version:String) extends VersionedState {
-	def getState = UNCONNECTED()
+case class VERSIONED_HOLD(val version:String) extends VersionedState {
+    override def getState = HOLD()
 }
 
-case class VERSIONED_PROGRESSING(version:String) extends VersionedState {
-	def getState = PROGRESSING()
+case class VERSIONED_UNCONNECTED(val version:String) extends VersionedState {
+	override def getState = UNCONNECTED()
 }
 
-case class VERSIONED_CANCELED(version:String) extends VersionedState {
-    def getState = CANCELED()
+case class VERSIONED_PROGRESSING(val version:String) extends VersionedState {
+	override def getState = PROGRESSING()
+}
+
+case class VERSIONED_CANCELED(val version:String) extends VersionedState {
+    override def getState = CANCELED()
+}
+
+case class VERSIONED_RINGING(v:String) extends VERSIONED_HASMEDIA(v) {
+   override def getState = RINGING()
 }
 
 

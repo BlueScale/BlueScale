@@ -39,17 +39,33 @@ trait StateExecutor {
 
     protected def setAndExecute(state:VersionedState) : Boolean = {
         var ret = false
-
+        
         expectedState.foreach(s => {
-            var f = function
-            expectedState = None
-            function = None
-            if (s.equals(state)) {
-                ret = true
-                f.foreach(_()) //might want to run in it's own thread
-            } 
+            var f = reset()
+            ret = matchState(state, s)
+            if (ret) 
+                f.foreach( f=>f() )    
         })
+
         return ret
+    }
+
+    private def matchState(state:VersionedState, expectedState:VersionedState) : Boolean = {
+        if ( expectedState.equals(state) )
+            return true
+
+        if ( state.isInstanceOf[VERSIONED_HASMEDIA] && expectedState.isInstanceOf[VERSIONED_HASMEDIA] &&
+            state.version.equals(expectedState.version) )
+            return true
+        
+        return false
+    }
+
+    private def reset() : Option[FinishFunction] = {
+        val f = function
+        expectedState = None
+        function = None
+        return f
     }
 
     def debugStateExecutor() = {

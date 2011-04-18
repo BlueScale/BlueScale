@@ -55,8 +55,6 @@ class JainSipConnection protected[telco](
 	
 	private var state:VersionedState = VERSIONED_UNCONNECTED("")
 	 
-	//private var stateFunc = Map[VersionedState,FinishFunction]()
- 	
  	override def connectionState = state.getState
  
 	override def connectionid = connid
@@ -73,13 +71,20 @@ class JainSipConnection protected[telco](
 
 	protected[jainsip] def setConnectionid(id:String) = connid = id
  
- 	override def connect( f:FinishFunction) = connect(localSdp, f)
+ 	override def connect( f:FinishFunction) = connect(localSdp, false, f)
   
-	private def connect(sdp:SessionDescription, connectedCallback:FinishFunction) = wrapLock { 	
+	private def connect(sdp:SessionDescription, callbackAnyMedia:Boolean, connectedCallback:FinishFunction) = wrapLock { 	
  	   	connid = telco.internal.sendInvite(this, sdp)
  	   	telco.addConnection(this)
- 	    setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback)
-        progressingCallback.foreach( _(this) )
+ 	   	val waitState = callbackAnyMedia match {
+ 	   	    case true => new VERSIONED_HASMEDIA(clientTx.get.getBranchId()) 
+ 	   	    case false=> new VERSIONED_CONNECTED(clientTx.get.getBranchId())
+ 	   	}
+
+ 	   	setFinishFunction( waitState, connectedCallback)
+ 	   	progressingCallback.foreach( _(this) )
+ 	    //setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback)
+        //progressingCallback.foreach( _(this) )
 	}
 
     override def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
@@ -92,7 +97,7 @@ class JainSipConnection protected[telco](
 	    }       
     }
 
-	override def accept(connectedCallback:FinishFunction) = wrapLock {
+    override def accept(connectedCallback:FinishFunction) = wrapLock {
 	    accept(SdpHelper.getBlankJoinable(telco.contactIp), connectedCallback) 
 	}
  
@@ -142,6 +147,25 @@ class JainSipConnection protected[telco](
         }
   	}
 
+    /*
+  	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
+  	    if (connectionState != CONNECTED())
+  	        throw new InvalidStateException( new CONNECTED(), conncetionState )
+  	        
+        otherCall.connectionState match {
+            case UNCONNECTED() =>
+                otherCall.sendInvite()
+                otherCall.setFinishFunction(HAS_MEDIA, 
+
+
+
+
+            case CONNECTED() => //hnadleCnnected
+
+        }
+  	}
+  	*/
+
 	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
 		//debug("OtherCall = " + otherCall)
 		otherCall.reconnect(localSdp,()=>{
@@ -181,13 +205,16 @@ class JainSipConnection protected[telco](
   
 	override def reconnect(sdp:SessionDescription, reconnectCallback:FinishFunction) : Unit =  wrapLock {
 		joinedTo match {	
-	  		case None 	=> 	telco.internal.sendReinvite(this, sdp) //TODO: fix race condition, should pass in the stateFunc stuff to the sendReinvite method...
-	  						setFinishFunction(new VERSIONED_CONNECTED(clientTx.get.getBranchId()), reconnectCallback)
+	  		case None 	=> 	
+	  		    telco.internal.sendReinvite(this, sdp) //TODO: fix race condition, should pass in the stateFunc stuff to the sendReinvite method...
+	  			setFinishFunction(new VERSIONED_CONNECTED(clientTx.get.getBranchId()), reconnectCallback)
 	  				 	
-	  		case Some(otherConn) => otherConn.silence( ()=>{
-	  		    otherConn.joinedTo = None
-	  		    joinedTo = None
-	  		    this.reconnect(sdp, reconnectCallback)} )
+	  		case Some(otherConn) => 
+	  		    otherConn.silence( ()=>{
+	  		        otherConn.joinedTo = None
+	  		        joinedTo = None
+	  		        this.reconnect(sdp, reconnectCallback)
+	  		    })
 	  	}
 	}
 

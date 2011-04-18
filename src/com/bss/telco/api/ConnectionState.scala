@@ -25,7 +25,9 @@ package com.bss.telco.api
 
 trait ConnectionState {}
 
-case class CONNECTED() extends ConnectionState
+class HASMEDIA extends ConnectionState
+
+case class CONNECTED() extends HASMEDIA
 
 case class HOLD() extends ConnectionState
 
@@ -37,5 +39,6 @@ case class ALERTING() extends ConnectionState
 
 case class CANCELED() extends ConnectionState
 
+case class RINGING() extends HASMEDIA 
 
 //DO WE WANT A JOINED STATE?

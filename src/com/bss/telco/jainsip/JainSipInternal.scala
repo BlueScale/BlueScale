@@ -233,7 +233,15 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		asResponse(re).getStatusCode() match {
 			case Response.SESSION_PROGRESS => conn.setState(VERSIONED_PROGRESSING("") )
 		    		 				
-			case Response.RINGING =>  //println("ringing")
+			case Response.RINGING => println("RINGING")
+			    /*
+			    val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
+			                         if (SdpHelper.isBlankSdp(sdp)) 
+			                            return
+			                        conn.dialog = Some(re.getDialog())
+			                        SdpHelper.addMediaTo(conn.localSdp, sdp)
+			                        conn.setState(VERSIONED_RINGING( transaction.getBranchId() )
+                */
 			                           
 			case Response.OK => 
 		    			cseq.getMethod() match {
@@ -261,6 +269,12 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		        println("TERMINATED")
 			case _ => error("Unexpected Response = " + asResponse(re).getStatusCode())
 		}})
+	}
+
+	def handleMedia(conn:JainSipConnection, re:ResponseEvent) {
+        SdpHelper.addMediaTo( conn.localSdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
+        //conn.dial
+        
 	}
 
 	def sendCancel(conn:JainSipConnection) : Unit = {
