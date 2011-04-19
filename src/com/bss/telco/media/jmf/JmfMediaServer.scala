@@ -21,6 +21,8 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
+
+/*
 package com.bss.telco.media.jmf
 
 import com.bss.telco.api._
@@ -44,3 +46,4 @@ class JmfMediaServer(listeningIp:String,
 		throw new Exception("NOT YET SUPPORTED")
 	}
 }
+*/

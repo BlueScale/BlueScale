@@ -72,8 +72,9 @@ class JainSipConnection protected[telco](
 	protected[jainsip] def setConnectionid(id:String) = connid = id
  
  	override def connect( f:FinishFunction) = connect(localSdp, false, f)
-  
-	private def connect(sdp:SessionDescription, callbackAnyMedia:Boolean, connectedCallback:FinishFunction) = wrapLock { 	
+ 
+    
+	override def connect(sdp:SessionDescription, callbackAnyMedia:Boolean, connectedCallback:FinishFunction) = wrapLock { 	
  	   	connid = telco.internal.sendInvite(this, sdp)
  	   	telco.addConnection(this)
  	   	val waitState = callbackAnyMedia match {
@@ -147,34 +148,42 @@ class JainSipConnection protected[telco](
         }
   	}
 
-    /*
+    
   	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
+  	    
   	    if (connectionState != CONNECTED())
-  	        throw new InvalidStateException( new CONNECTED(), conncetionState )
+  	        throw new InvalidStateException( new CONNECTED(), connectionState )
   	        
         otherCall.connectionState match {
+            
             case UNCONNECTED() =>
-                otherCall.sendInvite()
-                otherCall.setFinishFunction(HAS_MEDIA, 
+                otherCall.connect(localSdp, true, ()=>
+                    this.reconnect(otherCall.sdp, ()=>{
+                        this.joinedTo = Some(otherCall)
+                        this.joinedTo.get.joinedTo = Some(this)
+                        joinCallback()
+                    }))
+               
 
-
-
-
-            case CONNECTED() => //hnadleCnnected
-
+            case CONNECTED() =>
+                joinConnected(otherCall, joinCallback)
+            
         }
-  	}
-  	*/
+    }
+  	
 
-	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
+
+	private def joinConnected(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
 		//debug("OtherCall = " + otherCall)
 		otherCall.reconnect(localSdp,()=>{
 		   	this.reconnect(otherCall.sdp, ()=>{
     		    this.joinedTo = Some(otherCall)  
 		        this.joinedTo.get.joinedTo = Some(this) 
 	    		joinCallback()
-	    	}) })
+	    	}) 
+	    })
 	}
+
 
     override def silence(silenceCallback:FinishFunction) = wrapLock {
     	SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.contactIp))

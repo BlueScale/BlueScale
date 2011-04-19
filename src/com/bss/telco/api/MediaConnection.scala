@@ -28,12 +28,13 @@ import com.bss.telco._
 
 trait MediaConnection
 	extends Joinable[MediaConnection]
+	with Connectable[MediaConnection]
     with Playable {
 	
-	def connectionid : String
+	//def connectionid : String
 
-	def connectionState : ConnectionState //Possibly not needed here...
+	//def connectionState : ConnectionState //Possibly not needed here...
  
-	def protocol : String
+	//def protocol : String
 
 }

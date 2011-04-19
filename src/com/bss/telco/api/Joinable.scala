@@ -24,6 +24,7 @@
 package com.bss.telco.api
 
 import javax.sdp.SessionDescription
+import com.bss.telco.Connectable
 
 trait Joinable[T] {
 
@@ -40,6 +41,10 @@ trait Joinable[T] {
     protected[telco] def unjoin(j:Joinable[_], f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
 
     var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
+
+    def connectionState:ConnectionState //Possibly not needed here...
+
+    protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, f:()=>Unit)
 }
 
 

@@ -26,14 +26,12 @@ package com.bss.telco.api
 import com.bss.telco._
 
 trait SipConnection 
-	extends Connectable[SipConnection] 
-	with Joinable[SipConnection] 
+    extends Joinable[SipConnection]
+    with Connectable[SipConnection]
 	with Answerable {
 
 	def connectionid:String
 
-	def connectionState:ConnectionState //Possibly not needed here...
- 
 	def protocol:String
 
     def destination:String

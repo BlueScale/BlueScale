@@ -38,6 +38,7 @@ import javax.media.protocol.FileTypeDescriptor
 import javax.sdp.SessionDescription
 
 //NOTE: JMF can't handle localhost and 127.0.0.1, needs to be a real IP...
+/*
 class JmfMediaConnection(file:String,
                          mediaServer:JmfMediaServer) extends MediaConnection
                          							with Lockable
@@ -110,3 +111,4 @@ class JmfMediaConnection(file:String,
 		while ( p.getState != i) Thread.sleep(100)
     }
 }
+*/
