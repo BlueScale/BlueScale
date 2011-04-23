@@ -83,14 +83,11 @@ class CallServlet(telcoServer:TelcoServer,
         printParams(request)
         var status = HttpServletResponse.SC_OK
         try {
-            if (arr.length == 2  && arr(1).equals("Calls")) {
+            if (arr(1).equals("Calls") && arr.length == 2) {
                engine.newCall(request.getParameter("To"), request.getParameter("From"), request.getParameter("Url"))
-            } else if (arr.length > 3) {
+            } else if (arr(1).equals("Calls") && arr.length > 3) {
                 val callid = arr(2)
-                println("ARR = " + arr + "!")
-                for (el <- arr) {
-                    println(" el = " + el)
-                }
+                
                 val action = arr(3) match {
                     case "Hangup" => new Hangup(request.getParameter("Url"))
                     case "Play"   => new Play(0, request.getParameter("MediaUrl"), request.getParameter("Url"))
