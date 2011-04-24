@@ -40,8 +40,8 @@ object WebApiFunctionalTest {
         val wt = new WebApiFunctionalTest()
         println(" TEEEEEEEST" )
         wt.setUp()
-        wt.testClickToCall()
-        //wt.testIncomingCall()
+        //wt.testClickToCall()
+        wt.testIncomingCall()
         //wt.testIncomingForward()
         println("Doooooooooooooone")
     }
@@ -90,12 +90,13 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
             callid = Some( request.getParameter("CallId") )
             getDialResponse("9494443333")
         })
-
+//THIS IS FAILING< our new CONNECT JOIN doesn't actually post back a escond callID???
         testWS.setNextResponse( request=> "" ) //this is telling us the callID of the other end...
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> { 
             assertEquals( inConn.connectionState, CONNECTED() )
+            println(" ---------------------------- testIncomingCall, we've joined -------------")
             inConn.disconnect( ()=>println("disconnected") )
             //latch.countDown()
             ""
@@ -156,6 +157,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         val inConn = b2bServer.createConnection(gatewayNumber, "4443332222")
         inConn.connect( ()=> println("connected") ) 
         joinedLatch.await()
+        println("done waiting for joined --------")
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
         latch.await()
         println("finished testIncomingForward")
