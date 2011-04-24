@@ -234,14 +234,15 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case Response.SESSION_PROGRESS => conn.setState(VERSIONED_PROGRESSING("") )
 		    		 				
 			case Response.RINGING => println("RINGING")
-			    /*
-			    val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
-			                         if (SdpHelper.isBlankSdp(sdp)) 
-			                            return
-			                        conn.dialog = Some(re.getDialog())
-			                        SdpHelper.addMediaTo(conn.localSdp, sdp)
-			                        conn.setState(VERSIONED_RINGING( transaction.getBranchId() )
-                */
+	 		                Option(asResponse(re).getRawContent()).foreach( content=> {
+	 		                    println(" coooooooooooontent = " + content)
+    			                val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
+			                    if (!SdpHelper.isBlankSdp(sdp)) {
+    			                    conn.dialog = Some(re.getDialog())
+	    		                    SdpHelper.addMediaTo(conn.localSdp, sdp)
+		    	                    conn.setState(VERSIONED_RINGING( transaction.getBranchId() ))
+		    	                }
+                            }) 
 			                           
 			case Response.OK => 
 		    			cseq.getMethod() match {
