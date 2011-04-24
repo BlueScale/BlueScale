@@ -87,26 +87,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 )})
             }
     
-
-        /*
-        destConn.connect( ()=>{ 
-            postCallStatus(dial.url, destConn)
-
-            conn.connectionState match {
-
-                case c:CONNECTED =>
-                    conn.join(destConn, ()=>
-                        postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
-                        
-                case u:UNCONNECTED =>
-                    conn.accept( ()=> 
-                        conn.join(destConn, ()=>
-                            postConversationStatus(addConvoInfo(dial.url, conn, destConn))
-                        ))
-            }
-            
-        })*/
-        
         dial.ringLimit match {
             case -1 => println("ok nothing to do but hope it connects")
 
@@ -130,7 +110,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     }
     
     def handleIncomingCall(url:String, conn:SipConnection) = { 
-        println(" ================== handleIncoming =====================")
         postCallStatus(url, conn)
     }
 
