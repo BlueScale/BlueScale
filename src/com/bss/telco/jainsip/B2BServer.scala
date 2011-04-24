@@ -41,7 +41,9 @@ import scala.collection.JavaConversions._
 class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   
 	var portCounter = 0; 
-  
+ 
+    var ringSome = false
+
 	private val b2bTelcoServer    = new SipTelcoServer(ip, port, destIp, destPort)
 
 	private var ignore = Set[String]()
@@ -66,7 +68,8 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		println("HANDLE INCOMING ")
 		if (ignore.contains(conn.destination))
 		    return
-		    
+		if (ringSome) 
+		    Thread.sleep(2000)
 		conn.accept(getFakeJoinable(ip), ()=> println("b2bServer accepted call to " + conn.destination ) );
 	}
 

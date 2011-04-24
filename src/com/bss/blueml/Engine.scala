@@ -78,13 +78,9 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 })
             case u:UNCONNECTED =>
-                destConn.connect(()=> {
-                postCallStatus(dial.url, destConn)
-                conn.accept( ()=> 
-                conn.join(destConn, ()=> 
-                    postConversationStatus(addConvoInfo(dial.url, conn, destConn))
-                )
-                )})
+                connectAnswer(conn, destConn, dial)
+            case r:RINGING =>
+                connectAnswer(conn, destConn, dial)
             }
     
         dial.ringLimit match {
@@ -100,6 +96,16 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                     case ex:Exception=> throw ex
                 }
         }
+    }
+
+    protected def connectAnswer(conn:SipConnection, destConn:SipConnection, dial:Dial) = {
+        destConn.connect(()=> {
+            postCallStatus(dial.url, destConn)
+            conn.accept( ()=> 
+            conn.join(destConn, ()=> 
+                postConversationStatus(addConvoInfo(dial.url, conn, destConn))
+            ))
+        })
     }
 
     def addConvoInfo(url:String, conn1:SipConnection, conn2:SipConnection) : ConversationInfo = {

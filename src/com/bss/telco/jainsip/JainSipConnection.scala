@@ -153,13 +153,11 @@ class JainSipConnection protected[telco](
   	    
   	    if (connectionState != CONNECTED())
   	        throw new InvalidStateException( new CONNECTED(), connectionState )
-  	    println(" ~~~~~~~~~~~~~~~~~~~~~~~~~     JOOOOOOOOOOOOOOOOOIIIIIIIIIIIINNNNNNN ~~~~~~~~~~~~~~~~~~~~~~~~") 
+        
         otherCall.connectionState match {
             
             case UNCONNECTED() =>
-                println(" =======================> about to connect() ============>")
                 otherCall.connect(localSdp, true, ()=> {
-                    println("other call is trying to reconnect now.....................................")
                     this.reconnect(otherCall.sdp, ()=>{
                         this.joinedTo = Some(otherCall)
                         this.joinedTo.get.joinedTo = Some(this)
@@ -169,7 +167,6 @@ class JainSipConnection protected[telco](
                
 
             case CONNECTED() =>
-                println(" ----------------------- CONNECTED ----------------------")
                 joinConnected(otherCall, joinCallback)
             
         }

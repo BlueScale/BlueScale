@@ -167,6 +167,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case None => 	    
 			    
 			    val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
+			    //TODO: should we respond with progressing, and only ringing if the user does something? 
 				transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
 				val destination = parseToHeader(request.getRequestURI().toString())
 				val conn = new JainSipConnection(getCallId(request), destination, "", INCOMING(), telco, true)

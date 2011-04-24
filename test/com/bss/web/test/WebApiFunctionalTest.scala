@@ -167,6 +167,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
     @Test
     def testClickToCall() { 
         println("testClickTocall")
+        b2bServer.ringSome = true
         
         var callid:String = null
         val joinedLatch = new CountDownLatch(1)
