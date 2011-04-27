@@ -34,7 +34,6 @@ class VERSIONED_HASMEDIA(val version:String) extends VersionedState {
     override def getState = new HASMEDIA()
 }
 
-
 case class VERSIONED_CONNECTED(v:String) extends VERSIONED_HASMEDIA(v) {
 	override def getState = CONNECTED()
 }

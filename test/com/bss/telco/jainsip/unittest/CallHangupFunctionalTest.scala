@@ -35,6 +35,9 @@ class CallHangupFunctionalTest extends TestHelper with SimpleCall  {
 	
 	@Override 
 	def getTelcoServer() = telcoServer.asInstanceOf[TelcoServer];
+
+	@Override
+	def getB2BServer() = b2bServer
  
 	@Test
 	def testSimpleConn() = {

@@ -63,7 +63,7 @@ trait ConnectJoinTwo {
  		alice.connect(()=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		    alice.join(bob, ()=> {
-		        //assertEquals(alice.connectionState, CONNECTED())
+		        assertEquals(alice.connectionState, CONNECTED())
                 assertTrue(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
                 
                 latch.countDown()

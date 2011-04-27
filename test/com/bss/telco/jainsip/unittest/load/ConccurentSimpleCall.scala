@@ -61,7 +61,8 @@ class ConccurentSimpleCall  extends junit.framework.TestCase  {
 	}
  
 	class ParallelCaller extends Actor with SimpleCall {
-	   
+	  
+	  override def getB2BServer() = b2bServer
 	  override def getTelcoServer() = telcoServer;
 	  
 	  override def getCounter = counter

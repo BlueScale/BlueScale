@@ -42,6 +42,8 @@ trait SimpleCall {
 		
  	def getTelcoServer() : TelcoServer
    
+    def getB2BServer() : B2BServer
+
  	def runConn() {
  	  runConn("9495557777")
  	}
@@ -54,12 +56,20 @@ trait SimpleCall {
  		alice.connect(()=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		  	println("OK i'm Connected now...how did that happen?")
+		  	getB2BServer().findConnByDest(destNumber).foreach( _.disconnect( ()=> {
+                        Thread.sleep(50)
+                        println("Is alice disconnected alice = " + alice.connectionState)
+                        assertEquals(alice.connectionState,UNCONNECTED())
+                        latch.countDown()
+			        }))
+/*
 		  	alice.disconnect(()=>{
 		  			//assertEquals(alice.connectionState, UNCONNECTED())
 		  			println("disconnected")
 		  			getCounter.map( x => x.getAndIncrement );
 		  			latch.countDown
 		  		})
+		  		*/
  		})
 	}
  }

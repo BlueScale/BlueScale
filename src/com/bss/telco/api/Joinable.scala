@@ -30,21 +30,23 @@ trait Joinable[T] {
 
   	var joinedTo:Option[Joinable[_]] = None
   	
+    var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
+	
 	def join(connection:Joinable[_], f:()=>Unit)
-
-    protected[telco] def reconnect(sdp:SessionDescription, f:()=>Unit)
 
     def sdp:SessionDescription
 
+    def connectionState:ConnectionState //Possibly not needed here...
+
+    protected[telco] def reconnect(sdp:SessionDescription, f:()=>Unit)
+    
+    protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, f:()=>Unit)
+    
     protected[telco] def silence(f:()=>Unit)
 
     protected[telco] def unjoin(j:Joinable[_], f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
 
-    var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
 
-    def connectionState:ConnectionState //Possibly not needed here...
-
-    protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, f:()=>Unit)
 }
 
 

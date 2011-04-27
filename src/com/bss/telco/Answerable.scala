@@ -41,6 +41,10 @@ protected[telco] trait Answerable {
 
  	def reject(f:()=> Unit) : Unit
 
+    def ring() : Unit
+
+ 	def ring(toJoin:Joinable[_]) : Unit //sends a 180 to the phone
+    
 }
 
 

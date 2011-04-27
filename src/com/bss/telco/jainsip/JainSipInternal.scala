@@ -129,18 +129,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		printHeaders(requestEvent.getRequest())
 		sendRegisterResponse(200, requestEvent)
     }
-    /* 
-	def processNewRequest(requestEvent: RequestEvent, f:(RequestEvent)=>Unit) =
-		requestEvent.getServerTransaction() match {
-		  case null => { val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(requestEvent.getRequest())
-					 
-		  				}
-		 
-		  case _ => error("request event that's not null...this shouldn't happen")
-			  }
-	*/
 
-	def processCancel(requestEvent:RequestEvent) {
+    def processCancel(requestEvent:RequestEvent) {
 	    val request = requestEvent.getRequest()
 	    val conn = telco.getConnection(getCallId(request))
 	    conn.serverCancelTx = Some(requestEvent.getServerTransaction())
@@ -168,7 +158,9 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			    
 			    val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
 			    //TODO: should we respond with progressing, and only ringing if the user does something? 
-				transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
+				//transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
+				transaction.sendResponse(messageFactory.createResponse(Response.TRYING, request))
+
 				val destination = parseToHeader(request.getRequestURI().toString())
 				val conn = new JainSipConnection(getCallId(request), destination, "", INCOMING(), telco, true)
                 conn.execute( ()=>{
@@ -217,7 +209,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
 		val request = requestEvent.getRequest()
       	val conn = telco.getConnection(getCallId(request))
-		
+	    println(" ----------------- AAAAAAAAAAAAAAAAAAAAAAAAAAAAND AN ACK IS RECEIVED --------------------")	
 		conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
 	}  		
    
@@ -234,10 +226,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		asResponse(re).getStatusCode() match {
 			case Response.SESSION_PROGRESS => conn.setState(VERSIONED_PROGRESSING("") )
 		    		 				
-			case Response.RINGING => println("RINGING")
+			case Response.RINGING => println("----------------------- RINGING RESPONSE ------------------------, dialog = " + re.getDialog() )
+			                conn.dialog = Some(re.getDialog())
 	 		                Option(asResponse(re).getRawContent()).foreach( content=> {
-	 		                    println(" coooooooooooontent = " + content)
-    			                val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
+    			                val sdp = SdpHelper.getSdp(content)
 			                    if (!SdpHelper.isBlankSdp(sdp)) {
     			                    conn.dialog = Some(re.getDialog())
 	    		                    SdpHelper.addMediaTo(conn.localSdp, sdp)
@@ -281,6 +273,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 
 	def sendCancel(conn:JainSipConnection) : Unit = {
 	    conn.clientTx.foreach( tx => {
+	    println(" ======+++++++++============ sending cancel, is htis correct?  +++++================+++++++++")
             val request = tx.createCancel()
             conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
             conn.clientTx.get.sendRequest()

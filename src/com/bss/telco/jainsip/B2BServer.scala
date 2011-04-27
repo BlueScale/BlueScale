@@ -55,21 +55,22 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		  portCounter
     }
     
-     
     def createConnection(dest:String, callerid:String) : SipConnection = {
         val conn =	b2bTelcoServer.createConnection(dest, callerid)
         conn.asInstanceOf[JainSipConnection].localSdp = getFakeSdp(ip)
         return conn
     }
   
-  
 	def handleIncoming(conn:SipConnection) : Unit = { 
 		//set the joinedTo.get.sdp
 		println("HANDLE INCOMING ")
 		if (ignore.contains(conn.destination))
 		    return
-		if (ringSome) 
+
+		if (ringSome) { 
+		    conn.ring( getFakeJoinable(ip))
 		    Thread.sleep(2000)
+		}
 		conn.accept(getFakeJoinable(ip), ()=> println("b2bServer accepted call to " + conn.destination ) );
 	}
 

@@ -57,8 +57,10 @@ trait JoinTwoRemoteHangup {
 				    assertTrue(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				    println("are both connected = ? " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 			        //Now initiate a remote hangup.
+			        Thread.sleep(1000)
 			        getB2BServer().findConnByDest("4445556666").foreach( _.disconnect( ()=> {
                         Thread.sleep(50)
+                        println(" alice connectionState = " + alice.connectionState )
                         println("Is bob disconnected now that alice hungup on him? bob = " + bob.connectionState)
                         assertEquals(bob.connectionState,UNCONNECTED())
                         latch.countDown()

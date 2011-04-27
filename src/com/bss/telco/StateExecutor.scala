@@ -26,49 +26,44 @@ package com.bss.telco
 import com.bss.telco.api._
 import com.bss.telco.Types._
 
-trait StateExecutor {
-   
-    protected var expectedState : Option[VersionedState] = None
+trait StateExecutor  {
+    
+        
+    //protected var expectedState : Option[VersionedState] = None
 
+    //private var expectedStates = Map[ConnectionState, FinishMap]()
+
+    protected var stateMap = Map[VersionedState,FinishFunction]()
+    
     protected var function : Option[FinishFunction] = None
 
     protected def setFinishFunction(es:VersionedState, f:FinishFunction) = {
-        expectedState = Some(es)
-        function = Some(f)
+        stateMap += es->f
     }
 
+/*
     protected def setAndExecute(state:VersionedState) : Boolean = {
         var ret = false
+        //println("trying to SET AND EXECUTE for " + state + " FOr " + this)
+        if (!expectedStates.contains(state.getState)) 
+            return false
         
-        expectedState.foreach(s => {
-            var f = reset()
-            ret = matchState(state, s)
-            if (ret) 
-                f.foreach( f=>f() )    
-        })
-
+        if (!expectedStates(state.getState).contains(state))
+            return false
+        
+        val m = expectedStates(state.getState)
+        expectedStates = Map[ConnectionState, FinishMap]()
+        //println(" m = " + m)
+        m(state)()
+        //println(" EEEEEEEEEERAAAAAAAAAAAAAAAAAAAAAAASING  for " + this + "\\n \\n")
         return ret
     }
 
-    private def matchState(state:VersionedState, expectedState:VersionedState) : Boolean = {
-        if ( expectedState.equals(state) )
-            return true
-
-        if ( state.isInstanceOf[VERSIONED_HASMEDIA] && expectedState.isInstanceOf[VERSIONED_HASMEDIA] &&
-            state.version.equals(expectedState.version) )
-            return true
-        
-        return false
-    }
-
-    private def reset() : Option[FinishFunction] = {
-        val f = function
-        expectedState = None
-        function = None
-        return f
-    }
-
+    protected[telco] def resetCallbacks() : Unit =
+        expectedStates = Map[ConnectionState, FinishMap]()
+        */
+    
     def debugStateExecutor() = {
-        println(" ########           expectedState = " + expectedState + "!")
+        println(" ########           expectedState = " + stateMap + "!")
     }
 }

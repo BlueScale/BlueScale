@@ -37,7 +37,6 @@ class JoinTwoConnectedFunctionalTest extends TestHelper with JoinTwoConnected  {
 	def testJoinConn() = {
 	  println("hi");
 		assertEquals("blah", "blah")
-	 
 		 runConn()
 		 getLatch.await()
  	 

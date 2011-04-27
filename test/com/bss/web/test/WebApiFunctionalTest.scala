@@ -30,6 +30,7 @@ import com.bss.server._
 import java.net.URLEncoder
 import com.bss.telco.api._
 import com.bss.telco.jainsip._
+import com.bss.telco._
 import java.util.concurrent.CountDownLatch
 import com.bss.server._
 import javax.servlet.http.HttpServletRequest
@@ -40,9 +41,10 @@ object WebApiFunctionalTest {
         val wt = new WebApiFunctionalTest()
         println(" TEEEEEEEST" )
         wt.setUp()
+        //wt.tempTest()
         //wt.testClickToCall()
-        wt.testIncomingCall()
-        //wt.testIncomingForward()
+        //wt.testIncomingCall()
+        wt.testIncomingForward()
         println("Doooooooooooooone")
     }
 }
@@ -162,6 +164,17 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         latch.await()
         println("finished testIncomingForward")
     }
+
+    @Test
+    def tempTest() {
+        println("tempTest")
+        val fake = b2bServer.getFakeJoinable("127.0.0.1")
+        println("fake = " +fake)
+        val raw = fake.sdp.toString().getBytes()
+        println("raw length = " + raw.length)
+        val sdp = SdpHelper.getSdp(raw)
+        println(sdp)
+    }
    
 
     @Test
@@ -176,10 +189,12 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
                 callid = request.getParameter("CallId")
                 getDialResponse("9494443333") 
             })
+
         testWS.setNextResponse( request=> {
             println("connected")
             ""
         })
+
         testWS.setNextResponse( request=> {
             println(" joined NOW!")
             joinedLatch.countDown()

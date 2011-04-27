@@ -26,4 +26,7 @@ package com.bss.telco
 object Types {
     
     type FinishFunction = ()=>Unit
+
+    type FinishMap = Map[VersionedState,FinishFunction]
+    
 }

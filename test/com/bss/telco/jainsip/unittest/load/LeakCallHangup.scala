@@ -45,6 +45,8 @@ class LeakCallHangup  extends junit.framework.TestCase with SimpleCall  {
  
 	@Override 
 	def getTelcoServer() = telcoServer;
+    
+    override def getB2BServer() = b2bServer
 
 	@Test
     def testNoLeaks() = {

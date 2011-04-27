@@ -27,6 +27,7 @@ package com.bss.blueml
 import com.bss.telco.api._
 import com.bss.util._
 import java.util.concurrent._
+import com.bss.telco._
 
 class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
@@ -71,17 +72,25 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
         val destConn = telcoServer.createConnection(dial.number, dial.callerId)
+        println("DIAL JOIN, conn = " + conn.connectionState )
         conn.connectionState match {
             case c:CONNECTED =>
                 conn.join(destConn, ()=>{
+                    println(" OK..............JOINED callback ran, woot!")
                     postCallStatus(dial.url, destConn)
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 })
-            case u:UNCONNECTED =>
-                connectAnswer(conn, destConn, dial)
-            case r:RINGING =>
-                connectAnswer(conn, destConn, dial)
-            }
+            
+            case _ => 
+                conn.direction match {
+                    case i:INCOMING =>
+                        println("calling ACCCEPT")
+                        conn.accept(()=>{ println(" AAAAAAAAAACCCCCCCCCCCCCCCCCCCEEEEEEEEEEEEEPTED")
+                        connectAnswer(conn, destConn, dial)})
+                    case o:OUTGOING => 
+                        connectAnswer(conn, destConn, dial)
+                }
+        }
     
         dial.ringLimit match {
             case -1 => println("ok nothing to do but hope it connects")
@@ -89,6 +98,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case _ => 
                 Thread.sleep(dial.ringLimit*(1000))
                 try {
+                    println("AWOKE FROM SLEEPING")
                     destConn.cancel( ()=> handleBlueML(conn, verbs) )
 
                 } catch {
@@ -101,10 +111,17 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     protected def connectAnswer(conn:SipConnection, destConn:SipConnection, dial:Dial) = {
         destConn.connect(()=> {
             postCallStatus(dial.url, destConn)
-            conn.accept( ()=> 
-            conn.join(destConn, ()=> 
-                postConversationStatus(addConvoInfo(dial.url, conn, destConn))
-            ))
+            conn.direction match {
+                case i:INCOMING =>
+                            conn.accept( ()=>
+                                 conn.join(destConn, ()=> 
+                                    postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
+                                )
+                                
+                case o:OUTGOING =>
+                            conn.join(destConn, ()=> 
+                                postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
+            }
         })
     }
 
@@ -158,10 +175,10 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
      def newCall(to:String, from:String, url:String) {
         //todo: make sure it's all valid
         val conn = telcoServer.createConnection(to, from)
-        conn.connect(
-            () => handleConnect(url, conn)
+        conn.connect(() => {
+            handleConnect(url, conn)
             //send status to the url
-        )
+        })
     }
 
     def modifyCall(callid:String, action:BlueMLVerb) {

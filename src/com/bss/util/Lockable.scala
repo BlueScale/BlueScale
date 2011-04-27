@@ -39,6 +39,7 @@ trait Lockable {
 				f
 				unlock()
 			} else {
+			    println(" CONCURRENCY EXCEPTION FOR " + this )
 				throw new ConcurrencyException()
 			}
     }

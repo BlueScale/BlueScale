@@ -42,6 +42,7 @@ trait JoinTwo {
   
  	def handleDisconnect(conn:SipConnection) = {
  	    //this should be bob!
+ 	    println(" oooooooKAY, lets see what the conncetion is, conn = " + conn)
  	    assertEquals(bob.connectionState, UNCONNECTED())
 		System.err.println("assert that alice is disconnected = " + alice.connectionState)
 		System.err.println("assert that bob is disconnected = " + bob.connectionState)
