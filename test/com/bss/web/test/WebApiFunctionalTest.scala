@@ -42,9 +42,9 @@ object WebApiFunctionalTest {
         println(" TEEEEEEEST" )
         wt.setUp()
         //wt.tempTest()
-        //wt.testClickToCall()
+        wt.testClickToCall()
         //wt.testIncomingCall()
-        wt.testIncomingForward()
+        //wt.testIncomingForward()
         println("Doooooooooooooone")
     }
 }

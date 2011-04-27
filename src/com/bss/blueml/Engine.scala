@@ -85,8 +85,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 conn.direction match {
                     case i:INCOMING =>
                         println("calling ACCCEPT")
-                        conn.accept(()=>{ println(" AAAAAAAAAACCCCCCCCCCCCCCCCCCCEEEEEEEEEEEEEPTED")
-                        connectAnswer(conn, destConn, dial)})
+                        connectAnswer(conn, destConn, dial)
                     case o:OUTGOING => 
                         connectAnswer(conn, destConn, dial)
                 }
@@ -98,8 +97,9 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case _ => 
                 Thread.sleep(dial.ringLimit*(1000))
                 try {
-                    println("AWOKE FROM SLEEPING")
-                    destConn.cancel( ()=> handleBlueML(conn, verbs) )
+                    destConn.cancel( ()=> { 
+                    handleBlueML(conn, verbs)
+                    })
 
                 } catch {
                     case ex:InvalidStateException => println("first connect succeeded")

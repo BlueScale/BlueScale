@@ -153,7 +153,7 @@ class JainSipConnection protected[telco](
         connectionState match {
             case PROGRESSING() | UNCONNECTED() | RINGING() =>
                 //TODO: fixme if it has a clientTX, there is something to cancel, otherwise.....
-                println(" OK, lets see our Tx =  " + clientTx )
+                println( " ----------------CANCEL OUTGOING -------------------------------, clientTx =" + clientTx)
                 clientTx.foreach( tx => {
                    println("OK WE HAVE NO TRANSACTION, WHATEVER")
                     telco.internal.sendCancel(this)
