@@ -80,8 +80,9 @@ class JainSipConnection protected[telco](
  	   	connid = telco.internal.sendInvite(this, sdp)
  	   	telco.addConnection(this)
  	   	if ( callbackAnyMedia ) 
- 	   	    //ringingCallback = Some(connectedCallback)
- 	   	    setFinishFunction( new VERSIONED_RINGING(clientTx.get.getBranchId()), connectedCallback)
+ 	   	    setFinishFunction( new VERSIONED_RINGING(clientTx.get.getBranchId()), ()=> 
+ 	   	        setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback ) )
+ 	   	                                                                            
  	   	
         setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback)
  	   	progressingCallback.foreach( _(this) )

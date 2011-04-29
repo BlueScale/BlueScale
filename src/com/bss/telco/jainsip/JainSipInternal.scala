@@ -209,7 +209,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
 		val request = requestEvent.getRequest()
       	val conn = telco.getConnection(getCallId(request))
-	    println(" ----------------- AAAAAAAAAAAAAAAAAAAAAAAAAAAAND AN ACK IS RECEIVED --------------------")	
 		conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
 	}  		
    
@@ -226,7 +225,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		asResponse(re).getStatusCode() match {
 			case Response.SESSION_PROGRESS => conn.setState(VERSIONED_PROGRESSING("") )
 		    		 				
-			case Response.RINGING => println("----------------------- RINGING RESPONSE ------------------------, dialog = " + re.getDialog() )
+			case Response.RINGING =>
 			                conn.dialog = Some(re.getDialog())
 	 		                Option(asResponse(re).getRawContent()).foreach( content=> {
     			                val sdp = SdpHelper.getSdp(content)
@@ -273,7 +272,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 
 	def sendCancel(conn:JainSipConnection) : Unit = {
 	    conn.clientTx.foreach( tx => {
-	    println(" ======+++++++++============ sending cancel, is htis correct?  +++++================+++++++++")
             val request = tx.createCancel()
             conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
             conn.clientTx.get.sendRequest()

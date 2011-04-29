@@ -212,7 +212,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
                                                             "Url"->"http://localhost:8100"))
         joinedLatch.await()
         Thread.sleep(900)//our post might happen before the join callback finishes, could be a benign race conidtion in our test
-        WebUtil.postToUrl("http://localhost:8200/Calls/"+callid+"/Hangup", Map("Url"->"http://localhost:8100"))
+        //WebUtil.postToUrl("http://localhost:8200/Calls/"+callid+"/Hangup", Map("Url"->"http://localhost:8100"))
         latch.await()
         
         println("finisehd click to call")

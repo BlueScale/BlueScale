@@ -41,7 +41,7 @@ class EarlyMediaJoinTwoFunctionalTest extends TestHelper {
 
  	def handleDisconnect(conn:SipConnection) = {
  	    //this should be bob!
- 	    assertEquals(bob.connectionState, UNCONNECTED())
+ 	    assertEquals(conn.connectionState, UNCONNECTED())
 		System.err.println("assert that alice is disconnected = " + alice.connectionState)
 		System.err.println("assert that bob is disconnected = " + bob.connectionState)
 		//
@@ -55,8 +55,8 @@ class EarlyMediaJoinTwoFunctionalTest extends TestHelper {
 
     @Test
     def testEarlyMedia() {
-        //runJoinTwoConnected()
-        //latch.await()
+        runJoinTwoConnected()
+        latch.await()
     }
 
     @Test
@@ -66,16 +66,21 @@ class EarlyMediaJoinTwoFunctionalTest extends TestHelper {
     }
 
     def runJoinConnect() {
+        b2bServer.ringSome = true
         latch = new CountDownLatch(1)
  		alice.connect(()=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		    alice.join(bob, ()=> {
 		        println(" what is the state of bob = " + bob.connectionState )
+
 		        assertEquals(alice.connectionState, CONNECTED())
 		        assertEquals(bob.connectionState, CONNECTED())
                 assertTrue(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
-                
-                latch.countDown()
+                bob.disconnect( ()=> {
+                    println("disconnected")
+                    assertEquals(bob.connectionState, UNCONNECTED() )
+                    latch.countDown()
+                })
                 })
 		  } )
     }
@@ -107,5 +112,13 @@ class EarlyMediaJoinTwoFunctionalTest extends TestHelper {
 		})
 	}
  }
+
+object EarlyMediaJoinTwoFunctionalTest {
+    def main(args:Array[String]) = {
+        val m = new EarlyMediaJoinTwoFunctionalTest()
+        m.setUp()
+        m.testJoinConnect()
+    }
+}
 
 
