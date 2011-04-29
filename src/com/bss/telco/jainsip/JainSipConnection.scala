@@ -73,22 +73,30 @@ class JainSipConnection protected[telco](
 
 	protected[jainsip] def setConnectionid(id:String) = connid = id
  
- 	override def connect( f:FinishFunction) = connect(localSdp, false, f)
+ 	
+ 	override def connect( f:FinishFunction) = connect(localSdp, ()=>{}, f)
  
-    
-	override def connect(sdp:SessionDescription, callbackAnyMedia:Boolean, connectedCallback:FinishFunction) = wrapLock { 	
- 	   	connid = telco.internal.sendInvite(this, sdp)
- 	   	telco.addConnection(this)
- 	   	if ( callbackAnyMedia ) 
- 	   	    setFinishFunction( new VERSIONED_RINGING(clientTx.get.getBranchId()), ()=> 
- 	   	        setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback ) )
- 	   	                                                                            
- 	   	
-        setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback)
- 	   	progressingCallback.foreach( _(this) )
- 	    //setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback)
-	}
+    override def connect(sdp:SessionDescription, mediaCallback:FinishFunction, connectedCallback:FinishFunction) = wrapLock {
+        connid = telco.internal.sendInvite(this, sdp)
+        telco.addConnection(this)
 
+        val func = ()=> {
+            connectionState match {
+            case r:RINGING =>
+                setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), connectedCallback)
+                mediaCallback()
+            case c:CONNECTED =>
+                mediaCallback()
+                connectedCallback()
+            }
+        }
+ 	   	
+ 	   	setFinishFunction( new VERSIONED_RINGING(clientTx.get.getBranchId()), func )
+        setFinishFunction( new VERSIONED_CONNECTED(clientTx.get.getBranchId()), func )
+ 	   	
+ 	   	progressingCallback.foreach( _(this) )
+    }
+                
     override def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
         connectionState match {
             case UNCONNECTED() | RINGING() =>
@@ -175,13 +183,15 @@ class JainSipConnection protected[telco](
         otherCall.connectionState match {
             
             case UNCONNECTED() =>
-                otherCall.connect(localSdp, true, ()=> {
+                otherCall.connect(localSdp, ()=>{
                     this.reconnect(otherCall.sdp, ()=>{
+                        println( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&         reconnect in the join UNCONNECT    &&&&&&&&&&&&&&&&&&&&&&&&")
                         this.joinedTo = Some(otherCall)
                         this.joinedTo.get.joinedTo = Some(this)
-                        joinCallback()
+                        
                     })
-                    })
+                }, ()=>joinCallback())
+                
                
             case CONNECTED() =>
                 joinConnected(otherCall, joinCallback)

@@ -106,7 +106,8 @@ class SipTelcoServer(
       
         if ( c1.joinedTo == None || c2.joinedTo == None ) 
     	    return false
-    	
+    
+        println(" ------------------------------ are two connceted --------------------")
     	c1.asInstanceOf[JainSipConnection].joinedTo.foreach( conn1 =>
             c2.asInstanceOf[JainSipConnection].joinedTo.foreach( conn2 => {
 
@@ -117,13 +118,15 @@ class SipTelcoServer(
             val medialist2 = conn1.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
       
             //TODO: Check Media Connection!
+            println(" OK we're checking here")
       
-            if ( mediatrans1.getMedia().getMediaPort != medialist2.getMedia().getMediaPort() ) 
+            if ( mediatrans1.getMedia().getMediaPort != medialist1.getMedia().getMediaPort() ) 
     	        return false
       
-            if ( mediatrans2.getMedia().getMediaPort != medialist1.getMedia().getMediaPort() ) 
+            if ( mediatrans2.getMedia().getMediaPort != medialist2.getMedia().getMediaPort() ) 
                 return false
         }))
+        println(" OK NOW IT'S WEIRD< RETURNING TRUE")
         return true
     }
 

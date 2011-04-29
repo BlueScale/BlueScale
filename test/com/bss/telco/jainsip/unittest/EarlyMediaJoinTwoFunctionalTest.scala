@@ -71,10 +71,12 @@ class EarlyMediaJoinTwoFunctionalTest extends TestHelper {
  		alice.connect(()=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		    alice.join(bob, ()=> {
-		        println(" what is the state of bob = " + bob.connectionState )
+		        println(" what is the state of bob = " + bob.connectionState + " alice = " + alice.connectionState )
 
 		        assertEquals(alice.connectionState, CONNECTED())
 		        assertEquals(bob.connectionState, CONNECTED())
+		        println(" alice.joinedTo = " + alice.joinedTo + " | bob.joinedTo = " + bob.joinedTo )
+		        //println("are two connected = " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
                 assertTrue(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
                 bob.disconnect( ()=> {
                     println("disconnected")

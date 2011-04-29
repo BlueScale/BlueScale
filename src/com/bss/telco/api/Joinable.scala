@@ -39,8 +39,10 @@ trait Joinable[T] {
     def connectionState:ConnectionState //Possibly not needed here...
 
     protected[telco] def reconnect(sdp:SessionDescription, f:()=>Unit)
+
+    //protected[telco] def connect(sdp:SessionDescription, connectedCallback:()=>Unit)
     
-    protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, f:()=>Unit)
+    protected[telco] def connect(sdp:SessionDescription, mediaCallback:()=>Unit, connectedCallback:()=>Unit)
     
     protected[telco] def silence(f:()=>Unit)
 
