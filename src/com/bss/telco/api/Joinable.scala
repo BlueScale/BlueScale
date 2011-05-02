@@ -42,9 +42,11 @@ trait Joinable[T] {
 
     //protected[telco] def connect(sdp:SessionDescription, connectedCallback:()=>Unit)
     
-    protected[telco] def connect(sdp:SessionDescription, mediaCallback:()=>Unit, connectedCallback:()=>Unit)
+    protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, connectedCallback:()=>Unit)
     
     protected[telco] def silence(f:()=>Unit)
+
+    protected[telco] def onConnect(f:()=>Unit)
 
     protected[telco] def unjoin(j:Joinable[_], f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
 

@@ -47,7 +47,6 @@ trait ConnectJoinTwo {
 		System.err.println("assert that alice is disconnected = " + alice.connectionState)
 		System.err.println("assert that bob is disconnected = " + bob.connectionState)
 		//
-		println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ COUNTING DOWN THE LATCH ~~~~~~~~")
 		latch.countDown()
  	}
 
@@ -64,8 +63,8 @@ trait ConnectJoinTwo {
 		  	assertEquals(alice.connectionState, CONNECTED())
 		    alice.join(bob, ()=> {
 		        assertEquals(alice.connectionState, CONNECTED())
+                println( "ARE TWO CONNECTED = " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
                 assertTrue(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
-                
                 latch.countDown()
                 })
 		  } )

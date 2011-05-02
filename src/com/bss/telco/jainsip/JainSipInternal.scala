@@ -288,7 +288,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
 		val request = conn.dialog.get.createRequest(Request.INVITE)
-        request.removeHeader("contact")//The one from the createRequest is the listeningIP...
+        request.removeHeader("contact")//The one from the createRequest is the listeningIP..., same with the via
         request.removeHeader("via")
         request.addHeader(inviteCreator.getViaHeader().get(0))
 		conn.contactHeader.foreach( request.addHeader(_) )//neccessary?

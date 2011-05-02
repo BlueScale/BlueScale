@@ -43,6 +43,7 @@ class ConnectJoinFunctionalTest extends TestHelper with ConnectJoinTwo  {
 	 
 		 runConn()
 		 getLatch.await()
+		 println("FINISHED")
  	 
 	}
 }
@@ -53,6 +54,8 @@ object ConnectJoinFunctionalTest {
 	    jt.setUp()
 		jt.runConn()
 		jt.getLatch.await()
+		println("finished ")
+		jt.tearDown()
 	}
 }
 
