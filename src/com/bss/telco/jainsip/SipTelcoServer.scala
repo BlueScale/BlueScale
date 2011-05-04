@@ -100,15 +100,12 @@ class SipTelcoServer(
 	def fireIncoming(c:SipConnection)   = incomingCallback.foreach( _(c) )
 
     override def areTwoConnected(c1:SipConnection, c2:SipConnection) : Boolean = {
-        println(" ARE TWO CONNECTED ?????????????") 
         if ( c1.connectionState != CONNECTED() || c2.connectionState != CONNECTED() ) 
             return false
       
-        println("MADE IT HERE c1.joinedTo = " + c1.joinedTo + " | c2.joinedTo = "+ c2.joinedTo)
         if ( c1.joinedTo == None || c2.joinedTo == None ) 
     	    return false
     
-        println(" ------------------------------ are two connceted --------------------")
     	c1.asInstanceOf[JainSipConnection].joinedTo.foreach( conn1 =>
             c2.asInstanceOf[JainSipConnection].joinedTo.foreach( conn2 => {
 

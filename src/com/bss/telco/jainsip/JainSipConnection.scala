@@ -176,8 +176,8 @@ class JainSipConnection protected[telco](
         otherCall.connectionState match {
             
             case UNCONNECTED() =>
-                println(" MMMMMMMMMMMY STate = " + connectionState )
                 otherCall.connect(localSdp, true, ()=>{
+                    println(" OK we connected the other call with MEDIA, the state is = " + otherCall.connectionState + " |, sdp = " + sdp )
                     this.reconnect(otherCall.sdp, ()=>{
                         this.joinedTo = Some(otherCall)
                         this.joinedTo.get.joinedTo = Some(this)

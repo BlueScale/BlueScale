@@ -39,11 +39,9 @@ class JoinTwoRemoteHangupFunctionalTest extends TestHelper with JoinTwoRemoteHan
  
 	@Test
 	def testJoinTwoRemoteHangup() = {
-	  println("joinTwoRemoteHangup")
-	 
-		 runConn()
-		 getLatch.await()
- 	 
+	    println("joinTwoRemoteHangup")
+		runConn()
+		getLatch.await()
 	}
 }
 

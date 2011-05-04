@@ -42,9 +42,9 @@ object WebApiFunctionalTest {
         println(" TEEEEEEEST" )
         wt.setUp()
         //wt.tempTest()
-        wt.testClickToCall()
+        //wt.testClickToCall()
         //wt.testIncomingCall()
-        //wt.testIncomingForward()
+        wt.testIncomingForward()
         println("Doooooooooooooone")
     }
 }
@@ -63,6 +63,11 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
     val testWS  = new SimpleWebServer(8100)
 
     var latch:CountDownLatch = null
+
+    val gatewayNumber    = "4445556666"
+    val aliceNumber     = "7778889999"
+    val bobNumber       = "1112223333"
+        
 
 	@Before
    	override def setUp() {
@@ -92,7 +97,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
             callid = Some( request.getParameter("CallId") )
             getDialResponse("9494443333")
         })
-//THIS IS FAILING< our new CONNECT JOIN doesn't actually post back a escond callID???
         testWS.setNextResponse( request=> "" ) //this is telling us the callID of the other end...
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything
@@ -121,10 +125,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
     def testIncomingForward() {
         println("test incoming forward")
         val joinedLatch = new CountDownLatch(1)
-        
-        val gatewayNumber    = "4445556666"
-        val aliceNumber     = "7778889999"
-        val bobNumber       = "1112223333"
         var callid:Option[String] = None
 
         val clientConn = b2bServer.createConnection(gatewayNumber, "1112223333")
@@ -182,15 +182,18 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         println("testClickTocall")
         b2bServer.ringSome = true
         
-        var callid:String = null
+        var call1id:String = null
+        var call2id:String = null
+
         val joinedLatch = new CountDownLatch(1)
        
         testWS.setNextResponse( request=> {
-                callid = request.getParameter("CallId")
-                getDialResponse("9494443333") 
+                call1id = request.getParameter("CallId")
+                getDialResponse(bobNumber) 
             })
 
         testWS.setNextResponse( request=> {
+            call2id = request.getParameter("CallId")
             println("connected")
             ""
         })
@@ -207,12 +210,18 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
             ""
         })
 
-        WebUtil.postToUrl("http://127.0.0.1:8200/Calls", Map("To"->"7147470982",
-                                                            "From"->"4445556666",
+        WebUtil.postToUrl("http://127.0.0.1:8200/Calls", Map("To"->aliceNumber,
+                                                            "From"->bobNumber,
                                                             "Url"->"http://localhost:8100"))
         joinedLatch.await()
+
+        val call1 = telcoServer.findConnection(call1id)
+        val call2 = telcoServer.findConnection(call2id)        
+        println(" call1 = " + call1)
+        println(" call2 = " + call2)
+        assertTrue( telcoServer.areTwoConnected(call1, call2) )
         Thread.sleep(900)//our post might happen before the join callback finishes, could be a benign race conidtion in our test
-        WebUtil.postToUrl("http://localhost:8200/Calls/"+callid+"/Hangup", Map("Url"->"http://localhost:8100"))
+        WebUtil.postToUrl("http://localhost:8200/Calls/"+call1id+"/Hangup", Map("Url"->"http://localhost:8100"))
         latch.await()
         
         println("finisehd click to call")

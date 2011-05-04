@@ -232,6 +232,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			                    if (!SdpHelper.isBlankSdp(sdp)) {
     			                    conn.dialog = Some(re.getDialog())
 	    		                    SdpHelper.addMediaTo(conn.localSdp, sdp)
+	    		                    println("RINGING SDP = " + sdp )
 		    	                    conn.setState(VERSIONED_RINGING( transaction.getBranchId() ))
 		    	                }
                             }) 

@@ -72,11 +72,10 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
         val destConn = telcoServer.createConnection(dial.number, dial.callerId)
-        println("DIAL JOIN, conn = " + conn.connectionState )
         conn.connectionState match {
             case c:CONNECTED =>
                 conn.join(destConn, ()=>{
-                    println(" OK..............JOINED callback ran, woot!")
+                    println(" ============== fuuuuuuuuuuuuuuuu ck =================")
                     postCallStatus(dial.url, destConn)
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 })
@@ -84,7 +83,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case _ => 
                 conn.direction match {
                     case i:INCOMING =>
-                        println("calling ACCCEPT")
                         connectAnswer(conn, destConn, dial)
                     case o:OUTGOING => 
                         connectAnswer(conn, destConn, dial)
