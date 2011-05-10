@@ -39,7 +39,8 @@ object WebUtil {
         val data = params
                     .map({ case (key, value) =>  
                         URLEncoder.encode( key, "UTF-8") + "=" +URLEncoder.encode( value, "UTF-8") })
-                    .reduceLeft(_ + "&" + _)
+                    .reduceLeft( (a,b)=> a +"&"+ b)
+                    //.reduceLeft(_ + "&" + _)
         
         val urlConn = new URL(url).openConnection()
         urlConn.setDoOutput(true)

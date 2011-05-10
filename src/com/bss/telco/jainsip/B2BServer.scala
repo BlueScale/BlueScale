@@ -69,7 +69,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 
 		if (ringSome) { 
 		    conn.ring( getFakeJoinable(ip))
-		    Thread.sleep(2000)
+		    Thread.sleep(1000)
 		}
 		conn.accept(getFakeJoinable(ip), ()=> println("b2bServer accepted call to " + conn.destination ) );
 	}

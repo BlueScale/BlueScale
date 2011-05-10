@@ -41,14 +41,20 @@ trait JoinTwoRemoteHangup {
  	def getTelcoServer() : TelcoServer
 
  	def getB2BServer() : B2BServer
-   	 
+
+ 	getTelcoServer().setDisconnectedCallback(disconnected)
+
  	val alice = getTelcoServer().createConnection("4445556666", "9495557777")
  	val bob = getTelcoServer().createConnection("1112223333", "7147773333")
-
+    
+    def disconnected(call:SipConnection) {
+        if (alice.connectionState == UNCONNECTED() &&
+            bob.connectionState == UNCONNECTED())
+            latch.countDown()
+    }
  
 	def runConn() {
  		latch = new CountDownLatch(1)
-	          
  		alice.connect(()=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		  	bob.connect(()=>{
@@ -58,13 +64,7 @@ trait JoinTwoRemoteHangup {
 				    println("are both connected = ? " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 			        //Now initiate a remote hangup.
 			        Thread.sleep(1000)
-			        getB2BServer().findConnByDest("4445556666").foreach( _.disconnect( ()=> {
-                        Thread.sleep(50)
-                        println(" alice connectionState = " + alice.connectionState )
-                        println("Is bob disconnected now that alice hungup on him? bob = " + bob.connectionState)
-                        assertEquals(bob.connectionState,UNCONNECTED())
-                        latch.countDown()
-			        }))
+			        getB2BServer().findConnByDest("4445556666").foreach( _.disconnect( ()=> println("disconnected") ))
 				})
 			})
 		})
