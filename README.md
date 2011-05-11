@@ -38,6 +38,7 @@ Once you finish editing your config, launch the run.sh script and you're ready t
      </pre>
 
 2. Your application will respond to the post with BlueML, an XML Dialect for controlling BlueScale.  This will cause the phone specified in the number tag to ring, and connect it to the incoming call.  
+        
         <Response>
             <Dial>
                 <Number>1112223333</Number>
