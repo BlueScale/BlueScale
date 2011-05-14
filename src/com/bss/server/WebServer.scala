@@ -84,7 +84,9 @@ class CallServlet(telcoServer:TelcoServer,
         var status = HttpServletResponse.SC_OK
         try {
             if (arr(1).equals("Calls") && arr.length == 2) {
-               engine.newCall(request.getParameter("To"), request.getParameter("From"), request.getParameter("Url"))
+               engine.newCall(  request.getParameter("To"),
+                                request.getParameter("From"), 
+                                request.getParameter("Url"))
             } else if (arr(1).equals("Calls") && arr.length > 3) {
                 val callid = arr(2)
                 

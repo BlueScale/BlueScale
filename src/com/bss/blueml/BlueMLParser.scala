@@ -46,7 +46,7 @@ object BlueMLParser extends Util {
 
     private def parseDial(n:Node) : Dial = 
         new Dial( GetNonEmpty((n \ "Number").text, n.text),
-                  (n \ "CallerId").text,
+                  (n \ "From").text,
                   (n \ "Action").text,
                   parseInt((n \ "RingLimit").text))
                   
@@ -70,7 +70,7 @@ case class Play(val loop:Int,
                 val url:String) extends BlueMLVerb 
 
 case class Dial(val number:String,
-                val callerId:String,
+                val from:String,
                 val url:String,
                 val ringLimit:Int) extends BlueMLVerb
 

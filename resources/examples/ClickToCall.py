@@ -45,7 +45,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 <Response>
                     <Dial>
                         <Number>""" + number2 + """</Number>
-                        <CallerId>"""+ number1 + """</CallerId>
+                        <From>"""+ number1 + """</From>
                         <Action>http://""" + listeningIp + ":" + str(listeningPort) + """/Status</Action>
                     </Dial>
                 </Response>

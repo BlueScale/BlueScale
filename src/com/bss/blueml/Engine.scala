@@ -71,7 +71,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
-        val destConn = telcoServer.createConnection(dial.number, dial.callerId)
+        val destConn = telcoServer.createConnection(dial.number, dial.from)
         conn.connectionState match {
             case c:CONNECTED =>
                 conn.join(destConn, ()=>{
