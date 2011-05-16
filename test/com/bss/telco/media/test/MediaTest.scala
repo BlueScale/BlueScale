@@ -59,8 +59,13 @@ class MediaTest extends junit.framework.TestCase {
         val ip = "192.168.2.5"
         val port = 3000
         val fileLocation = "/Users/vmarquez/BlueScale/resources/gulp.wav"
-        //val filelocation = "resources\\gulp.wav"  
-        val proc = Manager.createProcessor(Manager.createDataSource( new MediaLocator(fileLocation) ))
+        //val filelocation = "resources\\gulp.wav" 
+        println(" File exists? = " + new File(fileLocation).exists())
+        val locator =  new MediaLocator(fileLocation)
+        println("locator = " + locator)
+        val source = Manager.createDataSource(locator)
+        println("source = " + source)
+        val proc = Manager.createProcessor(Manager.createDataSource(locator))
         wait(proc, Processor.Configured)
         proc.setContentDescriptor(new ContentDescriptor(ContentDescriptor.RAW_RTP))
         wait( proc, Controller.Realized )
