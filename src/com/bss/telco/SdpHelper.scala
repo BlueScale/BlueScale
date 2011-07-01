@@ -108,6 +108,19 @@ object SdpHelper {
 		}
 	}
 
+/*
+	def createSdp(localport:int, ip:String) : SessionDescription = {
+        val sd =  sdpFactory.createSessionDescription()
+		sd.setOrigin(sdpFactory.createOrigin("bss", sd.hashCode(), 1L, "IN", "IP4", ip))
+		sd.setSessionName(sdpFactory.createSessionName("bssession"))
+		sd.setConnection(sdpFactory.createConnection("IN", "IP4", sdpip))
+				
+		val md = sdpFactory.createMediaDescription("audio", localport 1, RTP, new Array[Int](1) ) //need a 0 tacked onto the end for the RTP stuff
+		sd.getMediaDescriptions(true).asInstanceOf[Vector[MediaDescription]].
+		add(md)
+       
+	}
+*/
 	class ProtocolNotSupportedException(str:String) extends Exception
 	
 }

@@ -21,13 +21,53 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.api
 
-import javax.sdp.SessionDescription
-import com.bss.telco.Connectable
+package com.bss.telco.media.jlibrtp
 
-trait Joinable[T] {
 
+
+class MediaConnection extends Joinable
+                      with Playable {
+
+    var sdp = null
+    
+    def join(connection:Joinable[_], f:()=>Unit) {
+
+    }
+
+
+    def joinPlay(joinable:Joinable[_], f:()=>Unit) {
+       //get SDP info for incoming data. 
+
+       joinable.connect(getLocalSdp(), false, ()=> {
+            otherCall.joinedTo = Some(this)
+            //reconnect should not take an SDP, should take a joinable...and jsut connect with the SDP from it. 
+            
+            //now take the other all's SDP and lets make sure we're listening to that.  now we can playw
+            play(f)
+
+
+
+            }
+        })
+    }
+    
+    def play(f:()=>Unit) {
+        //play music
+
+        f()
+    }
+
+    def getLocalSdp() = {
+        
+
+    }
+
+
+}
+
+
+/*
   	var joinedTo:Option[Joinable[_]] = None
   	
     var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
@@ -50,13 +90,7 @@ trait Joinable[T] {
     protected[telco] def onConnect(f:()=>Unit)
 
     protected[telco] def unjoin(j:Joinable[_], f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
+*/
 
 
-}
 
-
-trait UnjoinReason
-
-case class HoldUnjoin extends UnjoinReason
-
-case class DisconnectUnjoin extends UnjoinReason

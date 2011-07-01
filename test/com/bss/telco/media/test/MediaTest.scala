@@ -48,36 +48,44 @@ import javax.media.ProcessorModel
 import javax.media.protocol.ContentDescriptor
 import javax.media.protocol.FileTypeDescriptor
 import javax.media.Controller
- 
+import net.sf.fmj.utility.URLUtils
 
 class MediaTest extends junit.framework.TestCase {
+
 
 
     @Test
     def testSend() {
         println("@testFourth")
-        val ip = "192.168.2.5"
+        val ip = "10.1.0.55"
         val port = 3000
-        val fileLocation = "/Users/vmarquez/BlueScale/resources/gulp.wav"
+        //val fileLocation = "/Users/vmarquez/BlueScale/resources/gulp.wav"
+        val fileLocation = "gulp.wav"
+        val fileUrl =  URLUtils.createUrlStr(new File(fileLocation))
+
         //val filelocation = "resources\\gulp.wav" 
-        println(" File exists? = " + new File(fileLocation).exists())
-        val locator =  new MediaLocator(fileLocation)
+        val locator =  new MediaLocator(fileUrl)
         println("locator = " + locator)
-        val source = Manager.createDataSource(locator)
-        println("source = " + source)
-        val proc = Manager.createProcessor(Manager.createDataSource(locator))
+        //val source = Manager.createDataSource(locator)
+        //println("source = " + source)
+        //val proc = Manager.createProcessor(Manager.createDataSource(locator))
+        val proc = Manager.createProcessor(locator)
+        
+        println(" proc = " + proc)
         wait(proc, Processor.Configured)
         proc.setContentDescriptor(new ContentDescriptor(ContentDescriptor.RAW_RTP))
         wait( proc, Controller.Realized )
         val dataOutput = proc.getDataOutput()
-        val ds = Manager.createDataSink(dataOutput, new MediaLocator("rtp://" +ip+ ":" +port+ "/audio"))
+        
+        val ds = Manager.createDataSink(dataOutput, new MediaLocator("rtp://" +ip+ ":" +port +"/audio/16"))
         println("SEEEEEEEEEEEEEEEEEEEEEEENDING")
         ds.open()
         ds.start()
-        dataOutput.start()
+        //dataOutput.start()
         
-        proc.start() 
+        //proc.start() 
         Thread.sleep(4000)
+        println("made a processor")
 	}
 
 
@@ -89,5 +97,11 @@ class MediaTest extends junit.framework.TestCase {
 			}
 			while ( p.getState != i) Thread.sleep(100)
      }
+}
 
+object MediaTest {
+    def main(args:Array[String]) { 
+        val t = new MediaTest()
+        t.testSend()
+    }
 }

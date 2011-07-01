@@ -199,6 +199,7 @@ class JainSipConnection protected[telco](
 	    })
 	}
 
+    //maybe rename to Mute?  It makes it so this SipConnection stops TRANSMITTING to anything...
     override def silence(silenceCallback:FinishFunction) = wrapLock {
     	SdpHelper.addMediaTo(localSdp, SdpHelper.getBlankSdp(telco.contactIp))
 	

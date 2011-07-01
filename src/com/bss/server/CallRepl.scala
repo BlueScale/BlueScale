@@ -74,6 +74,22 @@ class CallRepl(telco:TelcoServer) {
                 )
                 "joining..."
 
+            case "hold" =>
+                val c1 = callmap(arg)
+                
+                c1.hold( ()=> {
+                    println("... call " + arg + " is now on hold")
+                    processing = false
+                    })
+                "holding..." 
+            /*  
+            case "silence" =>
+                val c1 = callmap(arg)
+                c1.silence( ()=> {
+                    println("call " + arg + " is now silenced")
+                    processing = false
+                })*/
+
             case "hangup" =>
                 callmap(arg).disconnect( ()=> { 
                         println("...call" + arg + " is disconnected") 
