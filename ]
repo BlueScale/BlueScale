@@ -107,7 +107,7 @@ class JainSipConnection protected[telco](
 	    setFinishFunction(toState, f)
     }
 
-    def reconnect(sdp:SessionDescription, reconnectCallback:FinishFunction) : Unit = wrapLock {
+    def reconnect(sdp:Session, reconnectCallback:FinishFunction) : Unit = wrapLock {
         //if silencing this connction, when it's done, silence the jointwo conncetion, and so on. 
         
         joinedTo match {
@@ -120,13 +120,46 @@ class JainSipConnection protected[telco](
                         reconnect(sdp, reconnectCallback)
                     })
                 else
-                    fireReinvite(sdp, reconnectCallback)
+                    fireReincite(sdp, reconnectCallback)
+        
+
+
 
         }
 
+
+
     }
 
-   override def onConnect(callback:FinishFunction) = wrapLock {
+    def silentReconnect(reconnectCallback:FinishFunction) {
+        
+    }
+
+/*
+    def reconnect(sdp:SessionDescription, reconnectCallback:FinishFunction) : Unit = wrapLock {
+        val f = joinedTo match {
+            case None => reconnectCallback
+            case Some(otherConn) =>
+                otherConn.connect(SdpHelper.getBlankSdp(telco.contactIp), ()=> {
+                    other
+                }
+            
+        }
+    }
+
+    def reconnect(sdp:SessionDescription, reconnectCallback:FinishFunction) : Unit =  wrapLock {
+    println("joinedTo = " + joinedTo + " hashcode = "+ connectionid)
+		joinedTo match {	
+	  		case None 	=> 	
+	  		    
+	  		   	 	
+	  		case Some(otherConn) =>
+	  		    
+	  	}
+	}
+	*/
+
+    override def onConnect(callback:FinishFunction) = wrapLock {
         connectionState match {
             case CONNECTED() =>
                 callback()

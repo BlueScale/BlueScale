@@ -135,7 +135,7 @@ class SdpJoinable() extends Joinable[SdpJoinable] {
     override def join(c:Joinable[_], f:()=>Unit) : Unit =
         return
 
-    override def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit = return
+    def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit = return
 
     override def sdp : SessionDescription = { 
         mySdp match {
@@ -146,9 +146,12 @@ class SdpJoinable() extends Joinable[SdpJoinable] {
 
     override def connect(sdp:SessionDescription, connectAnyMedia:Boolean, connectedCallback:()=>Unit) = connectedCallback()
 
+    override def connect(sdp:SessionDescription, connectedCallback:()=>Unit) = connectedCallback()
+
+
     override def onConnect(callback:()=>Unit) = callback()
 
-    override def silence(f:()=>Unit) : Unit = return
+    def silence(f:()=>Unit) : Unit = return
 
     override def unjoin(j:Joinable[_], f:()=>Unit) : Unit = return
 }

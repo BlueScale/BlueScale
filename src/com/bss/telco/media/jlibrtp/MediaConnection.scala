@@ -24,7 +24,7 @@
 
 package com.bss.telco.media.jlibrtp
 
-
+/*
 
 class MediaConnection extends Joinable
                       with Playable {
@@ -65,7 +65,7 @@ class MediaConnection extends Joinable
 
 
 }
-
+*/
 
 /*
   	var joinedTo:Option[Joinable[_]] = None

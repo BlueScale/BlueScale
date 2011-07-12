@@ -26,6 +26,8 @@ package com.bss.telco.api
 import javax.sdp.SessionDescription
 import com.bss.telco.Connectable
 
+
+//typed so our callback can return a concrete class
 trait Joinable[T] {
 
   	var joinedTo:Option[Joinable[_]] = None
@@ -38,14 +40,15 @@ trait Joinable[T] {
 
     def connectionState:ConnectionState //Possibly not needed here...
 
-    protected[telco] def reconnect(sdp:SessionDescription, f:()=>Unit)
+    //protected[telco] def reconnect(sdp:SessionDescription, f:()=>Unit)
 
     //protected[telco] def connect(sdp:SessionDescription, connectedCallback:()=>Unit)
-    
+    protected[telco] def connect(sdp:SessionDescription, connectedCallback:()=>Unit)
+
     protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, connectedCallback:()=>Unit)
     
     //protected[telco] 
-    def silence(f:()=>Unit)
+    //def silence(f:()=>Unit)
 
     protected[telco] def onConnect(f:()=>Unit)
 
