@@ -148,6 +148,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			    
 			    val conn = telco.getConnection(getCallId(request))
 			    conn.execute( ()=>{
+			        println(" -------------- RESPONDING TO REINVITE ----------------- for conn  " + conn)
 			        conn.serverTx = Some(transaction)
 			        SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(request.getRawContent()) )	
 				    sendResponse(200, conn.serverTx, request.getRawContent())

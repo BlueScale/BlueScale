@@ -112,8 +112,10 @@ class JainSipConnection protected[telco](
         
         joinedTo match {
             case None =>
+                println(" reconnect -------------MATCH NONE")
                 fireReinvite(sdp,reconnectCallback)
             case Some(otherConn) =>
+                println("RECONNECT UP IN HERE>....................for " + this + " JOINED TO = " + otherConn )
                 if ( !SdpHelper.isBlankSdp(sdp) )
                     otherConn.connect(SdpHelper.getBlankSdp(telco.contactIp), () => {
                         joinedTo = None
@@ -210,14 +212,16 @@ class JainSipConnection protected[telco](
   	}
     
   	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
-  	    
+  	    println("#############  join---this.joinedTo = " + this.joinedTo + " otherCall.sdp = " + otherCall.sdp)
   	    if (connectionState != CONNECTED())
   	        throw new InvalidStateException( new CONNECTED(), connectionState )
         
         otherCall.connectionState match {
             case UNCONNECTED() =>
+                println("ok we should be connecting to the other call...")
                 otherCall.connect(localSdp, true, ()=>{
                     otherCall.joinedTo = Some(this)
+                    println("OTHER CALL RECONNECTED")
                     this.reconnect(otherCall.sdp, ()=>{
                         this.joinedTo = Some(otherCall)
                         //this.joinedTo.get.joinedTo = Some(this)
@@ -231,9 +235,13 @@ class JainSipConnection protected[telco](
     }
 
 	private def joinConnected(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
+		println("------- joinConnected, this = " + this + " otherCall.sdp = " + otherCall.sdp)
 		otherCall.connect(localSdp,()=>{
+		    println("other call is connected!--------------, othercallsdp = "+ otherCall.sdp)
 		    otherCall.joinedTo = Some(this)
+		    println("This.joinedTo = " + this.joinedTo)
 		   	this.reconnect(otherCall.sdp, ()=>{
+    		    println("!!!!!!!reconnected!!!!!!!!/")
     		    this.joinedTo = Some(otherCall)  
 	    		joinCallback()
 	    	}) 

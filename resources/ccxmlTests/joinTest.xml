@@ -28,7 +28,7 @@
                   <assign name="callid_bob" expr="connEvent.callid"/>
     			  
                    <assign name="appstate" expr="'trying_join'" />
-    			  <join id1="alice" id2="bob"/> 
+    			  <join id1="bob" id2="alice"/> 
                 </transition>
                 
                 <transition event="conference.joined" name="joinedEvent" state="'trying_join'">
