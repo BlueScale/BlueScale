@@ -76,7 +76,6 @@ class JainSipConnection protected[telco](
  	override def connect( sdp:SessionDescription, callback:FinishFunction) = connect(sdp, false, callback) 
 
     protected[telco] override def connect(sdp:SessionDescription, connectAnyMedia:Boolean, callback:()=>Unit) = wrapLock {
-    //override def connnect(sdp:SessionDescription, connectAnyMedia:Boolean, callback:FinishFunction) = wrapLock {
         println("current state = "+ state)
         state.getState match {
             case s:UNCONNECTED =>
@@ -109,7 +108,6 @@ class JainSipConnection protected[telco](
 
     def reconnect(sdp:SessionDescription, reconnectCallback:FinishFunction) : Unit = wrapLock {
         //if silencing this connction, when it's done, silence the jointwo conncetion, and so on. 
-        
         joinedTo match {
             case None =>
                 println(" reconnect -------------MATCH NONE")
@@ -123,9 +121,7 @@ class JainSipConnection protected[telco](
                     })
                 else
                     fireReinvite(sdp, reconnectCallback)
-
         }
-
     }
 
    override def onConnect(callback:FinishFunction) = wrapLock {

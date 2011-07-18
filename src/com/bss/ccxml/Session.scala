@@ -216,7 +216,7 @@ class Session(val server:Server, val id: Int) extends Actor {
   		val call1 = server.findConnection(evalScript(join.id1))
   		val call2 = server.findConnection(evalScript(join.id2))
   		join.duplex match { 
-  			case "" | "full" => call1.join(call1, ()=>{this ! new ConferenceJoined(call1.connectionid, call2.connectionid) })
+  			case "" | "full" => call1.join(call2, ()=>{this ! new ConferenceJoined(call1.connectionid, call2.connectionid) })
   			
   			case "half" => println("NOT YET SUPPORTED")
   		}

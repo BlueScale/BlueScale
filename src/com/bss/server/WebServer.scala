@@ -42,7 +42,7 @@ import com.bss.telco.jainsip.SipTelcoServer
 import java.net._
 import scala.xml._
 import com.bss.blueml._
-import scala.tools.nsc.Interpreter._
+//import scala.tools.nsc.Interpreter._
 import scala.collection.JavaConversions._ 
 
 class WebServer(apiPort:Int,
