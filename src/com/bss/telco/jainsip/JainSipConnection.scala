@@ -259,16 +259,16 @@ class JainSipConnection protected[telco](
         }
     }    
 
-	override def unjoin(unjoinedFrom:Joinable[_], f:FinishFunction) = wrapLock {
+	override def unjoin(f:FinishFunction) = wrapLock {
         disconnectOnUnjoin match {
 	        case true =>
 	            disconnect( ()=> {
 	                disconnectCallback.foreach( _(this) )
-	                unjoinCallback.foreach( _(unjoinedFrom, this) )
+	                unjoinCallback.foreach( _(joinedTo.get, this) )//FIXME: should take an Option[JoinedTo]
 	            })
 
 	        case false =>
-	            unjoinCallback.foreach( _(unjoinedFrom, this) )
+	            unjoinCallback.foreach( _(joinedTo.get, this) )
 	    }
 	}
   
@@ -276,7 +276,7 @@ class JainSipConnection protected[telco](
         joinedTo.foreach( joined=>{
                 joinedTo = None 
                 joined.joinedTo = None
-                joined.unjoin(this,()=>Unit)
+                joined.unjoin(()=>Unit)
          })
     }
 
