@@ -153,7 +153,7 @@ class SdpJoinable() extends Joinable[SdpJoinable] {
 
     def silence(f:()=>Unit) : Unit = return
 
-    override def unjoin(j:Joinable[_], f:()=>Unit) : Unit = return
+    override def unjoin(f:()=>Unit) : Unit = return
 }
 
  

@@ -75,7 +75,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         conn.connectionState match {
             case c:CONNECTED =>
                 conn.join(destConn, ()=>{
-                    println(" ============== fuuuuuuuuuuuuuuuu ck =================")
                     postCallStatus(dial.url, destConn)
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 })
