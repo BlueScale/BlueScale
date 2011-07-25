@@ -150,7 +150,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			    conn.execute( ()=>{
 			        println(" -------------- RESPONDING TO REINVITE ----------------- for conn  " + conn)
 			        conn.serverTx = Some(transaction)
-			        SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(request.getRawContent()) )	
+			        SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(request.getRawContent()) )	
 				    sendResponse(200, conn.serverTx, request.getRawContent())
 				    //fixme: do we need to notify other things listening to this SDP session?
 				})
@@ -171,7 +171,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				    //TOOD: make sure it defaults to alerting
 				    conn.setConnectionid(getCallId(request))
 			        telco.addConnection(conn) //(getCallId(request), conn)
-					SdpHelper.addMediaTo( conn.localSdp, SdpHelper.getSdp(request.getRawContent()) )
+					SdpHelper.addMediaTo( conn.sdp, SdpHelper.getSdp(request.getRawContent()) )
 					//println("incomingCallback = " + telco.incomingCallback + "!")
 					telco.fireIncoming(conn)
 				})
@@ -232,7 +232,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
     			                val sdp = SdpHelper.getSdp(content)
 			                    if (!SdpHelper.isBlankSdp(sdp)) {
     			                    conn.dialog = Some(re.getDialog())
-	    		                    SdpHelper.addMediaTo(conn.localSdp, sdp)
+	    		                    SdpHelper.addMediaTo(conn.sdp, sdp)
 	    		                    println("RINGING SDP = " + sdp )
 		    	                    conn.setState(VERSIONED_RINGING( transaction.getBranchId() ))
 		    	                }
@@ -243,9 +243,9 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    				case Request.INVITE =>
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)
-				  						SdpHelper.addMediaTo(conn.localSdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
+				  						SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
 				  						conn.dialog = Some( re.getDialog() )
-				  					    if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.localSdp ) ) {
+				  					    if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.sdp ) ) {
 				  					        conn.setState(VERSIONED_HOLD( transaction.getBranchId() ))
 				  						} else {
 				  						    conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) //Is a joined state worth it?
@@ -267,7 +267,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
 
 	def handleMedia(conn:JainSipConnection, re:ResponseEvent) {
-        SdpHelper.addMediaTo( conn.localSdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
+        SdpHelper.addMediaTo( conn.sdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
         //conn.dial
         
 	}

@@ -30,7 +30,7 @@ import com.bss.telco.Connectable
 //typed so our callback can return a concrete class
 trait Joinable[T] {
 
-  	var joinedTo:Option[Joinable[_]] = None
+	def joinedTo:Option[Joinable[_]]
   	
     var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
 	
@@ -40,9 +40,9 @@ trait Joinable[T] {
 
     def connectionState:ConnectionState //Possibly not needed here...
 
-    protected[telco] def connect(sdp:SessionDescription, connectedCallback:()=>Unit)
+    protected[telco] def connect(join:Joinable[_], connectedCallback:()=>Unit)
 
-    protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, connectedCallback:()=>Unit)
+    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, connectedCallback:()=>Unit)
     
     protected[telco] def onConnect(f:()=>Unit)
 

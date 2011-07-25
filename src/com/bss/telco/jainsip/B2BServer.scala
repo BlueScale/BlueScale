@@ -57,7 +57,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
     
     def createConnection(dest:String, callerid:String) : SipConnection = {
         val conn =	b2bTelcoServer.createConnection(dest, callerid)
-        conn.asInstanceOf[JainSipConnection].localSdp = getFakeSdp(ip)
+        conn.asInstanceOf[JainSipConnection].listeningSdp = getFakeSdp(ip)
         return conn
     }
   
@@ -103,7 +103,6 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
  	    println("Test Server STARTED")
  	    b2bTelcoServer.setIncomingCallback(handleIncoming);
  	    b2bTelcoServer.start()
- 	    
     }
 
 	def stop() : Unit = {

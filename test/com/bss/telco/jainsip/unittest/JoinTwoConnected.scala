@@ -67,7 +67,7 @@ trait JoinTwoConnected {
 	    println("OK now we should hear moviephone and not each other....")
         assertTrue(getTelcoServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
 	    System.err.println("are both connected = ? " + getTelcoServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
-        assertTrue(SdpHelper.isBlankSdp(desk.asInstanceOf[JainSipConnection].sdp))
+        assertTrue(SdpHelper.isBlankSdp(desk.joinedTo.get.sdp))
 	    System.err.println("desk should be  on hold? " + SdpHelper.isBlankSdp(desk.asInstanceOf[JainSipConnection].sdp) ) //b2bServer.areTwoConnected(desk.asInstanceOf[SipConnection], )
 	    latch.countDown
 	}
@@ -84,8 +84,6 @@ trait JoinTwoConnected {
                                             cell.join(desk, firstJoined _)
                                           })
                   })
-   
-    
 	}
 
 	def tryCall {

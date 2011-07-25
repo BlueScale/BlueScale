@@ -33,33 +33,34 @@ class MediaConnection extends Joinable[MediaConnection]
 
     var sdp = null
     
-    var connState = UNCONNECTED()
+    private var _joinedTo:Option[Joinable[_]] = None
     
-    def join(connection:Joinable[_], f:()=>Unit) {
+    var connState = UNCONNECTED()
+   
+    override def joinedTo = _joinedTo
+    
+    override def join(connection:Joinable[_], f:()=>Unit) {
 
     }
     
     def connectionState = connState
-      
-
 
     def joinPlay(joinable:Joinable[_], f:()=>Unit) {
        //get SDP info for incoming data. 
-
-       joinable.connect(getLocalSdp(), false, ()=> {
-           this.joinedTo = Some(joinable) 
+       joinable.connect(this, false, ()=> {
+           this._joinedTo = Some(joinable) 
     	   	//reconnect should not take an SDP, should take a joinable...and jsut connect with the SDP from it. 
            	play(()=>println("PLAYING"));
             //now take the other all's SDP and lets make sure we're listening to that.  now we can playw
             })
     }
     
-    def play(f:()=>Unit) {
+    override def play(f:()=>Unit) {
         //play music
         f()
     }
     
-    def cancel(f:()=>Unit) {
+    override def cancel(f:()=>Unit) {
       
     }
 
@@ -67,14 +68,13 @@ class MediaConnection extends Joinable[MediaConnection]
         return null
     }
 
-    
     //PROTECTED STUFF FOR JOINABLE
-    protected[telco] def connect(sdp:SessionDescription, connectedCallback:()=>Unit) {
+    override protected[telco] def connect(join:Joinable[_], connectedCallback:()=>Unit) {
     	//store SDP somewhere
     	connectedCallback()
     }
 
-    protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, connectedCallback:()=>Unit) {//doesn't need to be here? 
+    override protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, connectedCallback:()=>Unit) {//doesn't need to be here? 
     	connectedCallback()
 	}
     
@@ -85,29 +85,11 @@ class MediaConnection extends Joinable[MediaConnection]
     protected[telco] def unjoin(f:()=>Unit) {
       
     }//TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
-    
 }
 
-/*
-*
-  	var joinedTo:Option[Joinable[_]] = None
-  	
-    var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
+
+
 	
-	def join(connection:Joinable[_], f:()=>Unit)
-
-    def sdp:SessionDescription
-
-    def connectionState:ConnectionState //Possibly not needed here...
-
-    protected[telco] def connect(sdp:SessionDescription, connectedCallback:()=>Unit)
-
-    protected[telco] def connect(sdp:SessionDescription, connectAnyMedia:Boolean, connectedCallback:()=>Unit)
-    
-    protected[telco] def onConnect(f:()=>Unit)
-
-    protected[telco] def unjoin(f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
-*/
 
 
 

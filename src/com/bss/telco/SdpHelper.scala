@@ -130,6 +130,8 @@ class SdpJoinable() extends Joinable[SdpJoinable] {
 
     override def connectionState = CONNECTED() 
     
+    override def joinedTo = None
+    
     var mySdp:Option[SessionDescription] = None
     
     override def join(c:Joinable[_], f:()=>Unit) : Unit =
@@ -144,9 +146,9 @@ class SdpJoinable() extends Joinable[SdpJoinable] {
         }
     }
 
-    override def connect(sdp:SessionDescription, connectAnyMedia:Boolean, connectedCallback:()=>Unit) = connectedCallback()
+    override def connect(join:Joinable[_], connectAnyMedia:Boolean, connectedCallback:()=>Unit) = connectedCallback()
 
-    override def connect(sdp:SessionDescription, connectedCallback:()=>Unit) = connectedCallback()
+    override def connect(join:Joinable[_], connectedCallback:()=>Unit) = connectedCallback()
 
 
     override def onConnect(callback:()=>Unit) = callback()

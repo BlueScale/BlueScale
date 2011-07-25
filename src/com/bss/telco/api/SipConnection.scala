@@ -39,7 +39,6 @@ trait SipConnection
     def origin:String
 
     def hold(f:()=>Unit):Unit
-
 }
 
 
