@@ -224,10 +224,8 @@ class JainSipConnection protected[telco](
         otherCall.connectionState match {
             case UNCONNECTED() =>
                 otherCall.connect(this, true, ()=>{
-                    //otherCall._joinedTo = Some(this) //move this to connect
                     this.reconnect(otherCall, ()=>{
                         this._joinedTo = Some(otherCall)
-                        //this.joinedTo.get.joinedTo = Some(this)
                         otherCall.onConnect(joinCallback)    
                     })
                })
@@ -241,7 +239,6 @@ class JainSipConnection protected[telco](
 		println("------- joinConnected, this = " + this + " otherCall.sdp = " + otherCall.sdp)
 		otherCall.connect(this,()=>{
 		    println("other call is connected!--------------, othercallsdp = "+ otherCall.sdp)
-		    //otherCall.joinedTo = Some(this)//this will move to reconnect!
 		    println("This.joinedTo = " + this.joinedTo)
 		   	this.reconnect(otherCall, ()=>{
     		    println("!!!!!!!reconnected!!!!!!!!/")
@@ -254,7 +251,6 @@ class JainSipConnection protected[telco](
     //maybe rename to Mute?  It makes it so this SipConnection stops receieve to anything...
     def silence(silenceCallback:FinishFunction) = wrapLock {
     	SdpHelper.addMediaTo(listeningSdp, SdpHelper.getBlankSdp(telco.contactIp))
-	
       	telco.internal.sendReinvite(this,listeningSdp) //SWAPED THIS
         setFinishFunction(new VERSIONED_HOLD(clientTx.get.getBranchId()), silenceCallback)
     }
@@ -284,7 +280,6 @@ class JainSipConnection protected[telco](
     protected def onDisconnect() = wrapLock {
         joinedTo.foreach( joined=>{
                 _joinedTo = None 
-                //joined.joinedTo = None//moved to unjoin
                 joined.unjoin(()=>Unit) //uuugh how did the ohter one get unjoined
          })
     }

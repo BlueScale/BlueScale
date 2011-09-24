@@ -42,27 +42,6 @@ trait StateExecutor  {
         stateMap += es->f
     }
 
-/*
-    protected def setAndExecute(state:VersionedState) : Boolean = {
-        var ret = false
-        //println("trying to SET AND EXECUTE for " + state + " FOr " + this)
-        if (!expectedStates.contains(state.getState)) 
-            return false
-        
-        if (!expectedStates(state.getState).contains(state))
-            return false
-        
-        val m = expectedStates(state.getState)
-        expectedStates = Map[ConnectionState, FinishMap]()
-        //println(" m = " + m)
-        m(state)()
-        //println(" EEEEEEEEEERAAAAAAAAAAAAAAAAAAAAAAASING  for " + this + "\\n \\n")
-        return ret
-    }
-
-    protected[telco] def resetCallbacks() : Unit =
-        expectedStates = Map[ConnectionState, FinishMap]()
-        */
     
     def debugStateExecutor() = {
         println(" ########           expectedState = " + stateMap + "!")

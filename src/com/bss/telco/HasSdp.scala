@@ -26,10 +26,10 @@ package com.bss.telco
 
 import javax.sdp.SessionDescription
 
-trait HasSdp {
+/*trait HasSdp {
 
     def listeningSdp : SessionDescription
 
 }
-
+*/
 

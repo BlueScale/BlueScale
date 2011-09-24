@@ -37,14 +37,21 @@ import com.bss.telco.jainsip._
 import com.bss.telco.api._
 import com.bss.telco._
 import scala.collection.JavaConversions._
+import com.bss.telco.media.jlibrtp._
+import  java.util.concurrent.ConcurrentHashMap
 
 class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   
-	var portCounter = 0; 
+	var portCounter = 0 
  
     var ringSome = false
-
+    
+    var answerWithMedia = false
+    
 	private val b2bTelcoServer    = new SipTelcoServer(ip, port, destIp, destPort)
+	
+	//Map of incoming phone number to Media connection it's joined wiht
+	private val mediaConnmap = new ConcurrentHashMap[String, MediaConnection]()
 
 	private var ignore = Set[String]()
  
@@ -54,7 +61,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		  portCounter = portCounter+1;
 		  portCounter
     }
-    
+   
     def createConnection(dest:String, callerid:String) : SipConnection = {
         val conn =	b2bTelcoServer.createConnection(dest, callerid)
         conn.asInstanceOf[JainSipConnection].listeningSdp = getFakeSdp(ip)
@@ -71,9 +78,21 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		    conn.ring( getFakeJoinable(ip))
 		    Thread.sleep(1000)
 		}
-		conn.accept(getFakeJoinable(ip), ()=> println("b2bServer accepted call to " + conn.destination ) );
+		
+		answerWithMedia match {
+		  case true		=>
+		    	val mediaConn = getMediaConnection(ip)
+		    	mediaConnmap.put(conn.destination, mediaConn)
+		    	conn.accept(mediaConn, ()=> println("b2bserver accepted call with medai support to " + conn.destination))
+		  case false	=>	conn.accept(getFakeJoinable(ip), ()=> println("b2bServer accepted call to " + conn.destination ) )
+		}
 	}
-
+	
+	def getMediaConnection(dset:String) : MediaConnection = {
+		val m = new JlibMediaConnection(b2bTelcoServer)
+		return m
+	}
+	
     def findConnByDest(dest:String) : Option[SipConnection] = 
         b2bTelcoServer.connections.values.find( conn => if (conn.destination == dest) true else false)
             

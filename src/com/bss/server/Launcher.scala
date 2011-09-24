@@ -23,8 +23,6 @@
 */
 package com.bss.server
 
-import com.bss.ccxml._
-import com.bss.ccxml.tags._
 import scala.xml._
 import java.net.URL
 import com.bss.telco.jainsip._
@@ -66,16 +64,6 @@ object Launcher {
                 }
         
         }   
-	}
-
-	def getCCXML(url:String) : CCXMLDoc = {
-	    val filename =  url.indexOf(":") match {
-	    	case -1 => url
-	    	case _ =>   println("blah, url = " + url + " indexOf = " + url.indexOf(":"))
-	    				url.split(":")(1).replace("'", "")
-	    	}
-		val xml = getXML(url)	
-		return (new CCXMLDoc(filename, xml))
 	}
 	
 

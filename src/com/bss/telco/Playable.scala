@@ -25,7 +25,7 @@ package com.bss.telco
 
 protected[telco] trait Playable {
 
-	def play(f:()=>Unit)
+	def play(url:String, f:()=>Unit)
 
 	def cancel(f:()=>Unit)	
 }

@@ -52,8 +52,6 @@ import net.sf.fmj.utility.URLUtils
 
 class MediaTest extends junit.framework.TestCase {
 
-
-
     @Test
     def testSend() {
         println("@testFourth")

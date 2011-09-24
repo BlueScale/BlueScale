@@ -32,7 +32,6 @@ import com.bss.telco.jainsip._
 import scala.actors.Actor
 import com.bss.telco.jainsip.unittest._
 import scala.actors.Actor._
-import com.bss.ccxml.event._
 import java.util.concurrent.atomic.AtomicInteger
 
 import java.util.concurrent.CountDownLatch

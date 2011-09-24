@@ -56,7 +56,7 @@ object SdpHelper {
         return j
   	}
     
-	 def getBlankSdp(ip:String) : SessionDescription = {
+	def getBlankSdp(ip:String) : SessionDescription = {
 	 	val sdpip = "0.0.0.0"
 		val sd =  sdpFactory.createSessionDescription()
 		sd.setOrigin(sdpFactory.createOrigin("bss", sd.hashCode(), 1L, "IN", "IP4", ip))
@@ -67,8 +67,8 @@ object SdpHelper {
 		sd.getMediaDescriptions(true).asInstanceOf[Vector[MediaDescription]].
 		add(md)
 		return sd
-	 }
-    
+	}
+	
   	def isBlankSdp(sd: SessionDescription) : Boolean = {
 	  if ( sd.getConnection.getAddress() != "0.0.0.0") 
 		  return false
@@ -108,20 +108,21 @@ object SdpHelper {
 		}
 	}
 
-/*
-	def createSdp(localport:int, ip:String) : SessionDescription = {
+	def getMediaPort(sdp:SessionDescription) : Int = 
+		Integer.parseInt(getMediaUrl(sdp).split(":")(0))
+		
+	def createSdp(mediaport:Int, ip:String) : SessionDescription = {
         val sd =  sdpFactory.createSessionDescription()
 		sd.setOrigin(sdpFactory.createOrigin("bss", sd.hashCode(), 1L, "IN", "IP4", ip))
 		sd.setSessionName(sdpFactory.createSessionName("bssession"))
-		sd.setConnection(sdpFactory.createConnection("IN", "IP4", sdpip))
+		sd.setConnection(sdpFactory.createConnection("IN", "IP4", ip))
 				
-		val md = sdpFactory.createMediaDescription("audio", localport 1, RTP, new Array[Int](1) ) //need a 0 tacked onto the end for the RTP stuff
-		sd.getMediaDescriptions(true).asInstanceOf[Vector[MediaDescription]].
-		add(md)
-       
+		val md = sdpFactory.createMediaDescription("audio", mediaport, 1, RTP, new Array[Int](1) ) //need a 0 tacked onto the end for the RTP stuff
+		sd.getMediaDescriptions(true).asInstanceOf[Vector[MediaDescription]].add(md)
+        return sd
 	}
-*/
-	class ProtocolNotSupportedException(str:String) extends Exception
+
+class ProtocolNotSupportedException(str:String) extends Exception
 	
 }
 

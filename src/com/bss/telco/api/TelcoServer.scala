@@ -47,5 +47,7 @@ trait TelcoServer {
   	def stop()
 
   	def areTwoConnected(conn1:SipConnection, conn2:SipConnection) : Boolean
+  	
+  	def contactIp : String
   
 }
