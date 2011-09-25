@@ -21,12 +21,12 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.jainsip.unittest 
+package org.bluescale.telco.jainsip.unittest 
 
 
 import org.junit._
-import com.bss.telco._
-import com.bss.telco.jainsip._
+import org.bluescale.telco._
+import org.bluescale.telco.jainsip._
 
 class JoinMediaTest  extends junit.framework.TestCase {
   /* 

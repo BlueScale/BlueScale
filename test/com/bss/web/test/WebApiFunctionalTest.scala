@@ -21,20 +21,20 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.web.test
+package org.bluescale.web.test
 
 
 import org.junit._
 import Assert._
-import com.bss.server._
+import org.bluescale.server._
 import java.net.URLEncoder
-import com.bss.telco.api._
-import com.bss.telco.jainsip._
-import com.bss.telco._
+import org.bluescale.telco.api._
+import org.bluescale.telco.jainsip._
+import org.bluescale.telco._
 import java.util.concurrent.CountDownLatch
-import com.bss.server._
+import org.bluescale.server._
 import javax.servlet.http.HttpServletRequest
-import com.bss.util.WebUtil
+import org.bluescale.util.WebUtil
 
 object WebApiFunctionalTest {
     def main(args:Array[String]) {

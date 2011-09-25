@@ -23,7 +23,7 @@
 *
 */
 
-package com.bss.telco.media.test
+package org.bluescale.telco.media.test
 
 import org.junit._
 import java.io.File;

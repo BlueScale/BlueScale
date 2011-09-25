@@ -21,15 +21,15 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.jainsip.unittest
+package org.bluescale.telco.jainsip.unittest
 
 import org.junit._
 import Assert._
 import java.util.concurrent.CountDownLatch
-import com.bss.telco._
+import org.bluescale.telco._
 
-import com.bss.telco.jainsip._
-import com.bss.telco.api._
+import org.bluescale.telco.jainsip._
+import org.bluescale.telco.api._
 import java.util.concurrent.atomic.AtomicInteger
 
 trait SimpleCall {

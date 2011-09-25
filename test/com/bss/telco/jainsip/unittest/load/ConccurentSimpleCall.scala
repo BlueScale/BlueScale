@@ -21,16 +21,24 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.jainsip.unittest.load
+package org.bluescale.telco.jainsip.unittest.load
  
 
+import org.bluescale.telco.jainsip.B2BServer
+import org.bluescale.telco.jainsip.SipTelcoServer
+/*
+import org.bluescale.telco.jainsip.b2bServer
+import org.bluescale.telco.jainsip.getB2BServer
+import org.bluescale.telco.jainsip.getTelcoServer
+import org.bluescale.telco.jainsip.telcoServer
+*/
 import org.junit._
 import Assert._
 import java.util._
 
-import com.bss.telco.jainsip._
+import org.bluescale.telco.jainsip._
 import scala.actors.Actor
-import com.bss.telco.jainsip.unittest._
+import org.bluescale.telco.jainsip.unittest._
 import scala.actors.Actor._
 import java.util.concurrent.atomic.AtomicInteger
 

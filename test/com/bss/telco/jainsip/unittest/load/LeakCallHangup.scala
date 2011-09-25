@@ -22,14 +22,14 @@
 *
 */
 
-package com.bss.telco.jainsip.unittest.load
+package org.bluescale.telco.jainsip.unittest.load
  
 
-import com.bss.telco.jainsip.unittest._
+import org.bluescale.telco.jainsip.unittest._
 import org.junit._
 import Assert._
 import java.util._
-import com.bss.telco.jainsip._
+import org.bluescale.telco.jainsip._
 
 class LeakCallHangup  extends junit.framework.TestCase with SimpleCall  {
 	

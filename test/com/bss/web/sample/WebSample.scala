@@ -1,3 +1,3 @@
-package com.bss.web.sample
+package org.bluescale.web.sample
 
 

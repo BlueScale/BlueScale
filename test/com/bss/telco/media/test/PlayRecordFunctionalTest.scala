@@ -22,14 +22,14 @@
 *
 */
 
-package com.bss.telco.media.test
+package org.bluescale.telco.media.test
 
 
 import org.junit._
 import Assert._
-import com.bss.telco.media.jlibrtp._
-import com.bss.telco.api._
-import com.bss.telco.jainsip.unittest.TestHelper
+import org.bluescale.telco.media.jlibrtp._
+import org.bluescale.telco.api._
+import org.bluescale.telco.jainsip.unittest.TestHelper
 
 class PlayRecordFunctionalTest extends TestHelper {
 	

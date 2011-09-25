@@ -21,15 +21,15 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.media.unittest
+package org.bluescale.telco.media.unittest
 
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import com.bss.telco._
+import org.bluescale.telco._
 
-import com.bss.telco.jainsip._
-import com.bss.telco.api._
+import org.bluescale.telco.jainsip._
+import org.bluescale.telco.api._
 import org.junit._
 import Assert._
 

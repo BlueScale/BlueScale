@@ -21,12 +21,12 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.jainsip.unittest
+package org.bluescale.telco.jainsip.unittest
 
 import org.junit._
 import Assert._
-import com.bss.telco.jainsip._
-import com.bss.telco.api._
+import org.bluescale.telco.jainsip._
+import org.bluescale.telco.api._
 
 class CallHangupFunctionalTest extends TestHelper with SimpleCall  {
 

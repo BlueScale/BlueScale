@@ -21,7 +21,7 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.web.test
+package org.bluescale.web.test
 
 
 import javax.servlet.ServletException

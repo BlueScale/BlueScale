@@ -21,11 +21,11 @@
 * Please contact us at www.BlueScaleSoftware.com
 *
 */
-package com.bss.telco.jainsip.unittest
+package org.bluescale.telco.jainsip.unittest
 
 import org.junit._
-import com.bss.telco.jainsip._
-import com.bss.telco.api._
+import org.bluescale.telco.jainsip._
+import org.bluescale.telco.api._
 import org.apache.log4j.BasicConfigurator
 
 trait TestHelper extends junit.framework.TestCase {
