@@ -2,7 +2,6 @@
 ###################*
 *.class
 *.log.txt
-*.project
 *.classpath
 *.scala_dependencies
 heap.bin
