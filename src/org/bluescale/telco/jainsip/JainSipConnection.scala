@@ -110,8 +110,8 @@ class JainSipConnection protected[telco](
     }
 
     private def fireReinvite(join:Joinable[_], f:FinishFunction) {
-        telco.internal.sendReinvite(this, sdp)
-        val toState = SdpHelper.isBlankSdp(sdp) match {
+        telco.internal.sendReinvite(this, join.sdp)
+        val toState = SdpHelper.isBlankSdp(join.sdp) match {
             case true=> new VERSIONED_HOLD(clientTx.get.getBranchId())
             case false=> new VERSIONED_CONNECTED(clientTx.get.getBranchId())
         }
