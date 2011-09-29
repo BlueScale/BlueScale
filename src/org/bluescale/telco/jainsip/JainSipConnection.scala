@@ -98,7 +98,7 @@ class JainSipConnection protected[telco](
     		this._joinedTo = Some(join)
     		callback()
     	}
-        connid = telco.internal.sendInvite(this, sdp)
+        connid = telco.internal.sendInvite(this, join.sdp)
         telco.addConnection(this)
         
  	   	if (connectAnyMedia)

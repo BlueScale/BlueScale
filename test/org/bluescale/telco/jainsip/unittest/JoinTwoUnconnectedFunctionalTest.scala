@@ -38,7 +38,6 @@ class JoinTwoUnconnectedFunctionalTest extends TestHelper with JoinTwo {
 	 	runConn()
 		getLatch.await()
 	}
- 
 }
 
 object JoinTwoUnconnectedFunctionalTest {

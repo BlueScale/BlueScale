@@ -220,6 +220,9 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         println(" call1 = " + call1)
         println(" call2 = " + call2)
         assertTrue( telcoServer.areTwoConnected(call1, call2) )
+        assertFalse(SdpHelper.isBlankSdp(call1.sdp))
+        assertFalse(SdpHelper.isBlankSdp(call2.sdp))
+        
         Thread.sleep(900)//our post might happen before the join callback finishes, could be a benign race conidtion in our test
         WebUtil.postToUrl("http://localhost:8200/Calls/"+call1id+"/Hangup", Map("Url"->"http://localhost:8100"))
         latch.await()
