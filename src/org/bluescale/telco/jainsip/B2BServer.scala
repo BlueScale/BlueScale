@@ -98,11 +98,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
     def findConnByDest(dest:String) : Option[SipConnection] = 
         b2bTelcoServer.connections.values.find( conn => if (conn.destination == dest) true else false)
             
-    def getFakeJoinable(ip:String) : Joinable[_] = {
-        val s = new SdpJoinable()
-        s.mySdp = Some(getFakeSdp(ip))
-        return s
-    }
+    def getFakeJoinable(ip:String) : Joinable[_] = new SdpJoinable(Some(getFakeSdp(ip))) 
 
     def getFakeSdp(ip:String) : SessionDescription = {
 		val sd =  sdpFactory.createSessionDescription()

@@ -79,7 +79,7 @@ class JainSipConnection protected[telco](
 
 	protected[jainsip] def setConnectionid(id:String) = connid = id
  
- 	override def connect( f:FinishFunction) = connect(SdpHelper.getBlankJoinable(telco.contactIp), false, f)
+ 	override def connect( f:FinishFunction) = connect(SdpHelper.getJoinable(listeningSdp), false, f)//shouldn't be this.  that's weird
 
  	override def connect(join:Joinable[_], callback:FinishFunction) : Unit = connect(join, false, callback) 
 
@@ -89,7 +89,7 @@ class JainSipConnection protected[telco](
             case s:UNCONNECTED =>
                 newConnect(join, connectAnyMedia,callback)
             case s:CONNECTED =>
-                reconnect(join, callback)
+             reconnect(join, callback)
         }
     }
     
@@ -123,6 +123,7 @@ class JainSipConnection protected[telco](
     	  _joinedTo = Some(join)
     	  callback()
     	}
+      
         //if silencing this connction, when it's done, silence the jointwo conncetion, and so on. 
         joinedTo match {
             case None =>
@@ -150,7 +151,7 @@ class JainSipConnection protected[telco](
     override def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
         connectionState match {
             case UNCONNECTED() | RINGING() =>
-		        telco.internal.sendResponse(200, serverTx, toJoin.sdp.toString().getBytes())
+		        telco.internal.sendResponse(200, serverTx, toJoin.sdp.toString().getBytes())  
                 setFinishFunction(VERSIONED_CONNECTED(serverTx.get.getBranchId()), connectedCallback)
 	        case _ => 
 	            throw new InvalidStateException(new UNCONNECTED(), connectionState)
@@ -158,7 +159,7 @@ class JainSipConnection protected[telco](
     }
 
     override def accept(connectedCallback:FinishFunction) = wrapLock {
-	    accept(SdpHelper.getBlankJoinable(telco.contactIp), connectedCallback) 
+	    accept(SdpHelper.getBlankJoinable(telco.contactIp), connectedCallback) ///BUG HERE?
 	}
 
     override def ring() =
@@ -261,7 +262,7 @@ class JainSipConnection protected[telco](
 
     override def hold(f:FinishFunction) : Unit = wrapLock {
         joinedTo match {
-            case None => reconnect(SdpHelper.getBlankJoinable(telco.contactIp), f)//silence(f)
+            case None => this.reconnect(SdpHelper.getBlankJoinable(telco.contactIp), f)//silence(f)
             case Some(otherConn) => otherConn.connect(SdpHelper.getBlankJoinable(telco.contactIp), ()=>hold(f))
         }
     }    
@@ -313,7 +314,6 @@ class JainSipConnection protected[telco](
     override def toString() = 
 	    "JainSipConnection " + direction + " TO:"+destination + " Hashcode = " + hashCode
 
-       
 }
  
 

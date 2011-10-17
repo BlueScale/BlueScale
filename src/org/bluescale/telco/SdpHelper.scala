@@ -52,12 +52,8 @@ object SdpHelper {
    
   	val sdpFactory = SdpFactory.getInstance() 
 
-  	def getBlankJoinable(ip:String) : Joinable[_] = {
-        val j = new SdpJoinable()
-        j.mySdp = Some(getBlankSdp(ip))
-        return j
-  	}
-    
+  	def getBlankJoinable(ip:String) : Joinable[_] = new SdpJoinable(Some(getBlankSdp(ip)))
+	
 	def getBlankSdp(ip:String) : SessionDescription = {
 	 	val sdpip = "0.0.0.0"
 		val sd =  sdpFactory.createSessionDescription()
@@ -70,6 +66,8 @@ object SdpHelper {
 		add(md)
 		return sd
 	}
+	
+	def getJoinable(sdp:SessionDescription): Joinable[_] = new SdpJoinable(Some(sdp))
 	
   	def isBlankSdp(sd: SessionDescription) : Boolean = {
 	  if ( sd.getConnection.getAddress() != "0.0.0.0") 
@@ -129,13 +127,13 @@ class ProtocolNotSupportedException(str:String) extends Exception
 }
 
 
-class SdpJoinable() extends Joinable[SdpJoinable] {
+class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] {
 
     override def connectionState = CONNECTED() 
     
     override def joinedTo = None
     
-    var mySdp:Option[SessionDescription] = None
+    var mySdp:Option[SessionDescription] = sdp
     
     override def join(c:Joinable[_], f:()=>Unit) : Unit =
         return

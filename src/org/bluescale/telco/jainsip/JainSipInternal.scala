@@ -289,6 +289,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
+		println("SDP = " + sdp)
 		val request = conn.dialog.get.createRequest(Request.INVITE)
         request.removeHeader("contact")//The one from the createRequest is the listeningIP..., same with the via
         request.removeHeader("via")
