@@ -102,10 +102,9 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> { 
             assertEquals( inConn.connectionState, CONNECTED() )
-            //assertFalse( SdpHelper.isBlankSdp(inConn.sdp))
+            assertFalse( SdpHelper.isBlankSdp(inConn.sdp))
             println(" ---------------------------- testIncomingCall, we've joined -------------")
             inConn.disconnect( ()=>println("disconnected") )
-            //latch.countDown()
             ""
         })
 
@@ -122,8 +121,8 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         println("Finished testINcomingCall")
     }
 
-    //@Test
-    def xtestIncomingForward() {
+    @Test
+    def testIncomingForward() {
         println("test incoming forward")
         val joinedLatch = new CountDownLatch(1)
         var callid:Option[String] = None
@@ -156,7 +155,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         b2bServer.addIgnore(aliceNumber)
         
-
         val inConn = b2bServer.createConnection(gatewayNumber, "4443332222")
         inConn.connect( ()=> println("connected") ) 
         joinedLatch.await()

@@ -30,23 +30,31 @@ import Assert._
 import org.bluescale.telco.media.jlibrtp._
 import org.bluescale.telco.api._
 import org.bluescale.telco.jainsip.unittest.TestHelper
+import java.util.concurrent.CountDownLatch
 
 class PlayRecordFunctionalTest extends TestHelper {
 	
 	def finishedPlaying(conn:SipConnection) {
 	  //get file from server. 
 	  //compare with sent file.
-	  conn.disconnect( ()=> {
-	  val mc = b2bServer.getMediaConnection("")
-	  mc.recordedFiles.foreach( f => println("got a file"))
+	  println("finishedPlaying")
+	  conn.disconnect( ()=> 
+	  b2bServer.getMediaConnection("").recordedFiles.foreach( f => { 
+		  
+		  println("got a file")
+		  //compare.
+		  latch.countDown()
+	    
+	  }))
 	  
-	  })
 	  //get filename somehow.  
 	  //compare to the recorded file
 	}
 	
 	var conn:SipConnection = null
-  
+
+	val latch = new CountDownLatch(1)  
+	
 	@Test
 	def testPlayRecord() {
 		this.b2bServer.answerWithMedia = true
@@ -57,7 +65,8 @@ class PlayRecordFunctionalTest extends TestHelper {
 		
 		conn.connect( ()=> 
 			media.join(conn, ()=>
-				media.play( "", ()=> finishedPlaying(conn) )))
+				media.play( "resources/gulp.wav", ()=> finishedPlaying(conn) )))
 		//lets see if we can get this working!		
+		latch.await()
 	}
 }

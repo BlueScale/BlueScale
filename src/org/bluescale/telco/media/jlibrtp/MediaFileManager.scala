@@ -30,6 +30,8 @@ import java.io.FileOutputStream
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.net.URL
+import java.io.File
+import java.io.FileInputStream
 
 object MediaFileManager {
   
@@ -53,6 +55,10 @@ object MediaFileManager {
 	}
 
 	def getInputStream(url:String) : BufferedInputStream = {
-		throw new Exception("NOT IMPLEMENTED")
+		url.startsWith("http") match {
+		  	case true => throw new Exception("not implmeented with HTTP url yET")
+		  	case false => val file = new File(url);
+		    			return new BufferedInputStream(new FileInputStream(file))
+		}
 	}
 }

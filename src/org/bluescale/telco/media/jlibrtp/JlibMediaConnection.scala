@@ -36,10 +36,11 @@ import jlibrtp.RTPAppIntf
 import jlibrtp.DataFrame
 import jlibrtp.Participant
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 
 class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
 
-    private var listeningSdp = SdpHelper.getBlankSdp(telco.contactIp)
+    private var listeningSdp = initListen()
     
     private var _joinedTo:Option[Joinable[_]] = None
     
@@ -51,9 +52,11 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     override def joinedTo = _joinedTo
     
-    override def join(connection:Joinable[_], f:()=>Unit) {
-    		
-    }
+    override def join(conn:Joinable[_], f:()=>Unit) =
+    	conn.connect(this, false, ()=> {
+    		this._joinedTo = Some(conn)
+    		f()
+    	})
 	
 	override def recordedFiles = files
     
@@ -62,31 +65,23 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     def connectionState = connState
 
-    def joinPlay(url:String, joinable:Joinable[_], f:()=>Unit) {
-       //get SDP info for incoming data. 
-       joinable.connect(this, false, ()=> {
-           this._joinedTo = Some(joinable) 
-    	   	//reconnect should not take an SDP, should take a joinable...and jsut connect with the SDP from it. 
-           	play(url, ()=>println("PLAYING"));
-            //now take the other all's SDP and lets make sure we're listening to that.  now we can playw
-            })
-    }
+    def joinPlay(url:String, conn:Joinable[_], f:()=>Unit) = join(conn, ()=> {
+    	play(url, f)
+    })
+    
     
     def receive(frame:DataFrame, participant:Participant)  =
       MediaFileManager.addMedia(this, frame.getConcatenatedData())
     
       
-    def getRtpSockets() : (DatagramSocket,DatagramSocket) = {
-      val i = 12345
-      return (new DatagramSocket(i), new DatagramSocket(i+1))
-    }
+   
     
-    def initListen() {
-    	val rtpPort = getRtpSockets()
+    def initListen() : SessionDescription = {
+    	val rtpPort = JlibMediaConnection.getRtpSockets()
     	rtpSession = Some(new RTPSession(rtpPort._1, rtpPort._2))
-    	listeningSdp = SdpHelper.createSdp(rtpPort._1.getLocalPort(), telco.contactIp)
+    	val listeningSdp = SdpHelper.createSdp(rtpPort._1.getLocalPort(), telco.contactIp)
     	rtpSession.foreach( session => {
-    		session.naivePktReception(true);
+    		session.naivePktReception(true)
     		session.RTPSessionRegister( new RTPAppIntf {
     			override def receiveData(frame:DataFrame, participant:Participant) =
     			  receive(frame, participant)
@@ -97,19 +92,25 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     			override def frameSize(payloadType:Int) = 1
     		},null, null);
     	})
+    	return listeningSdp
     }
     
     override def play(url:String, f:()=>Unit) =
     	joinedTo.foreach( joined => {
     	  //fixme, do we need listening ports to be in the RTPSession?
-    		val rtpSockets = this.getRtpSockets()
+    		val rtpSockets = JlibMediaConnection.getRtpSockets()
     		val rtpSession = new RTPSession(rtpSockets._1,rtpSockets._2)	//RTCP
     		rtpSession.addParticipant(new Participant("",
     		   SdpHelper.getMediaPort(joined.sdp), 		//RTP
     		   SdpHelper.getMediaPort(joined.sdp)+1)) 	//RTCP
     		val inputStream = MediaFileManager.getInputStream(url)
     		//TODO: send the packets
-    		   
+    		val bytes = new Array[Byte](1024)
+    		while (inputStream.read(bytes) != -1) {
+    		  rtpSession.sendData(bytes)
+    		}
+    		println("done sending")
+    		f()
     	})
     
     override def cancel(f:()=>Unit) {
@@ -136,9 +137,15 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
 }
 
 object JlibMediaConnection {
+	val atomicInt = new AtomicInteger(1234)	
+  
 	//phone nunew mber
 	def mediaConnections = new ConcurrentHashMap[String, JlibMediaConnection]()
-
+	
+	def getRtpSockets() : (DatagramSocket,DatagramSocket) = {
+      val i = atomicInt.getAndAdd(2)
+      return (new DatagramSocket(i), new DatagramSocket(i+1))
+    }
 }
 
 
