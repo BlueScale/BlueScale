@@ -29,7 +29,7 @@ class HASMEDIA extends ConnectionState
 
 case class CONNECTED() extends HASMEDIA
 
-case class HOLD() extends ConnectionState
+case class SILENCED() extends ConnectionState
 
 case class UNCONNECTED() extends ConnectionState
 

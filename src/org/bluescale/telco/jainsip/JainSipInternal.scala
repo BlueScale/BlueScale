@@ -151,15 +151,16 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			        conn.serverTx = Some(transaction)
 			        
 			        SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(request.getRawContent()) ) 
-			        
-			        val sdpToSend = 
-			          conn.direction match {
+			        val sdpToSend = (conn.joinedTo.getOrElse(conn)).sdp 
+			          /*conn.direction match {
 			          	case INCOMING() => conn.sdp 
 			          	case OUTGOING() => (conn.joinedTo.getOrElse(conn)).sdp
-			        }
-			          
-				    sendResponse(200, conn.serverTx, sdpToSend.toString().getBytes()) 
+			        }*/
+			        
+			        println("sdpToSend = " + sdpToSend)
 				    
+				    
+			        sendResponse(200, conn.serverTx, sdpToSend.toString().getBytes()) 
 				    //fixme: do we need to notify joinedTo when sdp info changes? 
 				})
 			
@@ -254,11 +255,19 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    							println("response wiht SDP = " + returnedSdp)
 				  						SdpHelper.addMediaTo(conn.sdp, returnedSdp )
 				  						conn.dialog = Some( re.getDialog() )
-				  					    if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.sdp ) ) {
+				  						
+				  						conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() ))
+				  						conn.joinedTo.foreach( joined=> {
+				  							if (SdpHelper.isBlankSdp(joined.sdp) )
+				  								conn.setState(VERSIONED_SILENCED( transaction.getBranchId()))
+				  						})
+				  						
+				  						/*
+				  						if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.sdp ) ) {
 				  					        conn.setState(VERSIONED_HOLD( transaction.getBranchId() ))
 				  						} else {
-				  						    conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) 
-				  						}
+				  						    conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) //Is a joined state worth it?
+				  						}*/
 				  						            
 		    				case Request.CANCEL =>
 		    				    conn.setState(VERSIONED_CANCELED( transaction.getBranchId() ) )

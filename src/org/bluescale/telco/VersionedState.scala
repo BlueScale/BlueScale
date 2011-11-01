@@ -38,8 +38,8 @@ case class VERSIONED_CONNECTED(v:String) extends VERSIONED_HASMEDIA(v) {
 	override def getState = CONNECTED()
 }
 
-case class VERSIONED_HOLD(val version:String) extends VersionedState {
-    override def getState = HOLD()
+case class VERSIONED_SILENCED(val version:String) extends VersionedState {
+    override def getState = SILENCED()
 }
 
 case class VERSIONED_UNCONNECTED(val version:String) extends VersionedState {

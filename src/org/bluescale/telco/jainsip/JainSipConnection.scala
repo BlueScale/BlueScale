@@ -111,10 +111,11 @@ class JainSipConnection protected[telco](
 
     private def fireReinvite(join:Joinable[_], f:FinishFunction) {
         telco.internal.sendReinvite(this, join.sdp)
-        val toState = SdpHelper.isBlankSdp(join.sdp) match {
-            case true=> new VERSIONED_HOLD(clientTx.get.getBranchId())
+        /*val toState = SdpHelper.isBlankSdp(join.sdp) match {
+            case true=> new VERSIONED_SILENCED(clientTx.get.getBranchId())
             case false=> new VERSIONED_CONNECTED(clientTx.get.getBranchId())
-        }
+        }*/
+        val toState = new VERSIONED_CONNECTED(clientTx.get.getBranchId())
 	    setFinishFunction(toState, f)
     }
 
@@ -262,7 +263,7 @@ class JainSipConnection protected[telco](
     def silence(silenceCallback:FinishFunction) = wrapLock {
     	SdpHelper.addMediaTo(listeningSdp, SdpHelper.getBlankSdp(telco.contactIp))
       	telco.internal.sendReinvite(this,listeningSdp) //SWAPED THIS
-        setFinishFunction(new VERSIONED_HOLD(clientTx.get.getBranchId()), silenceCallback)
+        setFinishFunction(new VERSIONED_SILENCED(clientTx.get.getBranchId()), silenceCallback)
     }
 
     override def hold(f:FinishFunction) : Unit = wrapLock {
