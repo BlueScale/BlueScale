@@ -40,7 +40,9 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
 
-    private var listeningSdp = initListen()
+	println("Made JlibMediaConncetion, my hashcode = " + this.hashCode() + "!")
+    
+	private var listeningSdp = initListen()
     
     private var _joinedTo:Option[Joinable[_]] = None
     
@@ -53,7 +55,8 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     override def joinedTo = _joinedTo
     
     override def join(conn:Joinable[_], f:()=>Unit) =
-    	conn.connect(this, false, ()=> {
+    	
+      	conn.connect(this, false, ()=> {
     		this._joinedTo = Some(conn)
     		f()
     	})
@@ -73,8 +76,6 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     def receive(frame:DataFrame, participant:Participant)  =
       MediaFileManager.addMedia(this, frame.getConcatenatedData())
     
-      
-   
     
     def initListen() : SessionDescription = {
     	val rtpPort = JlibMediaConnection.getRtpSockets()
@@ -97,20 +98,22 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     override def play(url:String, f:()=>Unit) =
     	joinedTo.foreach( joined => {
-    	  //fixme, do we need listening ports to be in the RTPSession?
-    		val rtpSockets = JlibMediaConnection.getRtpSockets()
-    		val rtpSession = new RTPSession(rtpSockets._1,rtpSockets._2)	//RTCP
-    		rtpSession.addParticipant(new Participant("",
-    		   SdpHelper.getMediaPort(joined.sdp), 		//RTP
-    		   SdpHelper.getMediaPort(joined.sdp)+1)) 	//RTCP
-    		val inputStream = MediaFileManager.getInputStream(url)
-    		//TODO: send the packets
-    		val bytes = new Array[Byte](1024)
-    		while (inputStream.read(bytes) != -1) {
-    		  rtpSession.sendData(bytes)
-    		}
-    		println("done sending")
-    		f()
+    		//fixme, do we need listening ports to be in the RTPSession?
+    		println("this.sdp = " + this.sdp)
+    		println("joined.sdp = " + joined.sdp)
+    		rtpSession.foreach( rtp => {
+    			rtp.addParticipant(new Participant("",
+    				SdpHelper.getMediaPort(joined.sdp), 		//RTP
+    				SdpHelper.getMediaPort(joined.sdp)+1)) 	//RTCP
+    			val inputStream = MediaFileManager.getInputStream(url)
+    			//TODO: send the packets
+    			val bytes = new Array[Byte](1024)
+    			while (inputStream.read(bytes) != -1)
+    				rtp.sendData(bytes)
+    			
+    			println("done sending")
+    			f()
+    		})
     	})
     
     override def cancel(f:()=>Unit) {
@@ -130,10 +133,13 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     protected[telco] def onConnect(f:()=>Unit) = f() //more to do? 
 
     protected[telco] def unjoin(f:()=>Unit) = {
-      	files = MediaFileManager.finishAddMedia(this) :: files
+    	finishListen()
     	f()
     	unjoinCallback.foreach(_(joinedTo.get,this))
     }
+    private def finishListen() =
+      	files = MediaFileManager.finishAddMedia(this) :: files
+    
 }
 
 object JlibMediaConnection {

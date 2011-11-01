@@ -149,10 +149,15 @@ class JainSipConnection protected[telco](
     }
                 
     override def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
-        connectionState match {
+        val f = ()=> {
+          this._joinedTo = Some(toJoin)
+          toJoin.connect(this, connectedCallback)
+        }
+    	connectionState match {
             case UNCONNECTED() | RINGING() =>
 		        telco.internal.sendResponse(200, serverTx, toJoin.sdp.toString().getBytes())  
-                setFinishFunction(VERSIONED_CONNECTED(serverTx.get.getBranchId()), connectedCallback)
+                setFinishFunction(VERSIONED_CONNECTED(serverTx.get.getBranchId()), f)
+                
 	        case _ => 
 	            throw new InvalidStateException(new UNCONNECTED(), connectionState)
 	    }       

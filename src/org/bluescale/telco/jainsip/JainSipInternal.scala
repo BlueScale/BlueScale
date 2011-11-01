@@ -148,11 +148,19 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			    
 			    val conn = telco.getConnection(getCallId(request))
 			    conn.execute( ()=>{
-			        println(" -------------- RESPONDING TO REINVITE ----------------- for conn  " + conn)
 			        conn.serverTx = Some(transaction)
-			        SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(request.getRawContent()) )	
-				    sendResponse(200, conn.serverTx, request.getRawContent())
-				    //fixme: do we need to notify other things listening to this SDP session?
+			        
+			        SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(request.getRawContent()) ) 
+			        
+			        val sdpToSend = 
+			          conn.direction match {
+			          	case INCOMING() => conn.sdp 
+			          	case OUTGOING() => (conn.joinedTo.getOrElse(conn)).sdp
+			        }
+			          
+				    sendResponse(200, conn.serverTx, sdpToSend.toString().getBytes()) 
+				    
+				    //fixme: do we need to notify joinedTo when sdp info changes? 
 				})
 			
 			case None => 	    
@@ -172,7 +180,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				    conn.setConnectionid(getCallId(request))
 			        telco.addConnection(conn) //(getCallId(request), conn)
 					SdpHelper.addMediaTo( conn.sdp, SdpHelper.getSdp(request.getRawContent()) )
-					//println("incomingCallback = " + telco.incomingCallback + "!")
 					telco.fireIncoming(conn)
 				})
 		}
@@ -243,12 +250,14 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    				case Request.INVITE =>
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)
-				  						SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
+		    							val returnedSdp = SdpHelper.getSdp(asResponse(re).getRawContent())
+		    							println("response wiht SDP = " + returnedSdp)
+				  						SdpHelper.addMediaTo(conn.sdp, returnedSdp )
 				  						conn.dialog = Some( re.getDialog() )
 				  					    if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.sdp ) ) {
 				  					        conn.setState(VERSIONED_HOLD( transaction.getBranchId() ))
 				  						} else {
-				  						    conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) //Is a joined state worth it?
+				  						    conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) 
 				  						}
 				  						            
 		    				case Request.CANCEL =>

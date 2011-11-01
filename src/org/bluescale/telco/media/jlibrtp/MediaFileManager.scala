@@ -40,18 +40,23 @@ object MediaFileManager {
 	val dataMap = new ConcurrentHashMap[MediaConnection,Array[Byte]]()
   
 	def addMedia(mc:MediaConnection, data:Array[Byte]) =
-		dataMap.put(mc, safeConcat(data, dataMap.get(mc) ) )
+		dataMap.put(mc, safeConcat(data, dataMap.get(mc) ) ) //this could error out..., should wrap in a try.
 	 
 	def safeConcat(stuff:Array[Byte]*) : Array[Byte] = 
 		stuff.filter( _ != null).flatten.toArray
 	
 	  
 	def finishAddMedia(mc:MediaConnection) : String = {
+	  println("$$$$$$$$$$$$$$$$$")
+	    try {
 		val path = filePath.getOrElse(".") + mc.hashCode() + ".wav"
 		val fileStream = new FileOutputStream(path)
 		fileStream.write(dataMap.get(mc))
-		fileStream.close()
+		fileStream.close() 
 		return path
+	    } finally { 
+	    	dataMap.remove(mc)
+	    }
 	}
 
 	def getInputStream(url:String) : BufferedInputStream = {
