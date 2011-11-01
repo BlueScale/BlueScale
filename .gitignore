@@ -11,3 +11,7 @@ heap.bin
 bin/
 log/
 dist/
+
+# generated media
+###############
+*.temp.wav
