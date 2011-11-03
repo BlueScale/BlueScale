@@ -14,4 +14,4 @@ dist/
 
 # generated media
 ###############
-*.temp.wav
+*.bs.wav

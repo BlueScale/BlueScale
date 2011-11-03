@@ -55,13 +55,12 @@ class PlayRecordFunctionalTest extends TestHelper {
 
 	val latch = new CountDownLatch(1)  
 	
-	//@Test
-	def XtestPlayRecord() {
+	@Test
+	def testPlayRecord() {
 		this.b2bServer.answerWithMedia = true
 		//lets do client side stuff for now. will have to set stuff pup.
 		conn = telcoServer.createConnection("7145554444", "7148889999")
 		val media = new JlibMediaConnection(telcoServer)
-		//media.filename = Some("filelocation")
 		
 		conn.connect( ()=> 
 			media.join(conn, ()=>

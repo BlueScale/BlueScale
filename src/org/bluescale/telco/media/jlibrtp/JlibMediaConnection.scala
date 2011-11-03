@@ -41,14 +41,28 @@ import java.util.concurrent.atomic.AtomicInteger
 class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
 
 	println("Made JlibMediaConncetion, my hashcode = " + this.hashCode() + "!")
+    private val rtpPort = JlibMediaConnection.getRtpSockets()
     
-	private var listeningSdp = initListen()
+    private val rtpSession = Some(new RTPSession(rtpPort._1, rtpPort._2))
+    
+    val listeningSdp = SdpHelper.createSdp(rtpPort._1.getLocalPort(), telco.contactIp)
+    
+    rtpSession.foreach( session => {
+    	session.naivePktReception(true)
+    	session.RTPSessionRegister( new RTPAppIntf {
+    		override def receiveData(frame:DataFrame, participant:Participant) =
+    		  receive(frame, participant)
+    			  
+    		override def userEvent(etype:Int, participants:Array[Participant]) =
+    		 	Unit
+    			    
+    		override def frameSize(payloadType:Int) = 1
+    	},null, null);
+    })
     
     private var _joinedTo:Option[Joinable[_]] = None
     
     private var files = List[String]()
-    
-    var rtpSession:Option[RTPSession] = None
     
     private var connState = UNCONNECTED()
     
@@ -77,30 +91,9 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
       MediaFileManager.addMedia(this, frame.getConcatenatedData())
     
     
-    def initListen() : SessionDescription = {
-    	val rtpPort = JlibMediaConnection.getRtpSockets()
-    	rtpSession = Some(new RTPSession(rtpPort._1, rtpPort._2))
-    	val listeningSdp = SdpHelper.createSdp(rtpPort._1.getLocalPort(), telco.contactIp)
-    	rtpSession.foreach( session => {
-    		session.naivePktReception(true)
-    		session.RTPSessionRegister( new RTPAppIntf {
-    			override def receiveData(frame:DataFrame, participant:Participant) =
-    			  receive(frame, participant)
-    			  
-    			override def userEvent(etype:Int, participants:Array[Participant]) =
-    			 	Unit
-    			    
-    			override def frameSize(payloadType:Int) = 1
-    		},null, null);
-    	})
-    	return listeningSdp
-    }
-    
     override def play(url:String, f:()=>Unit) =
     	joinedTo.foreach( joined => {
     		//fixme, do we need listening ports to be in the RTPSession?
-    		println("this.sdp = " + this.sdp)
-    		println("joined.sdp = " + joined.sdp)
     		rtpSession.foreach( rtp => {
     			rtp.addParticipant(new Participant("",
     				SdpHelper.getMediaPort(joined.sdp), 		//RTP
@@ -133,12 +126,14 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     protected[telco] def onConnect(f:()=>Unit) = f() //more to do? 
 
     protected[telco] def unjoin(f:()=>Unit) = {
+    	println("---------------UNJOINED--------------")
     	finishListen()
     	f()
     	unjoinCallback.foreach(_(joinedTo.get,this))
     }
+    
     private def finishListen() =
-      	files = MediaFileManager.finishAddMedia(this) :: files
+    	MediaFileManager.finishAddMedia(this).foreach(newFile => files = newFile :: files)
     
 }
 

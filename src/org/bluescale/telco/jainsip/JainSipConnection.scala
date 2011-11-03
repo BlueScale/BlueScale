@@ -249,10 +249,7 @@ class JainSipConnection protected[telco](
 	private def joinConnected(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
 		println("------- joinConnected, this = " + this + " otherCall.sdp = " + otherCall.sdp)
 		otherCall.connect(this,()=>{
-		    println("other call is connected!--------------, othercallsdp = "+ otherCall.sdp)
-		    println("This.joinedTo = " + this.joinedTo)
 		   	this.reconnect(otherCall, ()=>{
-    		    println("!!!!!!!reconnected!!!!!!!!/")
     		    this._joinedTo = Some(otherCall)  
 	    		joinCallback()
 	    	}) 
