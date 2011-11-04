@@ -44,6 +44,7 @@ class PlayRecordFunctionalTest extends TestHelper {
 		  println("got a file")
 		  //compare.
 		  latch.countDown()
+		  println("countdown for the latch")
 	    
 	  }))
 	  
@@ -66,7 +67,9 @@ class PlayRecordFunctionalTest extends TestHelper {
 			media.join(conn, ()=>
 				media.play( "resources/gulp.wav", ()=> finishedPlaying(conn) ))
 		  )
-		//lets see if we can get this working!		
+		//lets see if we can get this working!	
+		println("awaiting")
 		latch.await()
+		println("finished waiting")
 	}
 }

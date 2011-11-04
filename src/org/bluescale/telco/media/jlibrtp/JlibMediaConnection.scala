@@ -105,6 +105,7 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     				rtp.sendData(bytes)
     			
     			println("done sending")
+    			rtp.endSession()
     			f()
     		})
     	})

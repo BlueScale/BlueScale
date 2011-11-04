@@ -27,12 +27,64 @@ import org.junit._
 import Assert._
 import org.bluescale.telco.jainsip._
 
-class JoinTwoUnconnectedFunctionalTest extends TestHelper with JoinTwo {
+import org.bluescale.telco.api._ 
+import org.bluescale.telco._
+
+import org.junit._
+import Assert._
+import java.util.concurrent.CountDownLatch
+
+class JoinTwoUnconnectedFunctionalTest extends TestHelper { 
+
+	var latch:CountDownLatch = null
+ 
+	def getLatch = latch
+	
+  
+ 	def handleDisconnect(conn:SipConnection) = {
+ 	    //this should be bob!
+ 	    println(" oooooooKAY, lets see what the conncetion is, conn = " + conn)
+ 	    assertEquals(bob.connectionState, UNCONNECTED())
+		System.err.println("assert that alice is disconnected = " + alice.connectionState)
+		System.err.println("assert that bob is disconnected = " + bob.connectionState)
+		//
+		println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ COUNTING DOWN THE LATCH ~~~~~~~~")
+		latch.countDown()
+ 	}
+
+     	 
+    telcoServer.setDisconnectedCallback( handleDisconnect )
+ 	val alice = telcoServer.createConnection("4445556666", "9495557777")
+ 	val bob = telcoServer.createConnection("1112223333", "7147773333")
 
  
-	@Override 
-	def getTelcoServer() = telcoServer;
- 
+	def runConn() {
+ 		latch = new CountDownLatch(1)
+	          
+ 		alice.connect(()=>{ 
+		  	assertEquals(alice.connectionState, CONNECTED())
+		  	bob.connect(()=>{
+		  		assertEquals(bob.connectionState, CONNECTED())
+				alice.join(bob, ()=>{
+				assertFalse(SdpHelper.isBlankSdp(alice.sdp)) 
+				assertFalse(SdpHelper.isBlankSdp(bob.sdp))
+				assertTrue(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
+				  System.err.println("are both connected = ? " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
+				  
+				  	alice.disconnect( ()=>{
+				  	  println("alice connectionstate = "+ alice.connectionState)
+				  		assertEquals(alice.connectionState, UNCONNECTED())
+				  		//make sure bob is on hold now!
+				  		//assertFalse(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
+				  		val b = SdpHelper.isBlankSdp(bob.asInstanceOf[JainSipConnection].sdp)
+				  		System.err.println("b = " + b)
+				  		//Now bob should be disconnected
+				  						  	})
+				})
+			})
+		})
+	} 
+
 	@Test
 	def testJoinConn() = {
 	 	runConn()

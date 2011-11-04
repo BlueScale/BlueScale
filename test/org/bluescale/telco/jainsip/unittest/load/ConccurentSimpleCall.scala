@@ -67,12 +67,12 @@ class ConccurentSimpleCall  extends junit.framework.TestCase  {
 	  	System.out.println( counter.get);
 	}
  
-	class ParallelCaller extends Actor with SimpleCall {
+	class ParallelCaller extends Actor{
 	  
-	  override def getB2BServer() = b2bServer
-	  override def getTelcoServer() = telcoServer;
+	  def getB2BServer() = b2bServer
+	  def getTelcoServer() = telcoServer
 	  
-	  override def getCounter = counter
+	  def getCounter = counter
 	   
 	   start()
    
@@ -81,7 +81,7 @@ class ConccurentSimpleCall  extends junit.framework.TestCase  {
 		  loop {  react {
 		    case str:String => 
 		    				   try {
-		    					   runConn(str)
+		    					   //runConn(str)FIXME
 		    					   //getLatch.await() 
 		    				   } catch {
 		    				     case ex:Exception => println(ex) 

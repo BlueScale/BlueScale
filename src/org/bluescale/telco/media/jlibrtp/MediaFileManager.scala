@@ -58,6 +58,7 @@ object MediaFileManager {
 	    	//fileStream.write("blah".getBytes())
 	    	//val s = dataMap.get(mc)
 	    	//println("S = " + s)
+	    	val d = dataMap.get(mc)
 	    	fileStream.write(dataMap.get(mc))
 	    	fileStream.close() 
 	    	return Some(path)

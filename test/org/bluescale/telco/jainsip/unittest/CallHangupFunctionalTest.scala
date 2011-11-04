@@ -27,18 +27,12 @@ import org.junit._
 import Assert._
 import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicInteger
 
-class CallHangupFunctionalTest extends TestHelper with SimpleCall  {
-
- 
-	def getCounter = None
+class CallHangupFunctionalTest extends TestHelper {
 	
-	@Override 
-	def getTelcoServer() = telcoServer.asInstanceOf[TelcoServer];
-
-	@Override
-	def getB2BServer() = b2bServer
- 
+	
 	@Test
 	def testSimpleConn() = {
 		println("running");
@@ -47,6 +41,28 @@ class CallHangupFunctionalTest extends TestHelper with SimpleCall  {
 
 		getLatch.await()
 	}
+	
+	var latch:CountDownLatch = null
+  
+	def getLatch = latch
+	
+  
+	def runConn() {
+ 		latch = new CountDownLatch(1)
+ 		val destNumber = "9495557777" 
+ 		val alice = telcoServer.createConnection(destNumber, "4445556666")
+ 		 
+ 		alice.connect(()=>{ 
+		  	assertEquals(alice.connectionState, CONNECTED())
+		  	println("OK i'm Connected now...how did that happen?")
+		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect( ()=> {
+                        Thread.sleep(50)
+                        println("Is alice disconnected alice = " + alice.connectionState)
+                        assertEquals(alice.connectionState,UNCONNECTED())
+                        latch.countDown()
+			        }))
+		})
+	}	
 }
 
 object CallHangupFunctionalTest {

@@ -27,8 +27,10 @@ import org.junit._
 import Assert._
 
 import org.bluescale.telco.jainsip._
+import org.bluescale.telco.api._
+import java.util.concurrent.CountDownLatch
 
-class ConnectJoinFunctionalTest extends TestHelper with ConnectJoinTwo  {
+class ConnectJoinFunctionalTest extends TestHelper {
 	
  
 	@Override 
@@ -42,9 +44,40 @@ class ConnectJoinFunctionalTest extends TestHelper with ConnectJoinTwo  {
 	  println("ConnectJoinTwo")
 	 
 		 runConn()
-		 getLatch.await()
+		 latch.await()
 		 println("FINISHED")
  	 
+	}
+	
+	var latch:CountDownLatch = null	
+ 
+ 	def handleDisconnect(conn:SipConnection) = {
+ 	    //this should be bob!
+ 	    assertEquals(bob.connectionState, UNCONNECTED())
+		System.err.println("assert that alice is disconnected = " + alice.connectionState)
+		System.err.println("assert that bob is disconnected = " + bob.connectionState)
+		//
+		latch.countDown()
+ 	}
+
+     	 
+    getTelcoServer.setDisconnectedCallback( handleDisconnect )
+ 	val alice = getTelcoServer().createConnection("4445556666", "9495557777")
+ 	val bob = getTelcoServer().createConnection("1112223333", "7147773333")
+
+ 
+	def runConn() {
+ 		latch = new CountDownLatch(1)
+
+ 		alice.connect(()=>{ 
+		  	assertEquals(alice.connectionState, CONNECTED())
+		    alice.join(bob, ()=> {
+		        assertEquals(alice.connectionState, CONNECTED())
+                println( "ARE TWO CONNECTED = " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
+                assertTrue(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
+                latch.countDown()
+                })
+		  } )
 	}
 }
 
@@ -53,7 +86,7 @@ object ConnectJoinFunctionalTest {
 		val jt = new ConnectJoinFunctionalTest()
 	    jt.setUp()
 		jt.runConn()
-		jt.getLatch.await()
+		jt.latch.await()
 		println("finished ")
 		jt.tearDown()
 	}
