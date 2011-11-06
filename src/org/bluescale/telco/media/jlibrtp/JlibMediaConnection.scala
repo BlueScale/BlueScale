@@ -43,13 +43,12 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
 	println("Made JlibMediaConncetion, my hashcode = " + this.hashCode() + "!")
     private val rtpPort = JlibMediaConnection.getRtpSockets()
     
-    private val rtpSession = Some(new RTPSession(rtpPort._1, rtpPort._2))
+    private val rtpSession = new RTPSession(rtpPort._1, rtpPort._2)
     
     val listeningSdp = SdpHelper.createSdp(rtpPort._1.getLocalPort(), telco.contactIp)
     
-    rtpSession.foreach( session => {
-    	session.naivePktReception(true)
-    	session.RTPSessionRegister( new RTPAppIntf {
+    rtpSession.naivePktReception(true)
+    rtpSession.RTPSessionRegister( new RTPAppIntf {
     		override def receiveData(frame:DataFrame, participant:Participant) =
     		  receive(frame, participant)
     			  
@@ -58,7 +57,7 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     			    
     		override def frameSize(payloadType:Int) = 1
     	},null, null);
-    })
+    
     
     private var _joinedTo:Option[Joinable[_]] = None
     
@@ -69,7 +68,6 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     override def joinedTo = _joinedTo
     
     override def join(conn:Joinable[_], f:()=>Unit) =
-    	
       	conn.connect(this, false, ()=> {
     		this._joinedTo = Some(conn)
     		f()
@@ -94,20 +92,19 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     override def play(url:String, f:()=>Unit) =
     	joinedTo.foreach( joined => {
     		//fixme, do we need listening ports to be in the RTPSession?
-    		rtpSession.foreach( rtp => {
-    			rtp.addParticipant(new Participant("",
+    		rtpSession.addParticipant(new Participant("",
     				SdpHelper.getMediaPort(joined.sdp), 		//RTP
     				SdpHelper.getMediaPort(joined.sdp)+1)) 	//RTCP
     			val inputStream = MediaFileManager.getInputStream(url)
     			//TODO: send the packets
     			val bytes = new Array[Byte](1024)
     			while (inputStream.read(bytes) != -1)
-    				rtp.sendData(bytes)
+    				rtpSession.sendData(bytes)
     			
     			println("done sending")
-    			rtp.endSession()
+    			rtpSession.endSession()
     			f()
-    		})
+    		
     	})
     
     override def cancel(f:()=>Unit) {
