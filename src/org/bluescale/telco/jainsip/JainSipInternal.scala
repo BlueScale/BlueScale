@@ -152,13 +152,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			        
 			        SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(request.getRawContent()) ) 
 			        val sdpToSend = (conn.joinedTo.getOrElse(conn)).sdp 
-			          /*conn.direction match {
-			          	case INCOMING() => conn.sdp 
-			          	case OUTGOING() => (conn.joinedTo.getOrElse(conn)).sdp
-			        }*/
-			        
 			        println("sdpToSend = " + sdpToSend)
-				    
 				    
 			        sendResponse(200, conn.serverTx, sdpToSend.toString().getBytes()) 
 				    //fixme: do we need to notify joinedTo when sdp info changes? 
@@ -241,7 +235,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			                    if (!SdpHelper.isBlankSdp(sdp)) {
     			                    conn.dialog = Some(re.getDialog())
 	    		                    SdpHelper.addMediaTo(conn.sdp, sdp)
-	    		                    println("RINGING SDP = " + sdp )
 		    	                    conn.setState(VERSIONED_RINGING( transaction.getBranchId() ))
 		    	                }
                             }) 

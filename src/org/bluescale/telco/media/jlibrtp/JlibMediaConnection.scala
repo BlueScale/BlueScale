@@ -61,11 +61,14 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     private var _joinedTo:Option[Joinable[_]] = None
     
-    private var files = List[String]()
+    private var _recordedFiles = List[String]()
+    private var _playedFiles   = List[String]()
     
-    def playedFiles = files
+    override def playedFiles = _playedFiles 
     
-    private var connState = UNCONNECTED()
+	override def recordedFiles = _recordedFiles
+
+	private var connState = UNCONNECTED()
     
     override def joinedTo = _joinedTo
     
@@ -75,7 +78,6 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     		f()
     	})
 	
-	override def recordedFiles = files
     
     override def sdp = 
       listeningSdp
@@ -103,9 +105,8 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     			while (inputStream.read(bytes) != -1)
     				rtpSession.sendData(bytes)
     			
-    			println("done sending")
     			rtpSession.endSession()
-    			files = url :: files
+    			_playedFiles = url :: _playedFiles
     			f()
     		
     	})
@@ -127,14 +128,14 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     protected[telco] def onConnect(f:()=>Unit) = f() //more to do? 
 
     protected[telco] def unjoin(f:()=>Unit) = {
-    	println("---------------UNJOINED--------------")
     	finishListen()
+    	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
     	f()
     	unjoinCallback.foreach(_(joinedTo.get,this))
     }
     
     private def finishListen() =
-    	MediaFileManager.finishAddMedia(this).foreach(newFile => files = newFile :: files)
+    	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
     
 }
 

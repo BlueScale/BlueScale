@@ -49,16 +49,14 @@ object MediaFileManager {
 	
 	  
 	def finishAddMedia(mc:MediaConnection) : Option[String] = {
-	  println("$$$$$$$$$$$$$$$$$")
 	    try {
 	    	if (!dataMap.containsKey(mc))
 	    	  return None
-	    	val path = filePath.getOrElse(".") + mc.hashCode() + "bs.wav"
+	    	  
+	    	val path = filePath.getOrElse(".") + mc.hashCode() + ".bs.wav"
 	    	val fileStream = new FileOutputStream(path)
-	    	//fileStream.write("blah".getBytes())
-	    	//val s = dataMap.get(mc)
-	    	//println("S = " + s)
 	    	val d = dataMap.get(mc)
+	    	println( "AddMedia for " + mc.hashCode() + " data size = " + d.length)
 	    	fileStream.write(dataMap.get(mc))
 	    	fileStream.close() 
 	    	return Some(path)

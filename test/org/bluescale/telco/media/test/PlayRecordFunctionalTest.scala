@@ -38,13 +38,15 @@ class PlayRecordFunctionalTest extends TestHelper {
 	  //get file from server. 
 	  //compare with sent file.
 	  println("finishedPlaying")
-	  conn.disconnect( ()=> 
-	  	b2bServer.getMediaConnection("7145554444").recordedFiles.foreach( f => { 
-	  		println("got a file")
+	  conn.disconnect( ()=> {
+	    Thread.sleep(1000)//lets let the connection finish writing the file
+	  	val files = b2bServer.getMediaConnection("7145554444").recordedFiles
+	    files.foreach( f => { 
 	  		//compare.
 	  		latch.countDown()
 	  		println("countdown for the latch")
-	  }))
+	  	})
+	  })
 	  
 	  //get filename somehow.  
 	  //compare to the recorded file
@@ -68,6 +70,8 @@ class PlayRecordFunctionalTest extends TestHelper {
 		//lets see if we can get this working!	
 		println("awaiting")
 		latch.await()
-		println("finished waiting")
+		println("finished waiting, sleeping now...")
+		Thread.sleep(1000)
+		println("why are we not here????")
 	}
 }
