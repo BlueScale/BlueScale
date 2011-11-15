@@ -53,7 +53,7 @@ object MediaFileManager {
 	    	if (!dataMap.containsKey(mc))
 	    	  return None
 	    	  
-	    	val path = filePath.getOrElse(".") + mc.hashCode() + ".bs.wav"
+	    	val path = filePath.getOrElse("") + mc.hashCode() + ".bs.wav"
 	    	val fileStream = new FileOutputStream(path)
 	    	val d = dataMap.get(mc)
 	    	println( "AddMedia for " + mc.hashCode() + " data size = " + d.length)
