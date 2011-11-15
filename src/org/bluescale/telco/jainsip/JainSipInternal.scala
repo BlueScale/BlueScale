@@ -208,7 +208,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		})
 	}
  
-	
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
 		val request = requestEvent.getRequest()
       	val conn = telco.getConnection(getCallId(request))
@@ -219,11 +218,13 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	override def processResponse(re:ResponseEvent) {
 		var transaction = re.getClientTransaction()
 		//FIXME:  JAIN-SIP race condition with transactions occasionally being null ?
+		
+		val conn = telco.getConnection(getCallId(re))
 		if ( null == transaction) {
 			debug("                                      transaction is null right away!?!?!? re = " + re.getDialog())
+			debug(" 									conn for null tx is = " + conn + " | , response code = " + asResponse(re).getStatusCode())
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
-		val conn = telco.getConnection(getCallId(re))
 		conn.execute(()=>{
 		asResponse(re).getStatusCode() match {
 			case Response.SESSION_PROGRESS => conn.setState(VERSIONED_PROGRESSING("") )
