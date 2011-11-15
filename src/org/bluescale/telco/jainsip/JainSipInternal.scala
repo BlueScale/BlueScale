@@ -222,7 +222,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		val conn = telco.getConnection(getCallId(re))
 		if ( null == transaction) {
 			debug("                                      transaction is null right away!?!?!? re = " + re.getDialog())
-			debug(" 									conn for null tx is = " + conn + " | , response code = " + asResponse(re).getStatusCode())
+			debug(" 									conn for null tx is = " + conn + " | , response code = " + asResponse(re).getStatusCode() + " conn TX = " + conn.clientTx)
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
 		conn.execute(()=>{
