@@ -28,13 +28,12 @@ import org.bluescale.telco.api._
 import org.bluescale.util._
 import java.util.concurrent._
 import org.bluescale.telco._
+import org.bluescale.telco.media.jlibrtp._
 
 class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
-
     val conversationMap = new ConcurrentHashMap[SipConnection,ConversationInfo]()
-
-   
+    
     protected def handleBlueML(conn:SipConnection, str:String) : Unit = {
         StrOption(str.trim()) match {
             case Some(x) => handleBlueML(conn, BlueMLParser.parse(str))
@@ -51,7 +50,12 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 dialJoin(conn, dial, verbs.tail)
             case play:Play => 
                 println("playing...")
+                val mediaConn = new JlibMediaConnection(telcoServer)
+                mediaConn.joinPlay(play.mediaUrl, conn, ()=> handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ))
                 handleBlueML(conn, verbs.tail)
+            case hangup:Hangup =>
+            	conn.disconnect( ()=> postCallStatus(hangup.url,conn))
+            	
         }
     }
     
@@ -144,9 +148,17 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case Some(xml)  => handleResponse.foreach( _(xml) )
             case None       => //ok...
         }
+    
+    //def postMediaStatus(url:String, )
 
     def postConversationStatus(convo:ConversationInfo) = 
         postCallStatus(convo.url,getJoinedMap(convo),None)
+        
+    def postMediaStatus(url:String, media:MediaConnection, conn:SipConnection) =
+      SequentialWebPoster.postToUrl(url,
+          Map( "CallId" -> conn.connectionid,
+               "MediaUrl" -> media.playedFiles.firstOption.getOrElse("")
+          ))
     
     protected def getConnectionMap(conn:SipConnection) = 
         Map( "CallId"->conn.connectionid,

@@ -63,6 +63,8 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     private var files = List[String]()
     
+    def playedFiles = files
+    
     private var connState = UNCONNECTED()
     
     override def joinedTo = _joinedTo
@@ -103,6 +105,7 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     			
     			println("done sending")
     			rtpSession.endSession()
+    			files = url :: files
     			f()
     		
     	})

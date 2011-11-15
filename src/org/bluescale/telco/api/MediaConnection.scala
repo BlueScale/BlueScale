@@ -31,4 +31,16 @@ trait MediaConnection
     with Playable {
 
 	def recordedFiles : List[String]
+	
+	def playedFiles :List[String]
+	
+	//def State : MediaState  Maybe need later
 }
+
+//Need more states?
+class MediaState
+
+case class PLAYING extends MediaState
+case class RECORDING extends MediaState
+case class PLAYINGRECORDING extends MediaState
+case class SILENT extends MediaState

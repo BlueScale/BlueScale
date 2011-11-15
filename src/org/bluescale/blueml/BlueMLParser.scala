@@ -40,6 +40,7 @@ object BlueMLParser extends Util {
             case "Play" => parsePlay(n)
             case "Gather"=>throw new UnsupportedOperationException("Gather")
             case "Record"=>throw new UnsupportedOperationException("Record")
+            case "Hangup"=>parseHangup(n)
             case _ => null
         }
     }
@@ -50,22 +51,26 @@ object BlueMLParser extends Util {
                   (n \ "Action").text,
                   parseInt((n \ "RingLimit").text))
                   
-   private def parsePlay(n:Node) : Play = {
-        return null
-    }
+   private def parsePlay(n:Node) : Play = 
+        new Play( parseInt( (n \ "loop").text),
+        		(n \ "MediaUrl").text,
+        		(n \ "Action").text)
+    
 
     private def parseInt(str:String) = 
         StrOption(str) match {
            case Some(s) => Integer.parseInt(s)
            case None => -1
         }
+    private def parseHangup(n:Node)  = 
+      new Hangup( (n \ "Action").text)
 }
 
 
 trait BlueMLVerb
 
 
-case class Play(val loop:Int,
+case class Play(val loop:Int = 0,
                 val mediaUrl:String,
                 val url:String) extends BlueMLVerb 
 

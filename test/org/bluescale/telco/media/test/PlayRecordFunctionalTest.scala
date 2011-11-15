@@ -39,13 +39,11 @@ class PlayRecordFunctionalTest extends TestHelper {
 	  //compare with sent file.
 	  println("finishedPlaying")
 	  conn.disconnect( ()=> 
-	  b2bServer.getMediaConnection("7145554444").recordedFiles.foreach( f => { 
-		  
-		  println("got a file")
-		  //compare.
-		  latch.countDown()
-		  println("countdown for the latch")
-	    
+	  	b2bServer.getMediaConnection("7145554444").recordedFiles.foreach( f => { 
+	  		println("got a file")
+	  		//compare.
+	  		latch.countDown()
+	  		println("countdown for the latch")
 	  }))
 	  
 	  //get filename somehow.  

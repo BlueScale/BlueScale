@@ -174,7 +174,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         val sdp = SdpHelper.getSdp(raw)
         println(sdp)
     }
-   
 
     @Test
     def testClickToCall() { 

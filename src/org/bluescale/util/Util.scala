@@ -26,13 +26,9 @@ package org.bluescale.util
 
 
 trait Util {
-
+	//lopex from freenode made this better:
     def StrOption(s:String) =
-        Option(s) match {
-            case Some(s) => s.equals("") match {case true => None
-                                                case false=> Option(s) }
-            case None => None      
-        }    
+    	Option(s).filter(!_.isEmpty)
 
     
     def GetNonEmpty(str1:String, str2:String) : String = {
