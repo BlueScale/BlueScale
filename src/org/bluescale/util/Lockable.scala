@@ -24,6 +24,7 @@
 package org.bluescale.util
 
 import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.TimeUnit
 
 trait Lockable {
 	protected val myLock = new ReentrantLock()
@@ -35,13 +36,13 @@ trait Lockable {
 	def unlock() = myLock.unlock()
  
 	def wrapLock(f: =>Unit) : Unit = {
-			if ( myLock.tryLock() ) {
-				f
-				unlock()
-			} else {
-			    println(" CONCURRENCY EXCEPTION FOR " + this )
-				throw new ConcurrencyException()
-			}
+		if ( myLock.tryLock(500,TimeUnit.MILLISECONDS) ) {
+			f
+			unlock()
+		} else {
+		    println(" CONCURRENCY EXCEPTION FOR " + this )
+			throw new ConcurrencyException()
+		}
     }
 
     def tryLock = if ( !myLock.tryLock() ) throw new ConcurrencyException()
