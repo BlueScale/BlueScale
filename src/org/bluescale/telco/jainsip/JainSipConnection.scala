@@ -97,9 +97,8 @@ class JainSipConnection protected[telco](
     	val connectCallback = ()=> {
     		this._joinedTo = Some(join)
     		callback()
-    	}
-        connid = telco.internal.sendInvite(this, join.sdp)
-        telco.addConnection(this)
+    	}//fixme how we deal with tx options
+        telco.internal.sendInvite(this, join.sdp)
         
  	   	if (connectAnyMedia)
      	   	setFinishFunction( new VERSIONED_RINGING(clientTx.get.getBranchId()), connectCallback )
@@ -111,10 +110,6 @@ class JainSipConnection protected[telco](
 
     private def fireReinvite(join:Joinable[_], f:FinishFunction) {
         telco.internal.sendReinvite(this, join.sdp)
-        /*val toState = SdpHelper.isBlankSdp(join.sdp) match {
-            case true=> new VERSIONED_SILENCED(clientTx.get.getBranchId())
-            case false=> new VERSIONED_CONNECTED(clientTx.get.getBranchId())
-        }*/
         val toState = new VERSIONED_CONNECTED(clientTx.get.getBranchId())
 	    setFinishFunction(toState, f)
     }

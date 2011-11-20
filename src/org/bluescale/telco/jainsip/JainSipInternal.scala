@@ -1,5 +1,4 @@
 /*
-*  
 * This file is part of BlueScale.
 *
 * BlueScale is free software: you can redistribute it and/or modify
@@ -217,12 +216,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
    //TODO: handle re-tries... we can't just let another setState happen, could fuck things up if something else had been set already...
 	override def processResponse(re:ResponseEvent) {
 		var transaction = re.getClientTransaction()
-		//FIXME:  JAIN-SIP race condition with transactions occasionally being null ?
-		
 		val conn = telco.getConnection(getCallId(re))
-		if ( null == transaction) {
-			debug("                                      transaction is null right away!?!?!? re = " + re.getDialog())
-			debug(" 									conn for null tx is = " + conn + " | , response code = " + asResponse(re).getStatusCode() + " conn TX = " + conn.clientTx)
+		if ( null == transaction) { //we already got a 200OK and the TX was terminated...
+			debug(" transaction is null right away!?!?!? re = " + re.getDialog())
+			return 
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
 		conn.execute(()=>{
@@ -292,12 +289,14 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
            }) 
 	}
 	
-	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : String = {
+	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
 		val request = inviteCreator.getInviteRequest(conn.origin, conn.destination, sdp.toString().getBytes())
 		conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
+		conn.setConnectionid(getCallId(request))
+		telco.addConnection(conn)
+		println("sendInvite")
 		conn.clientTx.get.sendRequest()
-        return getCallId(request)
 	}
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
