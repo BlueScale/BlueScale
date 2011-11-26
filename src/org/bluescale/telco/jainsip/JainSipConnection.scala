@@ -287,7 +287,7 @@ class JainSipConnection protected[telco](
 
     protected[telco] def setState(s:VersionedState) : Unit = {
         lock()
-        //println(" SET STATE CALLED FOR " + this + " s = " + s)
+        //`println(" SET STATE CALLED FOR " + this + " s = " + s)
         //var b = false
         //if ( state.getState == CONNECTED() && s.getState == CONNECTED() )
         //    b = true

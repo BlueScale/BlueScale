@@ -106,7 +106,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> {
-             
+            Thread.sleep(500)//benign race condition here because of the fact the ack comes to this and gets sent to an actor... 
             assertEquals( inConn.connectionState, CONNECTED() )
             assertEquals( "Connected", request.getParameter("ConversationStatus"))
             assertFalse( SdpHelper.isBlankSdp(inConn.sdp))
@@ -149,6 +149,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         testWS.setNextResponse( request=> {
             println("......joined")
+            Thread.sleep(500)
             assertEquals(request.getParameter("ConversationStatus"), "Connected")
             joinedLatch.countDown()
             ""

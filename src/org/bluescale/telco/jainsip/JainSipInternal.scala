@@ -153,7 +153,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			        //debug("sdpToSend = " + sdpToSend)
 				    
 			        sendResponse(200, conn.serverTx, sdpToSend.toString().getBytes()) 
-				    //fixme: do we need to notify joinedTo when sdp info changes? 
+				    //fixme: do we need to notify joinedTo when sdp info changes?// should get ACKED 
 				})
 			
 			case None => 	    
@@ -208,8 +208,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
  
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
 		val request = requestEvent.getRequest()
-      	val conn = telco.getConnection(getCallId(request))//FIXME: return an option and foreach on it... prevent NPE
-		conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
+  	    val conn = telco.getConnection(getCallId(request))//FIXME: return an option and foreach on it... prevent NPE
+    	conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
 	}  		
    
    //TODO: handle re-tries... we can't just let another setState happen, could fuck things up if something else had been set already...
