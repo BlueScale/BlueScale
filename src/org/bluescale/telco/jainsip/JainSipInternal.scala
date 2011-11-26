@@ -139,7 +139,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
   
 	def processInvite(requestEvent:RequestEvent) {
-		debug("request for " + requestEvent.getRequest())	
 		val request = requestEvent.getRequest()
 		Option(requestEvent.getServerTransaction) match {
             
@@ -151,7 +150,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			        
 			        SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(request.getRawContent()) ) 
 			        val sdpToSend = (conn.joinedTo.getOrElse(conn)).sdp 
-			        println("sdpToSend = " + sdpToSend)
+			        //debug("sdpToSend = " + sdpToSend)
 				    
 			        sendResponse(200, conn.serverTx, sdpToSend.toString().getBytes()) 
 				    //fixme: do we need to notify joinedTo when sdp info changes? 
@@ -209,7 +208,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
  
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
 		val request = requestEvent.getRequest()
-      	val conn = telco.getConnection(getCallId(request))
+      	val conn = telco.getConnection(getCallId(request))//FIXME: return an option and foreach on it... prevent NPE
 		conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
 	}  		
    
@@ -218,7 +217,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		var transaction = re.getClientTransaction()
 		val conn = telco.getConnection(getCallId(re))
 		if ( null == transaction) { //we already got a 200OK and the TX was terminated...
-			debug(" transaction is null right away!?!?!? re = " + re.getDialog())
+			debug(" transaction is null right away re = " + re.getDialog())
 			return 
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
@@ -243,22 +242,17 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)
 		    							val returnedSdp = SdpHelper.getSdp(asResponse(re).getRawContent())
-		    							println("response wiht SDP = " + returnedSdp)
 				  						SdpHelper.addMediaTo(conn.sdp, returnedSdp )
 				  						conn.dialog = Some( re.getDialog() )
 				  						
 				  						conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() ))
-				  						conn.joinedTo.foreach( joined=> {
-				  							if (SdpHelper.isBlankSdp(joined.sdp) )
+				  						conn.joinedTo.foreach( joined => 
+				  							if (SdpHelper.isBlankSdp(conn.sdp) ) { 
 				  								conn.setState(VERSIONED_SILENCED( transaction.getBranchId()))
-				  						})
-				  						
-				  						/*
-				  						if ( conn.connectionState == CONNECTED() && SdpHelper.isBlankSdp( conn.sdp ) ) {
-				  					        conn.setState(VERSIONED_HOLD( transaction.getBranchId() ))
-				  						} else {
-				  						    conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() )) //Is a joined state worth it?
-				  						}*/
+				  							
+				  							}
+				  					    )
+				  						    	
 				  						            
 		    				case Request.CANCEL =>
 		    				    conn.setState(VERSIONED_CANCELED( transaction.getBranchId() ) )
@@ -295,12 +289,11 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
 		conn.setConnectionid(getCallId(request))
 		telco.addConnection(conn)
-		println("sendInvite")
 		conn.clientTx.get.sendRequest()
 	}
  
 	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
-		println("SDP = " + sdp)
+		//log("SDP = " + sdp)
 		val request = conn.dialog.get.createRequest(Request.INVITE)
         request.removeHeader("contact")//The one from the createRequest is the listeningIP..., same with the via
         request.removeHeader("via")
@@ -317,7 +310,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         conn.clientTx =	Some(this.sipProvider.get.getNewClientTransaction(byeRequest))
         conn.dialog.get.sendRequest(conn.clientTx.get)
 	} 
-    
+
 	override def processTimeout(timeout:TimeoutEvent) {
 	    error("==================================================r processTimeout!")
 	}

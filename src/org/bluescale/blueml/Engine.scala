@@ -49,7 +49,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case dial:Dial => 
                 dialJoin(conn, dial, verbs.tail)
             case play:Play => 
-                println("playing...")
                 val mediaConn = new JlibMediaConnection(telcoServer)
                 mediaConn.joinPlay(play.mediaUrl, conn, ()=> handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ))
                 handleBlueML(conn, verbs.tail)
@@ -114,10 +113,10 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             postCallStatus(dial.url, destConn)
             conn.direction match {
                 case i:INCOMING =>
-                            conn.accept( ()=>
+                            conn.accept( ()=> {
                                  conn.join(destConn, ()=> 
                                     postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
-                                )
+                               } )
                                 
                 case o:OUTGOING =>
                             conn.join(destConn, ()=> 

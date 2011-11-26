@@ -84,7 +84,6 @@ class JainSipConnection protected[telco](
  	override def connect(join:Joinable[_], callback:FinishFunction) : Unit = connect(join, false, callback) 
 
     protected[telco] override def connect(join:Joinable[_], connectAnyMedia:Boolean, callback:()=>Unit) = wrapLock {
-        println("current state = "+ state)
         state.getState match {
             case s:UNCONNECTED =>
                 newConnect(join, connectAnyMedia,callback)
@@ -242,7 +241,6 @@ class JainSipConnection protected[telco](
     }
 
 	private def joinConnected(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
-		println("------- joinConnected, this = " + this + " otherCall.sdp = " + otherCall.sdp)
 		otherCall.connect(this,()=>{
 		   	this.reconnect(otherCall, ()=>{
     		    this._joinedTo = Some(otherCall)  
@@ -310,7 +308,7 @@ class JainSipConnection protected[telco](
     }
 
     override def toString() = 
-	    "JainSipConnection " + direction + " TO:"+destination + " Hashcode = " + hashCode
+	    "JainSipConnection " + direction + " TO:"+destination + " State = " + state + " Hashcode = " + hashCode
 
 }
  

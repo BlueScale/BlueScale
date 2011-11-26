@@ -42,9 +42,14 @@ object WebApiFunctionalTest {
         println(" TEEEEEEEST" )
         wt.setUp()
         //wt.tempTest()
-        //wt.testClickToCall()
-        //wt.testIncomingCall()
+        wt.testClickToCall()
+        wt.tearDown()
+        wt.setUp()
+        wt.testIncomingCall()
+        wt.tearDown()
+        wt.setUp()
         wt.testIncomingForward()
+        wt.tearDown()
         println("Doooooooooooooone")
     }
 }
@@ -100,8 +105,10 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         testWS.setNextResponse( request=> "" ) //this is telling us the callID of the other end...
 
         //API is now going to tell us the call is connected!. We don't need to respond with anything
-        testWS.setNextResponse( (request:HttpServletRequest)=> { 
+        testWS.setNextResponse( (request:HttpServletRequest)=> {
+             
             assertEquals( inConn.connectionState, CONNECTED() )
+            assertEquals( "Connected", request.getParameter("ConversationStatus"))
             assertFalse( SdpHelper.isBlankSdp(inConn.sdp))
             println(" ---------------------------- testIncomingCall, we've joined -------------")
             inConn.disconnect( ()=>println("disconnected") )
@@ -123,7 +130,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
     @Test
     def testIncomingForward() {
-        println("test incoming forward")
+        println("test incoming forward///////////////////")
         val joinedLatch = new CountDownLatch(1)
         var callid:Option[String] = None
 
