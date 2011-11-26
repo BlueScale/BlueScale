@@ -33,7 +33,7 @@ class MyHandler(BaseHTTPRequestHandler):
         str = """
                 <Response>
                     <Play>
-                        <Action>http://localhost:8100</Action>
+                        <Action>http://localhost:8100/Status</Action>
                         <MediaUrl>""" + filename + """</MediaUrl>
                     </Play>>
                 </Response>
