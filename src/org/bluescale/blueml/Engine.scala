@@ -69,7 +69,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case o:OUTGOING => 
                         f()
         }
-        handleBlueML(conn, verbs.tail)
+        handleBlueML(conn, verbs)
     }
     
     protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = { 
