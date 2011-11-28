@@ -86,9 +86,11 @@ class JainSipConnection protected[telco](
     protected[telco] override def connect(join:Joinable[_], connectAnyMedia:Boolean, callback:()=>Unit) = wrapLock {
         state.getState match {
             case s:UNCONNECTED =>
+                if (direction == INCOMING())
+                    throw new Exception("must accept the call first!")
                 newConnect(join, connectAnyMedia,callback)
             case s:CONNECTED =>
-             reconnect(join, callback)
+                reconnect(join, callback)
         }
     }
     

@@ -49,13 +49,27 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case dial:Dial => 
                 dialJoin(conn, dial, verbs.tail)
             case play:Play => 
-                val mediaConn = new JlibMediaConnection(telcoServer)
-                mediaConn.joinPlay(play.mediaUrl, conn, ()=> handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ))
-                handleBlueML(conn, verbs.tail)
+                handlePlay(conn, play, verbs.tail)    
             case hangup:Hangup =>
             	conn.disconnect( ()=> postCallStatus(hangup.url,conn))
             	
         }
+    }
+
+    protected def handlePlay(conn:SipConnection, play:Play, verbs:Seq[BlueMLVerb]) = {
+        val mediaConn = new JlibMediaConnection(telcoServer)
+        val f = ()=>
+            mediaConn.joinPlay(play.mediaUrl, conn, ()=> handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ))
+        conn.direction match {
+            case i:INCOMING => 
+                conn.connectionState match {
+                    case CONNECTED() => f()
+                    case UNCONNECTED() => conn.accept(f)
+                } 
+            case o:OUTGOING => 
+                        f()
+        }
+        handleBlueML(conn, verbs.tail)
     }
     
     protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = { 
@@ -82,13 +96,8 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 })
             
-            case _ => 
-                conn.direction match {
-                    case i:INCOMING =>
-                        connectAnswer(conn, destConn, dial)
-                    case o:OUTGOING => 
-                        connectAnswer(conn, destConn, dial)
-                }
+            case _ => connectAnswer(conn, destConn, dial)
+                
         }
     
         dial.ringLimit match {

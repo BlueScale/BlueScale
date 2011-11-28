@@ -105,3 +105,12 @@ class MediaWebApiFunctionalTest extends junit.framework.TestCase {
         			</Play>
                 </Response>).toString()
 }
+
+object MediaWebApiFunctionalTest {
+    def main(args:Array[String]) =  { 
+        val test = new MediaWebApiFunctionalTest()
+        test.setUp()
+        test.testPlayMediaIncomingCall()
+        test.tearDown()
+    }
+}
