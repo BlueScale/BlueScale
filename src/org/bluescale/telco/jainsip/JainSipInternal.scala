@@ -285,6 +285,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	
 	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
 		val request = inviteCreator.getInviteRequest(conn.origin, conn.destination, sdp.toString().getBytes())
+		//FIXME: add FROM
 		request.addHeader(inviteCreator.getViaHeader().get(0))
 		conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
@@ -292,14 +293,14 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		telco.addConnection(conn)
 		conn.clientTx.get.sendRequest()
 	}
- 
-	def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
+
+    def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
 		//log("SDP = " + sdp)
 		val request = conn.dialog.get.createRequest(Request.INVITE)
         request.removeHeader("contact")//The one from the createRequest is the listeningIP..., same with the via
         request.removeHeader("via")
         request.addHeader(inviteCreator.getViaHeader().get(0))
-		conn.contactHeader.foreach( request.addHeader(_) )//neccessary?
+		request.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":" + port)))
 		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
 		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
