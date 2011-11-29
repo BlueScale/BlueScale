@@ -285,6 +285,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	
 	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
 		val request = inviteCreator.getInviteRequest(conn.origin, conn.destination, sdp.toString().getBytes())
+		request.addHeader(inviteCreator.getViaHeader().get(0))
 		conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
 		conn.setConnectionid(getCallId(request))
