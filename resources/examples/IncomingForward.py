@@ -6,10 +6,13 @@ number =""
 
 class MyHandler(BaseHTTPRequestHandler):
 
+    params = {}
+    
     def do_GET(self):
         self.do_POST()
 
     def do_POST(self):
+        self.parseParams()
         if self.path == "/Status":
             print("PATH = STATUS")
             self.printParams()
@@ -19,10 +22,12 @@ class MyHandler(BaseHTTPRequestHandler):
             self.handleIncomingCall()   
 
     def printParams(self):
-        params = self.parseParams()
-        for field in params.keys():
-            print( field + "=" + "".join(params[field]))
-    
+        for field in self.params.keys():
+            print( field + "=" + "".join(self.params[field]))
+
+    def getParam(self,name):
+        return "".join(self.params[name])
+
     def postOK(self):
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
@@ -34,17 +39,18 @@ class MyHandler(BaseHTTPRequestHandler):
                 <Response>
                     <Dial>
                         <Number>""" + number + """</Number>
+                        <From>""" + self.getParam("To") + """ </From>
                         <Action>http://127.0.0.1:8081/Status</Action>
                     </Dial>
                 </Response>
             """
+        #print( "responding with ")
         self.wfile.write(str)
         return
 
     def parseParams(self):
         length = int(self.headers.getheader('Content-Length'))
-        params = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
-        return params
+        self.params = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
 
 
 def main():
