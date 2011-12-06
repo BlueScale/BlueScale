@@ -47,8 +47,8 @@ object BlueMLParser extends Util {
 
     private def parseDial(n:Node) : Dial = 
         new Dial( GetNonEmpty((n \ "Number").text, n.text),
-                  (n \ "From").text,
-                  (n \ "Action").text,
+                  fixNumber((n \ "From").text),
+                  fixNumber((n \ "Action") .text),
                   parseInt((n \ "RingLimit").text))
                   
    private def parsePlay(n:Node) : Play = 
@@ -64,6 +64,14 @@ object BlueMLParser extends Util {
         }
     private def parseHangup(n:Node)  = 
       new Hangup( (n \ "Action").text)
+
+    private def fixNumber(number:String) =
+        number.replace(" ", "")
+    
+    
+
+
+
 }
 
 
