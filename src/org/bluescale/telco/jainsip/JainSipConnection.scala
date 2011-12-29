@@ -57,7 +57,7 @@ class JainSipConnection protected[telco](
     
     override def origin = from 
     
-    private var _joinedTo:Option[Joinable[_]] = None
+    private var _joinedTo:Option[Joinable[_]] = None // should be in the Joined trait
     
     override def joinedTo = _joinedTo
 	
@@ -110,12 +110,15 @@ class JainSipConnection protected[telco](
     }
 
     private def fireReinvite(join:Joinable[_], f:FinishFunction) {
+        /*
         telco.internal.sendReinvite(this, join.sdp)
         val toState = new VERSIONED_CONNECTED(clientTx.get.getBranchId())
 	    setFinishFunction(toState, f)
+        */
     }
 
     private def reconnect(join:Joinable[_], callback:FinishFunction) : Unit = wrapLock {
+    	/*
     	val reconnectCallback = ()=>{
     	  _joinedTo = Some(join)
     	  callback()
@@ -134,19 +137,21 @@ class JainSipConnection protected[telco](
                 else
                     fireReinvite(join, reconnectCallback)
         }
+        */
     }
 
    override def onConnect(callback:FinishFunction) = wrapLock {
-        connectionState match {
+        /*connectionState match {
             case CONNECTED() =>
                 callback()
             case  UNCONNECTED() | RINGING() =>
                 setFinishFunction(new VERSIONED_CONNECTED(clientTx.get.getBranchId()), callback )
         }
+        */
     }
                 
     override def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
-        val f = ()=> {
+        /*val f = ()=> {
           this._joinedTo = Some(toJoin)
           toJoin.connect(this, connectedCallback)
         }
@@ -157,37 +162,41 @@ class JainSipConnection protected[telco](
                 
 	        case _ => 
 	            throw new InvalidStateException(new UNCONNECTED(), connectionState)
-	    }       
+	    }
+	    */
     }
 
     override def accept(connectedCallback:FinishFunction) = wrapLock {
-	    accept(SdpHelper.getBlankJoinable(telco.contactIp), connectedCallback) ///BUG HERE?
+	    //accept(SdpHelper.getBlankJoinable(telco.contactIp), connectedCallback) ///BUG HERE?
 	}
 
     override def ring() =
         ring(SdpHelper.getBlankJoinable(telco.contactIp))
     
 	override def ring(toJoin:Joinable[_]) = wrapLock {
+        /*
         connectionState match {
             case UNCONNECTED() =>
                 telco.internal.sendResponse(180, serverTx, toJoin.sdp.toString().getBytes())
             case _ =>
                 throw new InvalidStateException(new UNCONNECTED, connectionState)
         }
+        */
 	}
  
 	override def reject(rejectCallback:FinishFunction) = wrapLock {
-		telco.internal.sendResponse(606, serverTx, listeningSdp.toString().getBytes())
-		setFinishFunction(VERSIONED_UNCONNECTED(serverTx.get.getBranchId()), rejectCallback) 
+		//telco.internal.sendResponse(606, serverTx, listeningSdp.toString().getBytes())
+		//setFinishFunction(VERSIONED_UNCONNECTED(serverTx.get.getBranchId()), rejectCallback) 
 	}
  
 	override def disconnect(disconnectCallback:FinishFunction) = wrapLock {
-		telco.internal.sendByeRequest(this)
+		/*telco.internal.sendByeRequest(this)
         val f = ()=> {
                         onDisconnect()
                         disconnectCallback()
         }
         setFinishFunction(VERSIONED_UNCONNECTED(clientTx.get.getBranchId()), f)
+        */
   	}
 
   	override def cancel(f:FinishFunction) =  
@@ -197,7 +206,7 @@ class JainSipConnection protected[telco](
       	}
 
   	protected def cancelIncoming(cancelCallback:FinishFunction) = wrapLock {
-        connectionState match {
+        /*connectionState match {
             case UNCONNECTED() => 
                 state = VERSIONED_CANCELED("") //not waiting on anything, no need
                 //need to wipe the state map!
@@ -208,11 +217,11 @@ class JainSipConnection protected[telco](
 
             case CONNECTED() => println("too late!")//don't think I gotta do anything here according to SIP
         }
+        */
   	}
 
   	protected def cancelOutgoing(cancelCallback:FinishFunction) = wrapLock {
-        //to implement
-        connectionState match {
+        /*connectionState match {
             case PROGRESSING() | UNCONNECTED() | RINGING() =>
                 clientTx.foreach( tx => {
                     telco.internal.sendCancel(this)
@@ -221,10 +230,11 @@ class JainSipConnection protected[telco](
             
             case _ => 
                 throw new InvalidStateException(new PROGRESSING(), connectionState )
-        }
+        }*/
   	}
     
   	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
+  	    /*
   	    if (connectionState != CONNECTED())
   	        throw new InvalidStateException( new CONNECTED(), connectionState )
         
@@ -240,33 +250,40 @@ class JainSipConnection protected[telco](
             case CONNECTED() =>
                 joinConnected(otherCall, joinCallback)
         }
+        */
     }
 
 	private def joinConnected(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
+		/*
 		otherCall.connect(this,()=>{
 		   	this.reconnect(otherCall, ()=>{
     		    this._joinedTo = Some(otherCall)  
 	    		joinCallback()
 	    	}) 
 	    })
+	    */
 	}
 
     //maybe rename to Mute?  It makes it so this SipConnection stops receieve to anything...
     def silence(silenceCallback:FinishFunction) = wrapLock {
+    	/*
     	SdpHelper.addMediaTo(listeningSdp, SdpHelper.getBlankSdp(telco.contactIp))
       	telco.internal.sendReinvite(this,listeningSdp) //SWAPED THIS
         setFinishFunction(new VERSIONED_SILENCED(clientTx.get.getBranchId()), silenceCallback)
+        */
     }
 
     override def hold(f:FinishFunction) : Unit = wrapLock {
+        /*
         joinedTo match {
             case None => this.reconnect(SdpHelper.getBlankJoinable(telco.contactIp), f)//silence(f)
             case Some(otherConn) => otherConn.connect(SdpHelper.getBlankJoinable(telco.contactIp), ()=>hold(f))
         }
+        */
     }    
 
 	override def unjoin(f:FinishFunction) = wrapLock {
-		val unjoined = this._joinedTo.get
+		/*val unjoined = this._joinedTo.get
 		this._joinedTo = None
         disconnectOnUnjoin match {
 	        case true =>
@@ -278,6 +295,7 @@ class JainSipConnection protected[telco](
 	        case false =>
 	            unjoinCallback.foreach( _(unjoined, this) )
 	    }
+	    */
 	}
   
     protected def onDisconnect() = wrapLock {
@@ -287,6 +305,12 @@ class JainSipConnection protected[telco](
          })
     }
 
+    protected[telco] def setSipState(s:SipState) : Unit = {
+        //set sipState
+
+    }
+    
+    /*
     protected[telco] def setState(s:VersionedState) : Unit = {
         lock()
         //`println(" SET STATE CALLED FOR " + this + " s = " + s)
@@ -308,7 +332,7 @@ class JainSipConnection protected[telco](
         }
         unlock()
     }
-
+    */
     override def toString() = 
 	    "JainSipConnection " + direction + " TO:"+destination + " State = " + state + " Hashcode = " + hashCode
 

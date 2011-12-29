@@ -1,0 +1,351 @@
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mInitial source changes: [0m
+[0m[[0mdebug[0m] [0m	removed:Set()[0m
+[0m[[0mdebug[0m] [0m	added: Set(/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/media/jlibrtp/MediaFileManager.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/BlueMLParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Connectable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/Util.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/JlibMediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/Lockable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/SdpHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Util.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Connectable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/SipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/SdpHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/WebServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/VersionedState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/WebUtil.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/JainSipInternal.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Answerable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/InviteCreator.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Lockable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/B2BServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/Joinable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/MediaFileManager.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/StateExecutor.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/media/jlibrtp/JlibMediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/LogHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/SipTelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/SipData.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/CallRepl.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/WebServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/ConfigParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/B2BServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Types.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Types.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/TelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/CallRepl.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/OrderedExecutable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipData.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/TelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/InviteCreator.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/WebUtil.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/MediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/Launcher.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipTelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Playable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/Joinable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/ConfigParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/JainSipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/Engine.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/InvalidStateException.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/LogHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/Engine.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/SequentialWebPoster.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/Launcher.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Playable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipInternal.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Answerable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/SequentialWebPoster.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/StateExecutor.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/InvalidStateException.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/SipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/OrderedExecutable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/ConnectionState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala)[0m
+[0m[[0mdebug[0m] [0m	modified: Set()[0m
+[0m[[0mdebug[0m] [0mRemoved products: Set()[0m
+[0m[[0mdebug[0m] [0mModified external sources: Set()[0m
+[0m[[0mdebug[0m] [0mModified binary dependencies: Set()[0m
+[0m[[0mdebug[0m] [0mInitial directly invalidated sources: Set(/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/media/jlibrtp/MediaFileManager.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/BlueMLParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Connectable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/Util.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/JlibMediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/Lockable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/SdpHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Util.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Connectable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/SipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/SdpHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/WebServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/VersionedState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/WebUtil.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/JainSipInternal.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Answerable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/InviteCreator.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Lockable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/B2BServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/Joinable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/MediaFileManager.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/StateExecutor.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/media/jlibrtp/JlibMediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/LogHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/SipTelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/SipData.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/CallRepl.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/WebServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/ConfigParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/B2BServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Types.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Types.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/TelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/CallRepl.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/OrderedExecutable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipData.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/TelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/InviteCreator.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/WebUtil.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/MediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/Launcher.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipTelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Playable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/Joinable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/ConfigParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/JainSipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/Engine.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/InvalidStateException.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/LogHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/Engine.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/SequentialWebPoster.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/Launcher.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Playable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipInternal.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Answerable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/SequentialWebPoster.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/StateExecutor.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/InvalidStateException.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/SipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/OrderedExecutable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/ConnectionState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mSources indirectly invalidated by:[0m
+[0m[[0mdebug[0m] [0m	product: Set()[0m
+[0m[[0mdebug[0m] [0m	binary dep: Set()[0m
+[0m[[0mdebug[0m] [0m	external source: Set()[0m
+[0m[[0mdebug[0m] [0mInitially invalidated: Set(/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/media/jlibrtp/MediaFileManager.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/BlueMLParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Connectable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/Util.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/JlibMediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/Lockable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/SdpHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Util.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Connectable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/SipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/SdpHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/WebServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/VersionedState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/WebUtil.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/JainSipInternal.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Answerable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/InviteCreator.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Lockable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/B2BServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/Joinable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/MediaFileManager.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/StateExecutor.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/media/jlibrtp/JlibMediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/LogHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/SipTelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/SipData.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/CallRepl.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/WebServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/ConfigParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/B2BServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Types.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Types.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/TelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/CallRepl.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/OrderedExecutable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipData.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/TelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/InviteCreator.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/WebUtil.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/MediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/Launcher.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipTelcoServer.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Playable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/Joinable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/ConfigParser.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/JainSipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/Engine.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/InvalidStateException.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/LogHelper.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/Engine.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/SequentialWebPoster.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/Launcher.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Playable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipInternal.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Answerable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/SequentialWebPoster.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/StateExecutor.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/InvalidStateException.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/SipConnection.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/OrderedExecutable.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/ConnectionState.scala, /Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala)[0m
+[0m[[0minfo[0m] [0mCompiling 66 Scala sources to /Users/vmarquez/Documents/newWorkspace/BlueScale/target/scala-2.9.1/classes...[0m
+[0m[[0mdebug[0m] [0mInterfacing (CompilerInterface) with Scala compiler version 2.9.1.final[0m
+[0m[[0mdebug[0m] [0mCalling Scala compiler with arguments  (CompilerInterface):[0m
+[0m[[0mdebug[0m] [0m	-d[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/target/scala-2.9.1/classes[0m
+[0m[[0mdebug[0m] [0m	-bootclasspath[0m
+[0m[[0mdebug[0m] [0m	/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/jsfd.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/classes.jar:/System/Library/Frameworks/JavaVM.framework/Frameworks/JavaRuntimeSupport.framework/Resources/Java/JavaRuntimeSupport.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/ui.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/laf.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/sunrsasign.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/jsse.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/jce.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/charsets.jar:/Users/vmarquez/.sbt/boot/scala-2.9.1/lib/scala-library.jar[0m
+[0m[[0mdebug[0m] [0m	-classpath[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/target/scala-2.9.1/classes:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/fmj.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/jain-sip-api-1.2.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/jain-sip-ri-1.2.108.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/jain-sip-sdp-1.2.108.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/jetty-6.1.0.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/jetty-util-6.1.0.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/jlibrtp.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/js.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/junit-4.8.2.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/log4j-1.2.8.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/scala-compiler.jar:/Users/vmarquez/Documents/newWorkspace/BlueScale/lib/servlet-api-2.5.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/BlueMLParser.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/Engine.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/blueml/SequentialWebPoster.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/CallRepl.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/ConfigParser.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/Launcher.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/server/WebServer.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Answerable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Connectable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Playable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/SdpHelper.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/StateExecutor.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/Types.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/VersionedState.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/ConnectionState.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/InvalidStateException.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/Joinable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/MediaConnection.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/SipConnection.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/api/TelcoServer.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/B2BServer.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/InviteCreator.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/JainSipConnection.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/JainSipInternal.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/SipData.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/jainsip/SipTelcoServer.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/media/jlibrtp/JlibMediaConnection.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/telco/media/jlibrtp/MediaFileManager.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/Lockable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/LogHelper.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/OrderedExecutable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/Util.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/bluescale/util/WebUtil.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/Engine.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/SequentialWebPoster.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/CallRepl.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/ConfigParser.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/Launcher.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/WebServer.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Answerable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Connectable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Playable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/SdpHelper.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/StateExecutor.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Types.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/InvalidStateException.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/Joinable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/SipConnection.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/TelcoServer.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/B2BServer.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/InviteCreator.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipConnection.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipInternal.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipData.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipTelcoServer.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/JlibMediaConnection.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/MediaFileManager.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Lockable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/LogHelper.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/OrderedExecutable.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Util.scala[0m
+[0m[[0mdebug[0m] [0m	/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/WebUtil.scala[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala:30: BlueMLParser is already defined as object BlueMLParser[0m
+[0m[[31merror[0m] [0mobject BlueMLParser extends Util {[0m
+[0m[[31merror[0m] [0m       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala:78: BlueMLVerb is already defined as trait BlueMLVerb[0m
+[0m[[31merror[0m] [0mtrait BlueMLVerb[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala:81: Play is already defined as case class Play[0m
+[0m[[31merror[0m] [0mcase class Play(val loop:Int = 0,[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala:85: Dial is already defined as case class Dial[0m
+[0m[[31merror[0m] [0mcase class Dial(val number:String,[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala:90: Hangup is already defined as case class Hangup[0m
+[0m[[31merror[0m] [0mcase class Hangup(val url:String) extends BlueMLVerb[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/BlueMLParser.scala:92: Hold is already defined as case class Hold[0m
+[0m[[31merror[0m] [0mcase class Hold() extends BlueMLVerb[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/Engine.scala:33: Engine is already defined as class Engine[0m
+[0m[[31merror[0m] [0mclass Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/Engine.scala:243: ConversationInfo is already defined as class ConversationInfo[0m
+[0m[[31merror[0m] [0mclass ConversationInfo( val conn1:SipConnection, [0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/SequentialWebPoster.scala:30: SequentialWebPoster is already defined as class SequentialWebPoster[0m
+[0m[[31merror[0m] [0mprotected class SequentialWebPoster(url:String) extends Actor {[0m
+[0m[[31merror[0m] [0m                ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/blueml/SequentialWebPoster.scala:54: SequentialWebPoster is already defined as object SequentialWebPoster[0m
+[0m[[31merror[0m] [0mobject SequentialWebPoster {[0m
+[0m[[31merror[0m] [0m       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/CallRepl.scala:35: CallRepl is already defined as class CallRepl[0m
+[0m[[31merror[0m] [0mclass CallRepl(telco:TelcoServer) {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/ConfigParser.scala:31: ConfigParser is already defined as class ConfigParser[0m
+[0m[[31merror[0m] [0mclass ConfigParser(val filename:String) {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/Launcher.scala:36: Launcher is already defined as class Launcher[0m
+[0m[[31merror[0m] [0mclass Launcher {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/Launcher.scala:39: Launcher is already defined as object Launcher[0m
+[0m[[31merror[0m] [0mobject Launcher {[0m
+[0m[[31merror[0m] [0m       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/WebServer.scala:47: WebServer is already defined as class WebServer[0m
+[0m[[31merror[0m] [0mclass WebServer(apiPort:Int,[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/server/WebServer.scala:76: CallServlet is already defined as class CallServlet[0m
+[0m[[31merror[0m] [0mclass CallServlet(telcoServer:TelcoServer,[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Answerable.scala:28: DIRECTION is already defined as case class DIRECTION[0m
+[0m[[31merror[0m] [0mcase class DIRECTION[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Answerable.scala:30: INCOMING is already defined as case class INCOMING[0m
+[0m[[31merror[0m] [0mcase class INCOMING extends DIRECTION[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Answerable.scala:32: OUTGOING is already defined as case class OUTGOING[0m
+[0m[[31merror[0m] [0mcase class OUTGOING extends DIRECTION[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Answerable.scala:34: Answerable is already defined as trait Answerable[0m
+[0m[[31merror[0m] [0mprotected[telco] trait Answerable {[0m
+[0m[[31merror[0m] [0m                       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Connectable.scala:26: Connectable is already defined as trait Connectable[0m
+[0m[[31merror[0m] [0mprotected[telco] trait Connectable[T] {[0m
+[0m[[31merror[0m] [0m                       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Playable.scala:26: Playable is already defined as trait Playable[0m
+[0m[[31merror[0m] [0mprotected[telco] trait Playable {[0m
+[0m[[31merror[0m] [0m                       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/SdpHelper.scala:48: SdpHelper is already defined as object SdpHelper[0m
+[0m[[31merror[0m] [0mobject SdpHelper {[0m
+[0m[[31merror[0m] [0m       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/SdpHelper.scala:135: SdpJoinable is already defined as class SdpJoinable[0m
+[0m[[31merror[0m] [0mclass SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/StateExecutor.scala:29: StateExecutor is already defined as trait StateExecutor[0m
+[0m[[31merror[0m] [0mtrait StateExecutor  {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/Types.scala:26: Types is already defined as object Types[0m
+[0m[[31merror[0m] [0mobject Types {[0m
+[0m[[31merror[0m] [0m       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala:28: VersionedState is already defined as trait VersionedState[0m
+[0m[[31merror[0m] [0mtrait VersionedState {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala:33: VERSIONED_HASMEDIA is already defined as class VERSIONED_HASMEDIA[0m
+[0m[[31merror[0m] [0mclass VERSIONED_HASMEDIA(val version:String) extends VersionedState {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala:37: VERSIONED_CONNECTED is already defined as case class VERSIONED_CONNECTED[0m
+[0m[[31merror[0m] [0mcase class VERSIONED_CONNECTED(v:String) extends VERSIONED_HASMEDIA(v) {[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala:41: VERSIONED_SILENCED is already defined as case class VERSIONED_SILENCED[0m
+[0m[[31merror[0m] [0mcase class VERSIONED_SILENCED(val version:String) extends VersionedState {[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala:45: VERSIONED_UNCONNECTED is already defined as case class VERSIONED_UNCONNECTED[0m
+[0m[[31merror[0m] [0mcase class VERSIONED_UNCONNECTED(val version:String) extends VersionedState {[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala:49: VERSIONED_PROGRESSING is already defined as case class VERSIONED_PROGRESSING[0m
+[0m[[31merror[0m] [0mcase class VERSIONED_PROGRESSING(val version:String) extends VersionedState {[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala:53: VERSIONED_CANCELED is already defined as case class VERSIONED_CANCELED[0m
+[0m[[31merror[0m] [0mcase class VERSIONED_CANCELED(val version:String) extends VersionedState {[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/VersionedState.scala:57: VERSIONED_RINGING is already defined as case class VERSIONED_RINGING[0m
+[0m[[31merror[0m] [0mcase class VERSIONED_RINGING(v:String) extends VERSIONED_HASMEDIA(v) {[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:26: ConnectionState is already defined as trait ConnectionState[0m
+[0m[[31merror[0m] [0mtrait ConnectionState {}[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:28: HASMEDIA is already defined as class HASMEDIA[0m
+[0m[[31merror[0m] [0mclass HASMEDIA extends ConnectionState[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:30: CONNECTED is already defined as case class CONNECTED[0m
+[0m[[31merror[0m] [0mcase class CONNECTED() extends HASMEDIA[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:32: SILENCED is already defined as case class SILENCED[0m
+[0m[[31merror[0m] [0mcase class SILENCED() extends ConnectionState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:34: UNCONNECTED is already defined as case class UNCONNECTED[0m
+[0m[[31merror[0m] [0mcase class UNCONNECTED() extends ConnectionState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:36: PROGRESSING is already defined as case class PROGRESSING[0m
+[0m[[31merror[0m] [0mcase class PROGRESSING() extends ConnectionState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:38: ALERTING is already defined as case class ALERTING[0m
+[0m[[31merror[0m] [0mcase class ALERTING() extends ConnectionState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:40: CANCELED is already defined as case class CANCELED[0m
+[0m[[31merror[0m] [0mcase class CANCELED() extends ConnectionState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/ConnectionState.scala:42: RINGING is already defined as case class RINGING[0m
+[0m[[31merror[0m] [0mcase class RINGING() extends HASMEDIA [0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/InvalidStateException.scala:28: InvalidStateException is already defined as class InvalidStateException[0m
+[0m[[31merror[0m] [0mclass InvalidStateException(val expected:ConnectionState,[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/Joinable.scala:31: Joinable is already defined as trait Joinable[0m
+[0m[[31merror[0m] [0mtrait Joinable[T] {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/Joinable.scala:54: UnjoinReason is already defined as trait UnjoinReason[0m
+[0m[[31merror[0m] [0mtrait UnjoinReason[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/Joinable.scala:56: HoldUnjoin is already defined as case class HoldUnjoin[0m
+[0m[[31merror[0m] [0mcase class HoldUnjoin extends UnjoinReason[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/Joinable.scala:58: DisconnectUnjoin is already defined as case class DisconnectUnjoin[0m
+[0m[[31merror[0m] [0mcase class DisconnectUnjoin extends UnjoinReason[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala:29: MediaConnection is already defined as trait MediaConnection[0m
+[0m[[31merror[0m] [0mtrait MediaConnection[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala:41: MediaState is already defined as class MediaState[0m
+[0m[[31merror[0m] [0mclass MediaState[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala:43: PLAYING is already defined as case class PLAYING[0m
+[0m[[31merror[0m] [0mcase class PLAYING extends MediaState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala:44: RECORDING is already defined as case class RECORDING[0m
+[0m[[31merror[0m] [0mcase class RECORDING extends MediaState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala:45: PLAYINGRECORDING is already defined as case class PLAYINGRECORDING[0m
+[0m[[31merror[0m] [0mcase class PLAYINGRECORDING extends MediaState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/MediaConnection.scala:46: SILENT is already defined as case class SILENT[0m
+[0m[[31merror[0m] [0mcase class SILENT extends MediaState[0m
+[0m[[31merror[0m] [0m           ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/SipConnection.scala:28: SipConnection is already defined as trait SipConnection[0m
+[0m[[31merror[0m] [0mtrait SipConnection [0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/api/TelcoServer.scala:29: TelcoServer is already defined as trait TelcoServer[0m
+[0m[[31merror[0m] [0mtrait TelcoServer {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/B2BServer.scala:45: B2BServer is already defined as class B2BServer[0m
+[0m[[31merror[0m] [0mclass B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/InviteCreator.scala:35: InviteCreator is already defined as class InviteCreator[0m
+[0m[[31merror[0m] [0mclass InviteCreator(val sipServer:JainSipInternal) {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipConnection.scala:41: JainSipConnection is already defined as class JainSipConnection[0m
+[0m[[31merror[0m] [0mclass JainSipConnection protected[telco]([0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/JainSipInternal.scala:46: JainSipInternal is already defined as class JainSipInternal[0m
+[0m[[31merror[0m] [0mprotected[jainsip] class JainSipInternal(telco:SipTelcoServer,[0m
+[0m[[31merror[0m] [0m                         ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipData.scala:29: SipData is already defined as trait SipData[0m
+[0m[[31merror[0m] [0mtrait SipData {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/jainsip/SipTelcoServer.scala:37: SipTelcoServer is already defined as class SipTelcoServer[0m
+[0m[[31merror[0m] [0mclass SipTelcoServer([0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/JlibMediaConnection.scala:41: JlibMediaConnection is already defined as class JlibMediaConnection[0m
+[0m[[31merror[0m] [0mclass JlibMediaConnection(telco:TelcoServer) extends MediaConnection {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/JlibMediaConnection.scala:142: JlibMediaConnection is already defined as object JlibMediaConnection[0m
+[0m[[31merror[0m] [0mobject JlibMediaConnection {[0m
+[0m[[31merror[0m] [0m       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/telco/media/jlibrtp/MediaFileManager.scala:36: MediaFileManager is already defined as object MediaFileManager[0m
+[0m[[31merror[0m] [0mobject MediaFileManager {[0m
+[0m[[31merror[0m] [0m       ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Lockable.scala:29: Lockable is already defined as trait Lockable[0m
+[0m[[31merror[0m] [0mtrait Lockable {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Lockable.scala:51: ConcurrencyException is already defined as class ConcurrencyException[0m
+[0m[[31merror[0m] [0mclass ConcurrencyException extends Exception[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/LogHelper.scala:6: LogHelper is already defined as trait LogHelper[0m
+[0m[[31merror[0m] [0mtrait LogHelper {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/OrderedExecutable.scala:30: OrderedExecutable is already defined as trait OrderedExecutable[0m
+[0m[[31merror[0m] [0mtrait OrderedExecutable[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/Util.scala:28: Util is already defined as trait Util[0m
+[0m[[31merror[0m] [0mtrait Util {[0m
+[0m[[31merror[0m] [0m      ^[0m
+[0m[[31merror[0m] [0m/Users/vmarquez/Documents/newWorkspace/BlueScale/src/main/scala/org/util/WebUtil.scala:31: WebUtil is already defined as object WebUtil[0m
+[0m[[31merror[0m] [0mobject WebUtil {[0m
+[0m[[31merror[0m] [0m       ^[0m
+[0m[[31merror[0m] [0m71 errors found[0m
+[0m[[0mdebug[0m] [0mCompilation failed (CompilerInterface)[0m
+Compilation failed
+	at xsbt.CompilerInterface.run(CompilerInterface.scala:93)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at sbt.compiler.AnalyzingCompiler.call(AnalyzingCompiler.scala:57)
+	at sbt.compiler.AnalyzingCompiler.compile(AnalyzingCompiler.scala:29)
+	at sbt.compiler.AnalyzingCompiler.compile(AnalyzingCompiler.scala:25)
+	at sbt.AggressiveCompile$$anonfun$5.compileScala$1(AggressiveCompile.scala:67)
+	at sbt.AggressiveCompile$$anonfun$5.apply(AggressiveCompile.scala:79)
+	at sbt.AggressiveCompile$$anonfun$5.apply(AggressiveCompile.scala:57)
+	at sbt.inc.IncrementalCompile$$anonfun$doCompile$1.apply(Compile.scala:21)
+	at sbt.inc.IncrementalCompile$$anonfun$doCompile$1.apply(Compile.scala:19)
+	at sbt.inc.Incremental$.cycle(Incremental.scala:33)
+	at sbt.inc.Incremental$.compile(Incremental.scala:20)
+	at sbt.inc.IncrementalCompile$.apply(Compile.scala:17)
+	at sbt.AggressiveCompile.compile2(AggressiveCompile.scala:87)
+	at sbt.AggressiveCompile.compile1(AggressiveCompile.scala:41)
+	at sbt.AggressiveCompile.apply(AggressiveCompile.scala:28)
+	at sbt.Compiler$.apply(Compiler.scala:107)
+	at sbt.Defaults$$anonfun$compileTask$1.apply(Defaults.scala:479)
+	at sbt.Defaults$$anonfun$compileTask$1.apply(Defaults.scala:479)
+	at sbt.Scoped$$anonfun$hf2$1.apply(Structure.scala:473)
+	at sbt.Scoped$$anonfun$hf2$1.apply(Structure.scala:473)
+	at scala.Function1$$anonfun$compose$1.apply(Function1.scala:41)
+	at sbt.Scoped$Reduced$$anonfun$combine$1$$anonfun$apply$11.apply(Structure.scala:295)
+	at sbt.Scoped$Reduced$$anonfun$combine$1$$anonfun$apply$11.apply(Structure.scala:295)
+	at sbt.$tilde$greater$$anonfun$$u2219$1.apply(TypeFunctions.scala:40)
+	at sbt.std.Transform$$anon$5.work(System.scala:67)
+	at sbt.Execute$$anonfun$submit$1$$anonfun$apply$1.apply(Execute.scala:221)
+	at sbt.Execute$$anonfun$submit$1$$anonfun$apply$1.apply(Execute.scala:221)
+	at sbt.ErrorHandling$.wideConvert(ErrorHandling.scala:18)
+	at sbt.Execute.work(Execute.scala:227)
+	at sbt.Execute$$anonfun$submit$1.apply(Execute.scala:221)
+	at sbt.Execute$$anonfun$submit$1.apply(Execute.scala:221)
+	at sbt.CompletionService$$anon$1$$anon$2.call(CompletionService.scala:26)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:680)
+[0m[[31merror[0m] [0m{file:/Users/vmarquez/Documents/newWorkspace/BlueScale/}default-cf2724/compile:[31mcompile[0m: Compilation failed[0m
