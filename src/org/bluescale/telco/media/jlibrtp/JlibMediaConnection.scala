@@ -87,7 +87,10 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     def joinPlay(url:String, conn:Joinable[_], f:()=>Unit) = join(conn, ()=> {
     	play(url, f)
     })
-    
+   
+    override def joinedMediaChange() {
+        println("do nothing here?")
+    }
     
     def receive(frame:DataFrame, participant:Participant)  =
       MediaFileManager.addMedia(this, frame.getConcatenatedData())
@@ -125,7 +128,7 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     	connectedCallback()
 	}
     
-    protected[telco] def onConnect(f:()=>Unit) = f() //more to do? 
+    //protected[telco] def onConnect(f:()=>Unit) = f() //more to do? 
 
     protected[telco] def unjoin(f:()=>Unit) = {
     	finishListen()

@@ -99,6 +99,12 @@ class SipTelcoServer(
 	
 	def fireIncoming(c:SipConnection)   = incomingCallback.foreach( _(c) )
 
+	def silentSdp() =
+	    SdpHelper.getBlankSdp(this.contactIp)
+
+	def silentJoinable() =
+	    SdpHelper.getBlankJoinable(this.contactIp)
+
     override def areTwoConnected(c1:SipConnection, c2:SipConnection) : Boolean = {
         if ( c1.connectionState != CONNECTED() || c2.connectionState != CONNECTED() ) 
             return false

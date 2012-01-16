@@ -133,24 +133,24 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		transaction.sendResponse(messageFactory.createResponse(200, request))
 		val conn = telco.getConnection(getCallId(request))
 		conn.execute(()=>{
-			conn.setState(VERSIONED_UNCONNECTED( transaction.getBranchId() ))
+		
+			//conn.setState(VERSIONED_UNCONNECTED( transaction.getBranchId() ))
 			telco.removeConnection(conn)
 		})
 	}
 
 	
 	
-	def processRegister(requestEvent:RequestEvent) {
+	private def processRegister(requestEvent:RequestEvent) {
 		val r = requestEvent.getRequest()
 		printHeaders(requestEvent.getRequest())
 		sendRegisterResponse(200, requestEvent)
     }
 
-    def processCancel(requestEvent:RequestEvent) {
-	    
+    private def processCancel(requestEvent:RequestEvent) {
 	    val request = requestEvent.getRequest()
 	    val conn = telco.getConnection(getCallId(request))
-	    conn.serverCancelTx = Some(requestEvent.getServerTransaction())
+	    val serverCancelTx = Some(requestEvent.getServerTransaction())
 	    conn.execute(()=>
 	        conn.cancel( ()=> println("done"))
 	    )
@@ -158,14 +158,15 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 
 	
   
-	def processInvite(requestEvent:RequestEvent) {
+	private def processInvite(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
 		Option(requestEvent.getServerTransaction) match {
 			
 			case Some(transaction) =>   
 			    val conn = telco.getConnection(getCallId(request))
                 val sdp = SdpHelper.getSdp(request.getRawContent())
-			    conn.setSipState( SipState(sdp, transaction) )			    
+			    //conn.setUAS(transaction, sdp) 
+			    conn.reinvite(transaction, sdp)
 			    //conn.execute( ()=>{
 			    //    conn.serverTx = Some(transaction)
 			        
@@ -187,20 +188,9 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				val conn = new JainSipConnection(getCallId(request), destination, "", INCOMING(), telco, true)
                 val sdp = SdpHelper.getSdp(request.getRawContent())
                 telco.addConnection(conn) 
-                conn.setSipState(SipState(sdp, transaction)) //can we have this fire incoming? 
-                telco.fireIncoming(conn)
-                //conn.execute( ()=>{
-                //    conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader]) 
-                //    conn.serverTx = Some(transaction)
-				//    conn.dialog = Some( transaction.getDialog() ) //FIXME: we may not need to store this.
-				    //TOOD: make sure it defaults to alerting
-				//    conn.setConnectionid(getCallId(request))
-			    //    telco.addConnection(conn) //(getCallId(request), conn)
-				//	SdpHelper.addMediaTo( conn.sdp, SdpHelper.getSdp(request.getRawContent()) )
-				//	telco.fireIncoming(conn)
-				//})
-		}
-		
+                conn.invite(transaction,sdp)
+                telco.fireIncoming(conn)//todo: move to connection?
+    	}
 	}
 
 	 
@@ -208,8 +198,11 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
 		val request = requestEvent.getRequest()
   	    val conn = telco.getConnection(getCallId(request))//FIXME: return an option and foreach on it... prevent NPE
+  	    //conn.setUAS(requestEvent.getServerTransaction, ...)
+
+  	    //how do we deal with ackS? 
   	    //conn.setSipState(
-    	conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
+    	//conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
 	}  	
    
    //TODO: handle re-tries... we can't just let another setState happen, could fuck things up if something else had been set already...
@@ -221,21 +214,18 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			return 
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
+		val statusCode = asResponse(re).getStatusCode()
 		//conn.execute(()=>{
-		asResponse(re).getStatusCode() match {
-			case Response.SESSION_PROGRESS => conn.setState(VERSIONED_PROGRESSING("") )
-		    		 				
-			case Response.RINGING =>
-			                conn.dialog = Some(re.getDialog())
+		statusCode match {
+			case Response.SESSION_PROGRESS => //conn.setState(VERSIONED_PROGRESSING("") )
 
+			case Response.RINGING =>
+			                //conn.dialog = Some(re.getDialog())
 	 		                Option(asResponse(re).getRawContent()).foreach( content=> {
     			                val sdp = SdpHelper.getSdp(content)
 			                    if (!SdpHelper.isBlankSdp(sdp)) {
-	    		                    SdpHelper.addMediaTo(conn.sdp, sdp)
-		    	                    conn.setSipState(SipState(sdp,transaction, Response.RINGING)) 
-		    	                    //conn.setState(VERSIONED_RINGING( transaction.getBranchId() ))
-		    	                }
-
+	    		                    conn.setUAC(transaction,statusCode, sdp)       
+	    		                }
                             }) 
 			                           
 			case Response.OK => 
@@ -243,26 +233,18 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    				case Request.INVITE =>
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)//should be done in the call? 
-		    							val returnedSdp = SdpHelper.getSdp(asResponse(re).getRawContent())
-				  						
-				  						conn.setSipState(SipState(returnedSdp, transaction))
-				  						/*
-				  						conn.setState(VERSIONED_CONNECTED( transaction.getBranchId() ))
-				  						conn.joinedTo.foreach( joined => 
-				  							if (SdpHelper.isBlankSdp(conn.sdp) ) { 
-				  								conn.setState(VERSIONED_SILENCED( transaction.getBranchId()))
-				  							
-				  							}
-				  					    )
-				  					    */
-				  						    	
-				  						            
+		    							val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
+				  					    conn.setUAC(transaction, statusCode, sdp)	
+				  					    				  						    	
 		    				case Request.CANCEL =>
-		    				    conn.setState(VERSIONED_CANCELED( transaction.getBranchId() ) )
+		    				    //cancel, removeConnection, 
+		    				    conn.setUAC(transaction, statusCode, conn.sdp) 
+		    				    //conn.setState(VERSIONED_CANCELED( transaction.getBranchId() ) )
 		    					log("	cancel request ")
 		    				case Request.BYE =>
 		    					telco.removeConnection(conn)
-		    					conn.setState( VERSIONED_UNCONNECTED(transaction.getBranchId() ) )	
+		    					conn.setUAC(transaction, statusCode, conn.sdp)
+		    					//conn./setState( VERSIONED_UNCONNECTED(transaction.getBranchId() ) )	
     	    				case _ => 
 			    			  	error("	wtf ")
 		    			}
@@ -280,17 +262,15 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
  
 	//TODO: deal with dead transactions...
-	def sendResponse(responseCode:Int, transaction:Option[ServerTransaction], content:Array[Byte] ) = 
-	    transaction match {
-            case Some(tx)=> 	val response = messageFactory.createResponse(responseCode,tx.getRequest)
-		                        //response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
-		                        response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
-                            	if ( null != content ) response.setContent(content,headerFactory.createContentTypeHeader("application", "sdp"))
-		                        tx.sendResponse(response)
-            case None => throw new Exception("Error, ServerTX not found!")
-	    } 
-   
-	/*
+	def sendResponse(responseCode:Int, tx:ServerTransaction, content:Array[Byte] ) { 
+	    val response = messageFactory.createResponse(responseCode,tx.getRequest)
+		//response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
+	    response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
+        if ( null != content ) response.setContent(content,headerFactory.createContentTypeHeader("application", "sdp"))
+		tx.sendResponse(response)
+    }
+
+    /*
 	def handleMedia(conn:JainSipConnection, re:ResponseEvent) {
         SdpHelper.addMediaTo( conn.sdp, SdpHelper.getSdp(asResponse(re).getRawContent()) )
 	}
@@ -311,34 +291,39 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
            }) 
 	}
 	
-	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
+	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : (String,ClientTransaction) = {
 		val request = inviteCreator.getInviteRequest(conn.origin, conn.destination, sdp.toString().getBytes())
 		//FIXME: add FROM
 		request.addHeader(inviteCreator.getViaHeader().get(0))
-		conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
-		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
-		conn.setConnectionid(getCallId(request))
+		//conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
+		val tx =  sipProvider.get.getNewClientTransaction(request)
+		val id = getCallId(request)
 		telco.addConnection(conn)
-		conn.clientTx.get.sendRequest()
+		tx.sendRequest()
+		return (id, tx)
 	}
 
-    def sendReinvite(conn:JainSipConnection, sdp:SessionDescription) : Unit = {
+    def sendReinvite(tx:ClientTransaction, sdp:SessionDescription) : ClientTransaction = {
 		//log("SDP = " + sdp)
-		val request = conn.dialog.get.createRequest(Request.INVITE)
+		///how to get the dialog? from the transaction?
+        val request = tx.getDialog().createRequest(Request.INVITE)
         request.removeHeader("contact")//The one from the createRequest is the listeningIP..., same with the via
         request.removeHeader("via")
         request.addHeader(inviteCreator.getViaHeader().get(0))
 		request.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":" + port)))
 		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
-		conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
-   		conn.dialog.get.sendRequest(conn.clientTx.get)
+	    val newTx = sipProvider.get.getNewClientTransaction(request) 
+   		tx.getDialog().sendRequest(newTx)
+   		return newTx
 	}
  
-	def sendByeRequest(conn:JainSipConnection) = {
-        val byeRequest = conn.dialog.get.createRequest(Request.BYE)
-        conn.clientTx =	Some(this.sipProvider.get.getNewClientTransaction(byeRequest))
-        conn.dialog.get.sendRequest(conn.clientTx.get)
+    //should we return the bye here?  I think certain things should be un-cancellable, so OK...
+	def sendByeRequest(tx:ClientTransaction) : ClientTransaction = {
+        val byeRequest = tx.getDialog().createRequest(Request.BYE)
+        val newTx =	sipProvider.get.getNewClientTransaction(byeRequest)
+        tx.getDialog().sendRequest(newTx)
+        return newTx
 	} 
 
 	override def processTimeout(timeout:TimeoutEvent) {

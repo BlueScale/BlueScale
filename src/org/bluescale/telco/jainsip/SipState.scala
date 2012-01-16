@@ -28,15 +28,37 @@ import javax.sip.header._
 import javax.sdp.SessionDescription
 import javax.sip.message._
 
-case class SipState(sdp:Option[SessionDescription],
-                    clientTx:Option[ClientTransaction],
-                    serverTx:Option[ServerTransaction],
-                    responseCode:Option[Int]) {
+
+protected[telco] trait SipState {
+
+    var sdp = loadInitialSdp()
+    
+    var clientTx:Option[ClientTransaction] = None
+    
+    var serverTx:Option[ServerTransaction] = None
+    
+    //def setUAC(clientTx:ClientTransaction, sdp:SessionDescription)
+
+    def setUAC(clientTx:ClientTransaction, responseCode:Int, sdp:SessionDescription)
+
+    def invite(tx:ServerTransaction, sdp:SessionDescription)
+
+    def bye(tx:ServerTransaction)
+
+    def reinvite(tx:ServerTransaction, sdp:SessionDescription)
+
+    def ack(tx:ServerTransaction)
+
+    protected def loadInitialSdp():SessionDescription
+
+    //cancel?
 }
 
 object SipState {
-    def apply(sdp:SessionDescription) = new SipState(Some(sdp), None, None, None)
-    def apply(sdp:SessionDescription, clientTx:ClientTransaction) = new SipState(Some(sdp), Some(clientTx), None, None)
-    def apply(sdp:SessionDescription, serverTx:ServerTransaction) = new SipState(Some(sdp), None, Some(serverTx), None)
-    def apply(sdp:SessionDescription, clientTx:ClientTransaction, responseCode:Int) = new SipState(Some(sdp), Some(clientTx), None, Some(responseCode))
+    //def apply(sdp:SessionDescription) = new SipState(Some(sdp), None, None, None)
+    //def apply(sdp:SessionDescription, clientTx:ClientTransaction) = new SipState(Some(sdp), Some(clientTx), None, None)
+    //def apply(sdp:SessionDescription, serverTx:ServerTransaction) = new SipState(Some(sdp), None, Some(serverTx), None)
+    //def apply(sdp:SessionDescription, clientTx:ClientTransaction, responseCode:Int) = new SipState(Some(sdp), Some(clientTx), None, Some(responseCode))
+
+    //def getCase(clientTx:ClientTransaction, f:()=>Unit) = case state:SipState(_, Some(ctx), _, _) if ctx.getBranchId() == clientTx.getBranchId() => f()
 }

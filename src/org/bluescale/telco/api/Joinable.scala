@@ -42,11 +42,13 @@ trait Joinable[T] {
 
     protected[telco] def connect(join:Joinable[_], connectedCallback:()=>Unit)
 
-    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, connectedCallback:()=>Unit)
+    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, connectedCallback:()=>Unit)//when do ew not want to connect with any media?
     
-    protected[telco] def onConnect(f:()=>Unit)
+    //protected[telco] def onConnect(f:()=>Unit)
 
     protected[telco] def unjoin(f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
+
+    def joinedMediaChange() // called by the joined class when media changes. 
 
 }
 

@@ -156,8 +156,9 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
 
     override def connect(join:Joinable[_], connectedCallback:()=>Unit) = connectedCallback()
 
-
-    override def onConnect(callback:()=>Unit) = callback()
+    override def joinedMediaChange() = Unit
+    
+    //override def onConnect(callback:()=>Unit) = callback()
 
     def silence(f:()=>Unit) : Unit = return
 
