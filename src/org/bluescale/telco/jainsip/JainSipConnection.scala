@@ -188,6 +188,8 @@ class JainSipConnection protected[telco](
             case f:((Int,SessionDescription)=>Unit) => 
                 callbacks = callbacks.filter( (kv) => clientTx.getBranchId() == kv._1)
                 f(responseCode, sdp)
+            case f:(()=>Unit) =>
+                f()
             case _ => println("error")
         }
     }
