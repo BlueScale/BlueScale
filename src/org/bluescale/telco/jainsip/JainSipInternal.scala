@@ -110,13 +110,13 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	override def processRequest(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
 		val serverTransactionId = requestEvent.getServerTransaction()
-
+        println("--------------------------------- requestEvent, method = " + request.getMethod() ) 
 		 request.getMethod() match {
 		  case Request.INVITE 	=> processInvite(requestEvent)
 		  case Request.ACK 		=> processAck(requestEvent, requestEvent.getRequest())
 		  case Request.BYE 		=> processBye(requestEvent, requestEvent.getRequest(), requestEvent.getServerTransaction())
 		  case Request.REGISTER => //processRegister(requestEvent)
-		  case Request.CANCEL 	=> //processCancel(requestEvent)		    
+		  case Request.CANCEL 	=> processCancel(requestEvent)		    
 		    //TODO: handle cancels...may be too late for most things but we can try to cancel.
 		  case _ => println("err, what?")
 		            //serverTransactionId.sendResponse( messageFactory.createResponse( 202, request ) )
@@ -129,18 +129,11 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
     
     private def processBye(requestEvent: RequestEvent, request:Request, transaction:ServerTransaction) : Unit = {
-	    println("blah")	
 		transaction.sendResponse(messageFactory.createResponse(200, request))
 		val conn = telco.getConnection(getCallId(request))
-		conn.execute(()=>{
-		
-			//conn.setState(VERSIONED_UNCONNECTED( transaction.getBranchId() ))
-			telco.removeConnection(conn)
-		})
+		conn.bye(transaction)
 	}
 
-	
-	
 	private def processRegister(requestEvent:RequestEvent) {
 		val r = requestEvent.getRequest()
 		printHeaders(requestEvent.getRequest())
@@ -148,15 +141,11 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
     }
 
     private def processCancel(requestEvent:RequestEvent) {
+    println("####### processCancel #########")
 	    val request = requestEvent.getRequest()
 	    val conn = telco.getConnection(getCallId(request))
-	    val serverCancelTx = Some(requestEvent.getServerTransaction())
-	    conn.execute(()=>
-	        conn.cancel( ()=> println("done"))
-	    )
+	    conn.cancel(requestEvent.getServerTransaction()) //fixme, shouldn't be setting here!v
 	}
-
-	
   
 	private def processInvite(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
@@ -165,18 +154,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case Some(transaction) =>   
 			    val conn = telco.getConnection(getCallId(request))
                 val sdp = SdpHelper.getSdp(request.getRawContent())
-			    //conn.setUAS(transaction, sdp) 
 			    conn.reinvite(transaction, sdp)
-			    //conn.execute( ()=>{
-			    //    conn.serverTx = Some(transaction)
-			        
-			    //    SdpHelper.addMediaTo(conn.sdp, SdpHelper.getSdp(request.getRawContent()) ) 
-			    //    val sdpToSend = (conn.joinedTo.getOrElse(conn)).sdp 
-			        //debug("sdpToSend = " + sdpToSend)
-				    
-			     //   sendResponse(200, conn.serverTx, sdpToSend.toString().getBytes()) 
-				    //fixme: do we need to notify joinedTo when sdp info changes?// should get ACKED 
-				//})
 			case None => 	    
 			    
 			    val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
@@ -189,6 +167,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
                 val sdp = SdpHelper.getSdp(request.getRawContent())
                 telco.addConnection(conn) 
                 conn.invite(transaction,sdp)
+                println("------- telco.fireINCOMIGN here")
                 telco.fireIncoming(conn)//todo: move to connection?
     	}
 	}
@@ -198,6 +177,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
 		val request = requestEvent.getRequest()
   	    val conn = telco.getConnection(getCallId(request))//FIXME: return an option and foreach on it... prevent NPE
+  	    conn.ack(requestEvent.getServerTransaction())
   	    //conn.setUAS(requestEvent.getServerTransaction, ...)
 
   	    //how do we deal with ackS? 
@@ -237,7 +217,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				  					    conn.setUAC(transaction, statusCode, sdp)	
 				  					    				  						    	
 		    				case Request.CANCEL =>
-		    				    //cancel, removeConnection, 
+		    				    //cancel, removeConnection,
+		    				    println(">>>>>>>>>>>>>>>>>>> GOT A 200 for a cancel ")
 		    				    conn.setUAC(transaction, statusCode, conn.sdp) 
 		    				    //conn.setState(VERSIONED_CANCELED( transaction.getBranchId() ) )
 		    					log("	cancel request ")
@@ -277,19 +258,12 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	*/
 
     def sendCancel(clientTx:ClientTransaction) : ClientTransaction = {
+    println("SENDING CANCEL")
         val request = clientTx.createCancel()
         val tx = sipProvider.get.getNewClientTransaction(request)
         tx.sendRequest()
         return tx
     }
-        
-	def sendCancel(conn:JainSipConnection) : Unit = {
-	    conn.clientTx.foreach( tx => {
-            val request = tx.createCancel()
-            conn.clientTx = Some( sipProvider.get.getNewClientTransaction(request) )
-            conn.clientTx.get.sendRequest()
-           }) 
-	}
 	
 	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : (String,ClientTransaction) = {
 		val request = inviteCreator.getInviteRequest(conn.origin, conn.destination, sdp.toString().getBytes())
@@ -298,7 +272,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		//conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		val tx =  sipProvider.get.getNewClientTransaction(request)
 		val id = getCallId(request)
-		telco.addConnection(conn)
 		tx.sendRequest()
 		return (id, tx)
 	}
@@ -319,7 +292,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
  
     //should we return the bye here?  I think certain things should be un-cancellable, so OK...
-	def sendByeRequest(tx:ClientTransaction) : ClientTransaction = {
+	def sendByeRequest(conn:JainSipConnection) : ClientTransaction = {
+        val tx = conn.clientTx.getOrElse( conn.serverTx.getOrElse( throw new Exception("BLAHL")))
         val byeRequest = tx.getDialog().createRequest(Request.BYE)
         val newTx =	sipProvider.get.getNewClientTransaction(byeRequest)
         tx.getDialog().sendRequest(newTx)

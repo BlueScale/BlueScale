@@ -49,16 +49,9 @@ protected[telco] trait SipState {
 
     def ack(tx:ServerTransaction)
 
+    def cancel(tx:ServerTransaction)
+
     protected def loadInitialSdp():SessionDescription
 
-    //cancel?
 }
 
-object SipState {
-    //def apply(sdp:SessionDescription) = new SipState(Some(sdp), None, None, None)
-    //def apply(sdp:SessionDescription, clientTx:ClientTransaction) = new SipState(Some(sdp), Some(clientTx), None, None)
-    //def apply(sdp:SessionDescription, serverTx:ServerTransaction) = new SipState(Some(sdp), None, Some(serverTx), None)
-    //def apply(sdp:SessionDescription, clientTx:ClientTransaction, responseCode:Int) = new SipState(Some(sdp), Some(clientTx), None, Some(responseCode))
-
-    //def getCase(clientTx:ClientTransaction, f:()=>Unit) = case state:SipState(_, Some(ctx), _, _) if ctx.getBranchId() == clientTx.getBranchId() => f()
-}
