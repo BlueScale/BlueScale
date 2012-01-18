@@ -61,11 +61,12 @@ class JoinTwoUnconnectedFunctionalTest extends TestHelper {
 	def runConn() {
  		latch = new CountDownLatch(1)
 	          
- 		alice.connect(()=>{ 
+ 		alice.connect(()=>{
 		  	assertEquals(alice.connectionState, CONNECTED())
 		  	bob.connect(()=>{
 		  		assertEquals(bob.connectionState, CONNECTED())
 				alice.join(bob, ()=>{
+				println("joined ----------------!")
 				assertFalse(SdpHelper.isBlankSdp(alice.sdp)) 
 				assertFalse(SdpHelper.isBlankSdp(bob.sdp))
 				assertTrue(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
@@ -79,7 +80,7 @@ class JoinTwoUnconnectedFunctionalTest extends TestHelper {
 				  		val b = SdpHelper.isBlankSdp(bob.asInstanceOf[JainSipConnection].sdp)
 				  		System.err.println("b = " + b)
 				  		//Now bob should be disconnected
-				  						  	})
+					})
 				})
 			})
 		})

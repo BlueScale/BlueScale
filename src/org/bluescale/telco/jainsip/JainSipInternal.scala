@@ -195,6 +195,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
 		val statusCode = asResponse(re).getStatusCode()
+
 		//conn.execute(()=>{
 		statusCode match {
 			case Response.SESSION_PROGRESS => //conn.setState(VERSIONED_PROGRESSING("") )

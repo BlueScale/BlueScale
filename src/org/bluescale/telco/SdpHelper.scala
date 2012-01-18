@@ -141,7 +141,7 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
     var mySdp:Option[SessionDescription] = sdp
     
     override def join(c:Joinable[_], f:()=>Unit) : Unit =
-        return
+        f()
 
     def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit = return
 

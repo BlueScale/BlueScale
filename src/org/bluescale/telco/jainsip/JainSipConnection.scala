@@ -87,10 +87,12 @@ class JainSipConnection protected[telco](
                 connid = t._1
 		        telco.addConnection(this)
             case s:CONNECTED =>
+                println(".......  RECONNECTING .......")
                 clientTx.foreach( tx =>
                     clientTx = Some(telco.internal.sendReinvite(tx, join.sdp) ))
         }
         clientTx.foreach( tx => {
+            println(" OKHERE WE GO!")
             setRequestCallback(tx.getBranchId(), (responseCode, previousSdp) => {
                 responseCode match {
                     case Response.RINGING =>
@@ -130,11 +132,13 @@ class JainSipConnection protected[telco](
 
   	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
   	    //first, am I already joined? if so, we need to reconnect what i'm joined to. 
-        val f = ()=>
+        val f = ()=> {
             otherCall.connect(this, ()=> 
                 connect(otherCall, joinCallback)
             )
-        
+            println("in the join ready to hit connect ########")
+            }
+         
   	    joinedTo match { 
             case Some(joined) => joined.connect(telco.silentJoinable(), f)
             case None => f()
@@ -142,15 +146,11 @@ class JainSipConnection protected[telco](
     }
 
     private def incomingResponse(responseCode:Int, toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
+        println("incoming response = " + responseCode + "!!!")
         serverTx.foreach( tx => {
-            connectionState match {
-                case UNCONNECTED() | RINGING() =>
-
-                    callbacks += tx.getBranchId()->(() => connectedCallback() )
-		            telco.internal.sendResponse(200, tx, toJoin.sdp.toString().getBytes())  
-	            case _ => 
-	                throw new InvalidStateException(new UNCONNECTED(), connectionState)
-	        }})
+            callbacks += tx.getBranchId()->(() => connectedCallback() )
+		    telco.internal.sendResponse(200, tx, toJoin.sdp.toString().getBytes())  
+	 	})
     }
                 
     override def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = {
@@ -183,7 +183,7 @@ class JainSipConnection protected[telco](
   	}
 
   	override def setUAC(clientTx:ClientTransaction, responseCode:Int, sdp:SessionDescription) = wrapLock {
-  	    println("got a response, responsceCOde = " + responseCode )
+  	    println(" SETUAC  ############ got a response, responsceCOde = " + responseCode )
         callbacks(clientTx.getBranchId())  match {
             case f:((Int,SessionDescription)=>Unit) => 
                 callbacks = callbacks.filter( (kv) => clientTx.getBranchId() == kv._1)
@@ -205,9 +205,11 @@ class JainSipConnection protected[telco](
 
     override def reinvite(tx:ServerTransaction, sdp:SessionDescription) {
         this.serverTx = Some(tx)
-        this.sdp = sdp//wtf?
+        this.sdp = sdp
         serverTx = Some(tx)
         joinedTo.foreach(join => join.joinedMediaChange())
+        val joinable = joinedTo.getOrElse(telco.silentJoinable())
+        incomingResponse(200, joinable, ()=>{})
     }
 
     override def invite(tx:ServerTransaction, sdp:SessionDescription) {
