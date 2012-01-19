@@ -87,12 +87,12 @@ class JainSipConnection protected[telco](
                 connid = t._1
 		        telco.addConnection(this)
             case s:CONNECTED =>
-                println(".......  RECONNECTING .......")
+                //println(".......  RECONNECTING .......")
                 clientTx.foreach( tx =>
                     clientTx = Some(telco.internal.sendReinvite(tx, join.sdp) ))
         }
         clientTx.foreach( tx => {
-            println(" OKHERE WE GO!")
+            println(" OKHERE WE GO! setting request callback for  " + this + " | to the branchId of = "+ tx.getBranchId())
             setRequestCallback(tx.getBranchId(), (responseCode, previousSdp) => {
                 responseCode match {
                     case Response.RINGING =>
@@ -106,6 +106,7 @@ class JainSipConnection protected[telco](
                         this._joinedTo = Some(join)
                         if (!previousSdp.toString().equals(sdp.toString()))
                             joinedTo.foreach( join => join.joinedMediaChange() )
+                        println("about to execute the connect callback..........!!!!")
                         callback()
                 }
             })
@@ -127,16 +128,17 @@ class JainSipConnection protected[telco](
         
     
     override def joinedMediaChange() = wrapLock {
+        
         joinedTo.foreach( join => connect(join,()=>{}) )
     }
 
   	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
   	    //first, am I already joined? if so, we need to reconnect what i'm joined to. 
         val f = ()=> {
-            otherCall.connect(this, ()=> 
+            otherCall.connect(this, ()=>{ 
+                //println(" OK the -----------OTHER call connected, now it's my ("+this+") turn@@@@@@")
                 connect(otherCall, joinCallback)
-            )
-            println("in the join ready to hit connect ########")
+            })
             }
          
   	    joinedTo match { 
@@ -146,7 +148,7 @@ class JainSipConnection protected[telco](
     }
 
     private def incomingResponse(responseCode:Int, toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
-        println("incoming response = " + responseCode + "!!!")
+        //println("incoming response = " + responseCode + "!!!")
         serverTx.foreach( tx => {
             callbacks += tx.getBranchId()->(() => connectedCallback() )
 		    telco.internal.sendResponse(200, tx, toJoin.sdp.toString().getBytes())  
@@ -173,6 +175,7 @@ class JainSipConnection protected[telco](
 		println("sending bye")
 		val tx = telco.internal.sendByeRequest(this)
 		clientTx = Some(tx)
+		println(" byesend with tx = " + tx.getBranchId() )
         setRequestCallback( tx.getBranchId(), ()=> { //change callback singature
             println("ok we got a response")
             state = UNCONNECTED()
@@ -182,15 +185,26 @@ class JainSipConnection protected[telco](
         //setFinishFunction(VERSIONED_UNCONNECTED(clientTx.get.getBranchId()), f)
   	}
 
-  	override def setUAC(clientTx:ClientTransaction, responseCode:Int, sdp:SessionDescription) = wrapLock {
-  	    println(" SETUAC  ############ got a response, responsceCOde = " + responseCode )
-        callbacks(clientTx.getBranchId())  match {
-            case f:((Int,SessionDescription)=>Unit) => 
-                callbacks = callbacks.filter( (kv) => clientTx.getBranchId() == kv._1)
-                f(responseCode, sdp)
-            case f:(()=>Unit) =>
-                f()
-            case _ => println("error")
+  	override def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = wrapLock {
+  	    println(" SETUAC  ############ got a response, responsceCOde = " + responseCode + " BranchID = " + clientTx.getBranchId())
+  	    try {
+            val callback = callbacks(clientTx.getBranchId())
+            val previousSdp = sdp
+            sdp = newsdp
+  	        
+            callback match {
+                case f:((Int,SessionDescription)=>Unit) =>
+                    println("           oh, this kind of thing........")
+                    //callbacks = callbacks.filter( (kv) => clientTx.getBranchId() == kv._1)
+                    f(responseCode, previousSdp)
+                case f:(()=>Unit) =>
+                    println("           no parameters!")
+                    f()
+                case _ => println("error")
+            }
+        } catch {
+            case ex:Exception =>
+                println(" &&&&&  Exception in setUAC = "+ ex)
         }
     }
 

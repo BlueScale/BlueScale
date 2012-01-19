@@ -27,6 +27,7 @@ import org.junit._
 import Assert._
 import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._
+import org.bluescale.telco._
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -55,6 +56,7 @@ class CallHangupFunctionalTest extends TestHelper {
  		alice.connect(()=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		  	println("OK i'm Connected now...how did that happen?")
+		  	assertFalse(SdpHelper.isBlankSdp(alice.sdp))
 		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect( ()=> {
                         Thread.sleep(50)
                         println("Is alice disconnected alice = " + alice.connectionState)
