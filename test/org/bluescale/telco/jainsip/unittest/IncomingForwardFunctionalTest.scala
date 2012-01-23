@@ -58,23 +58,22 @@ class IncomingForwardFunctionalTest extends TestHelper {
     }
 
     def answerCall(call:SipConnection) : Unit ={
-        println("!!!!!  answer CALL is called here!!!!")
         //try the call that they're trying to go for.
         call.accept( ()=> {
-        println("ACCEPTED!!!!!!!!!!!!!!")
         incomingCall = call
         alice.connect( ()=>assertFalse(true) ) //shouldn't succeed...
         //start a timer, 
         Thread.sleep(1000)
-        println("about to cancel, forgot about this...")
-        alice.cancel( ()=> 
+        alice.cancel( ()=>{
+            println(" alice canceled !")
             bob.connect( ()=> {
+                println(" bob connected!")
                 bob.join(incomingCall, ()=>{
                 //call.join(bob, ()=> {
                     println("~~~~~~~JOINED~~~~~~")
                     joinedLatch.countDown()
                     })
-            }))
+            })})
         })
     }
 	

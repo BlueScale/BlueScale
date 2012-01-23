@@ -51,6 +51,9 @@ protected[telco] trait SipState {
 
     def cancel(tx:ServerTransaction)
 
+    def transaction : Option[Transaction] =
+        Option(clientTx.getOrElse( serverTx.get ))
+
     protected def loadInitialSdp():SessionDescription
 
 }

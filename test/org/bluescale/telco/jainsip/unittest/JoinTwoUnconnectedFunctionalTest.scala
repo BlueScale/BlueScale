@@ -65,20 +65,10 @@ class JoinTwoUnconnectedFunctionalTest extends TestHelper {
 		  	assertEquals(alice.connectionState, CONNECTED())
 		  	bob.connect(()=>{
 		  		assertEquals(bob.connectionState, CONNECTED())
-				println(" ~~~~~~~ trying to join~~~~~~~~~~~~")
-				println(" ")
-				println(" ")
-				println(" ")
-				println(" ")
-				println(" ")
-				
+								
 				alice.join(bob, ()=>{
-				println("joined ----------------!")
-				println(" ........... alice sdp = " + alice.sdp )
-
-				println("......... bob.sdp = " + bob.sdp) 
-				//assertFalse(SdpHelper.isBlankSdp(alice.sdp)) 
-				//assertFalse(SdpHelper.isBlankSdp(bob.sdp))
+				assertFalse(SdpHelper.isBlankSdp(alice.sdp)) 
+				assertFalse(SdpHelper.isBlankSdp(bob.sdp))
 				assertTrue(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  System.err.println("are both connected = ? " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  
