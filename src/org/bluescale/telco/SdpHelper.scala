@@ -163,6 +163,9 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
     def silence(f:()=>Unit) : Unit = return
 
     override def unjoin(f:()=>Unit) : Unit = return
+
+    override def toString() =
+        "SdpJoinable ......"
 }
 
  

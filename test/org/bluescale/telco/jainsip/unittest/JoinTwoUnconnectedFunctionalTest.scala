@@ -63,9 +63,11 @@ class JoinTwoUnconnectedFunctionalTest extends TestHelper {
 	          
  		alice.connect(()=>{
 		  	assertEquals(alice.connectionState, CONNECTED())
+		  	println( "alice connected" )
 		  	bob.connect(()=>{
 		  		assertEquals(bob.connectionState, CONNECTED())
-								
+				println(" bob connected" )
+				//Thread.sleep(4000)
 				alice.join(bob, ()=>{
 				assertFalse(SdpHelper.isBlankSdp(alice.sdp)) 
 				assertFalse(SdpHelper.isBlankSdp(bob.sdp))

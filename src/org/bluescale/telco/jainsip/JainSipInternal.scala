@@ -103,7 +103,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		sipStack.stop()
 		udpListeningPoint.foreach( sipStack.deleteListeningPoint(_) )
 	}
-
     	
 	override def processRequest(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
@@ -146,18 +145,15 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	private def processInvite(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
 		Option(requestEvent.getServerTransaction) match {
-			
 			case Some(transaction) =>
 			    val conn = telco.getConnection(getCallId(request))
                 val sdp = SdpHelper.getSdp(request.getRawContent())
 			    conn.reinvite(transaction, sdp)
 			case None => 	    
-			    
 			    val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
 			    //TODO: should we respond with progressing, and only ringing if the user does something? 
 				transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
 				//transaction.sendResponse(messageFactory.createResponse(Response.TRYING, request))
-
 				val destination = parseToHeader(request.getRequestURI().toString())
 				val conn = new JainSipConnection(getCallId(request), destination, "", INCOMING(), telco, true)
                 val sdp = SdpHelper.getSdp(request.getRawContent())
@@ -166,8 +162,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
                 telco.fireIncoming(conn)//todo: move to connection?
     	}
 	}
-
-	 
   	
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
 		val request = requestEvent.getRequest()
@@ -190,12 +184,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
 		val statusCode = asResponse(re).getStatusCode()
-		//conn.execute(()=>{
 		statusCode match {
 			case Response.SESSION_PROGRESS => //conn.setState(VERSIONED_PROGRESSING("") )
 
 			case Response.RINGING =>
-			                //conn.dialog = Some(re.getDialog())
 	 		                Option(asResponse(re).getRawContent()).foreach( content=> {
     			                val sdp = SdpHelper.getSdp(content)
 			                    if (!SdpHelper.isBlankSdp(sdp)) {
@@ -213,7 +205,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				  					    				  						    	
 		    				case Request.CANCEL =>
 		    				    //cancel, removeConnection,
-		    				    println(">>>>>>>>>>>>>>>>>>> GOT A 200 for a cancel ")
 		    				    conn.setUAC(transaction, statusCode, conn.sdp) 
 		    				    //conn.setState(VERSIONED_CANCELED( transaction.getBranchId() ) )
 		    					log("	cancel request ")
@@ -228,7 +219,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		        println("TERMINATED")
 			case _ => error("Unexpected Response = " + asResponse(re).getStatusCode())
 		}
-		//})
 	}
 
 	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent) = {
@@ -271,7 +261,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
 
     def sendReinvite(tx:Transaction, sdp:SessionDescription) : ClientTransaction = {
-		//log("SDP = " + sdp)
 		///how to get the dialog? from the transaction?
         val request = tx.getDialog().createRequest(Request.INVITE)
         request.removeHeader("contact")//The one from the createRequest is the listeningIP..., same with the via
