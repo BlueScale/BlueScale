@@ -55,6 +55,7 @@ class IncomingForwardFunctionalTest extends TestHelper {
         joinedLatch.await()
 
         println(        telcoServer.areTwoConnected(incomingCall, bob) )
+    
     }
 
     def answerCall(call:SipConnection) : Unit ={
@@ -72,6 +73,7 @@ class IncomingForwardFunctionalTest extends TestHelper {
                 //call.join(bob, ()=> {
                     println("~~~~~~~JOINED~~~~~~")
                     joinedLatch.countDown()
+
                     })
             })})
         })

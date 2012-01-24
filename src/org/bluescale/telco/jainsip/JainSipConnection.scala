@@ -132,7 +132,6 @@ class JainSipConnection protected[telco](
   	override def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
         val f = ()=> {
             otherCall.connect(this, ()=>{ 
-                //println(" OK the -----------OTHER call connected, now it's my ("+this+") turn@@@@@@")
                 connect(otherCall, joinCallback)
             })
         }
@@ -169,10 +168,10 @@ class JainSipConnection protected[telco](
 	    incomingResponse(606, telco.silentJoinable(), rejectCallback)
 
 	override def disconnect(disconnectCallback:FinishFunction) = wrapLock {
-	    //println("disconnect called!, clientTx = " clientTx)
 		transaction.foreach( tx => {
-		    clientTx = Some(telco.internal.sendByeRequest(tx))
-            setRequestCallback( tx.getBranchId(), ()=> { //change callback singature
+		    val newTx = telco.internal.sendByeRequest(tx)
+		    clientTx = Some(newTx)
+            setRequestCallback( newTx.getBranchId(), ()=> { //change callback singature
                 state = UNCONNECTED()
                 onDisconnect()
                 disconnectCallback()
@@ -185,10 +184,7 @@ class JainSipConnection protected[telco](
             val callback = callbacks(clientTx.getBranchId())
             val previousSdp = sdp
             sdp = newsdp
-  	        //if ( responseCode == 200 ) 
-  	        //    println(" newSdp = " + newsdp)
-
-            callback match {
+  	        callback match {
                 case f:((Int,SessionDescription)=>Unit) =>
                     //callbacks = callbacks.filter( (kv) => clientTx.getBranchId() == kv._1) //FIXME: do we want to leave them here forever?
                     f(responseCode, previousSdp)
@@ -205,8 +201,9 @@ class JainSipConnection protected[telco](
     override def bye(tx:ServerTransaction) = wrapLock {
         state = UNCONNECTED()
         serverTx = Some(tx)
+
         telco.removeConnection(this)
-        onDisconnect()
+        //onDisconnect()
         disconnectCallback.foreach(_(this))
     }
 
@@ -282,7 +279,7 @@ class JainSipConnection protected[telco](
   
     private def onDisconnect() =
         joinedTo.foreach( joined=>{
-                _joinedTo = None 
+                this._joinedTo = None 
                 joined.unjoin(()=>Unit) //uuugh how did the ohter one get unjoined
          })
     

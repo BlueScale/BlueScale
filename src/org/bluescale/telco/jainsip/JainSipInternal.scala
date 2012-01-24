@@ -125,6 +125,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
     
     private def processBye(requestEvent: RequestEvent, request:Request, transaction:ServerTransaction) : Unit = {
+        println(" 111111 PROCESS BYE !!!!!!!")
 		transaction.sendResponse(messageFactory.createResponse(200, request))
 		val conn = telco.getConnection(getCallId(request))
 		conn.bye(transaction)
@@ -210,6 +211,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    					log("	cancel request ")
 		    				case Request.BYE =>
 		    					telco.removeConnection(conn)
+		    					println("200 for a BYE")
 		    					conn.setUAC(transaction, statusCode, conn.sdp)
 		    					//conn./setState( VERSIONED_UNCONNECTED(transaction.getBranchId() ) )	
     	    				case _ => 
