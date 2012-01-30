@@ -48,6 +48,9 @@ trait JoinTwoRemoteHangup {
  	val bob = getTelcoServer().createConnection("1112223333", "7147773333")
     
     def disconnected(call:SipConnection) {
+        Thread.sleep(1000)
+        println(" alice = " + alice)
+        println(" bob = " + bob )
         if (alice.connectionState == UNCONNECTED() &&
             bob.connectionState == UNCONNECTED())
             latch.countDown()

@@ -72,7 +72,6 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   
 	def handleIncoming(conn:SipConnection) : Unit = { 
 		//set the joinedTo.get.sdp
-		println("HANDLE INCOMING ")
 		if (ignore.contains(conn.destination))
 		    return
 
@@ -86,7 +85,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		    	val mediaConn = new JlibMediaConnection(b2bTelcoServer)
 		    	mediaConnmap.put(conn.destination, mediaConn)
 		    	conn.accept(mediaConn, ()=> println("b2bserver accepted call with medai support to " + conn.destination))
-		  case false	=>	conn.accept(getFakeJoinable(ip), ()=> println("b2bServer accepted call to " + conn.destination ) )
+		  case false	=>	conn.accept(getFakeJoinable(ip), ()=> Unit)//println("b2bServer accepted call to " + conn.destination ) )
 		}
 	}
 	
@@ -94,8 +93,6 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 	  val m = mediaConnmap.get(phonedest)
 	  return m
 	}
-		
-	
 	
     def findConnByDest(dest:String) : Option[SipConnection] = 
         b2bTelcoServer.connections.values.find( conn => if (conn.destination == dest) true else false)

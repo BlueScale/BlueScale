@@ -125,7 +125,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
     
     private def processBye(requestEvent: RequestEvent, request:Request, transaction:ServerTransaction) : Unit = {
-        println(" 111111 PROCESS BYE !!!!!!!")
 		transaction.sendResponse(messageFactory.createResponse(200, request))
 		val conn = telco.getConnection(getCallId(request))
 		conn.bye(transaction)
@@ -168,12 +167,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		val request = requestEvent.getRequest()
   	    val conn = telco.getConnection(getCallId(request))//FIXME: return an option and foreach on it... prevent NPE
   	    conn.ack(requestEvent.getServerTransaction())
-  	    //conn.setUAS(requestEvent.getServerTransaction, ...)
-
-  	    //how do we deal with ackS? 
-  	    //conn.setSipState(
-    	//conn.execute(()=>conn.setState( VERSIONED_CONNECTED(conn.serverTx.get.getBranchId() )))
-	}  	
+    }  	
    
    //TODO: handle re-tries... we can't just let another setState happen, could fuck things up if something else had been set already...
 	override def processResponse(re:ResponseEvent) {
@@ -211,7 +205,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    					log("	cancel request ")
 		    				case Request.BYE =>
 		    					telco.removeConnection(conn)
-		    					println("200 for a BYE")
 		    					conn.setUAC(transaction, statusCode, conn.sdp)
 		    					//conn./setState( VERSIONED_UNCONNECTED(transaction.getBranchId() ) )	
     	    				case _ => 

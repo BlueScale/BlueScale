@@ -122,7 +122,6 @@ class SipTelcoServer(
             val medialist2 = conn1.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
       
             //TODO: Check Media Connection!
-            println(" OK we're checking here")
       
             if ( mediatrans1.getMedia().getMediaPort != medialist1.getMedia().getMediaPort() ) 
     	        return false
@@ -130,7 +129,6 @@ class SipTelcoServer(
             if ( mediatrans2.getMedia().getMediaPort != medialist2.getMedia().getMediaPort() ) 
                 return false
         }))
-        println(" OK NOW IT'S WEIRD< RETURNING TRUE")
         return true
     }
 

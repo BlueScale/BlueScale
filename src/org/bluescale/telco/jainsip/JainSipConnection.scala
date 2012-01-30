@@ -80,17 +80,26 @@ class JainSipConnection protected[telco](
  	override def connect(join:Joinable[_], callback:FinishFunction) : Unit = connect(join, false, callback) 
 
     protected[telco] override def connect(join:Joinable[_], connectAnyMedia:Boolean, callback:()=>Unit) = wrapLock {
-        state match {
+        joinedTo match {
+            case Some(currentJoin) =>
+                currentJoin.unjoin( ()=>realConnect(join, callback))
+            case None => realConnect(join, callback)
+         }
+    }
+
+    //can only be called after unjoining whatever was connected previous
+    private def realConnect(join:Joinable[_], callback:()=>Unit) {
+         state match {
             case s:UNCONNECTED =>
                 val t = telco.internal.sendInvite(this, join.sdp)
                 clientTx = Some(t._2)
                 connid = t._1
-		        telco.addConnection(this)
+                telco.addConnection(this)
             case s:CONNECTED =>
                 transaction.foreach( tx =>
                     clientTx = Some(telco.internal.sendReinvite(tx, join.sdp) ))
-        }
-        clientTx.foreach( tx => {
+            }
+        clientTx.foreach( tx => {        
             setRequestCallback(tx.getBranchId(), (responseCode, previousSdp) => {
                 responseCode match {
                     case Response.RINGING =>
@@ -100,16 +109,20 @@ class JainSipConnection protected[telco](
                             joinedTo.foreach( join => join.joinedMediaChange() )
                     case Response.OK =>
                         state = CONNECTED()
-                        //only if it's different
                         this._joinedTo = Some(join)
                         //if (!previousSdp.toString().equals(sdp.toString()))
                         //    joinedTo.foreach( join => join.joinedMediaChange() )
+                        clearCallbacks(tx)
                         callback()
                 }
             })
-            progressingCallback.foreach( _(this) )
+           progressingCallback.foreach( _(this) )
         })
     }
+    
+    private def clearCallbacks(tx:Transaction) =
+        callbacks = callbacks.filter( kv => tx.getBranchId() == kv._1)
+        
 
     override protected def loadInitialSdp() = 
         telco.silentSdp()
@@ -136,7 +149,8 @@ class JainSipConnection protected[telco](
             })
         }
   	    joinedTo match { 
-            case Some(joined) => joined.connect(telco.silentJoinable(), f)
+            case Some(joined) => 
+                joined.connect(telco.silentJoinable(), f)
             case None => f()
   	    }
     }
@@ -173,7 +187,7 @@ class JainSipConnection protected[telco](
 		    clientTx = Some(newTx)
             setRequestCallback( newTx.getBranchId(), ()=> { //change callback singature
                 state = UNCONNECTED()
-                onDisconnect()
+                onDisconnect()//BUG HERE. what if disconnect is CALLED from unjoin? 
                 disconnectCallback()
             })
         })
@@ -186,7 +200,7 @@ class JainSipConnection protected[telco](
             sdp = newsdp
   	        callback match {
                 case f:((Int,SessionDescription)=>Unit) =>
-                    //callbacks = callbacks.filter( (kv) => clientTx.getBranchId() == kv._1) //FIXME: do we want to leave them here forever?
+                     //FIXME: do we want to leave them here forever?
                     f(responseCode, previousSdp)
                 case f:(()=>Unit) =>
                     f()
@@ -194,7 +208,8 @@ class JainSipConnection protected[telco](
             }
         } catch {
             case ex:Exception =>
-                println(" &&&&&  Exception in setUAC = "+ ex + " | responseCode = " + responseCode)
+                println("Exception in setUAC = "+ ex + " | responseCode = " + responseCode)
+                //ex.printStackTrace()
         }
     }
 
@@ -203,7 +218,7 @@ class JainSipConnection protected[telco](
         serverTx = Some(tx)
 
         telco.removeConnection(this)
-        //onDisconnect()
+        onDisconnect()
         disconnectCallback.foreach(_(this))
     }
 
@@ -229,7 +244,7 @@ class JainSipConnection protected[telco](
                     f()
                 case _ => println("error")
             }
-            callbacks = callbacks.filter( (kv) => tx.getBranchId() == kv._1)
+            clearCallbacks(tx)
         })
     }
 
@@ -252,6 +267,7 @@ class JainSipConnection protected[telco](
         })
  	}
 
+    //should just inivte to silence
     override def hold(f:FinishFunction) : Unit = wrapLock {
         /*
         joinedTo match {
@@ -262,27 +278,29 @@ class JainSipConnection protected[telco](
     }    
 
 	override def unjoin(f:FinishFunction) = wrapLock {
-        joinedTo.foreach( unjoined => {
-            _joinedTo = None
-            disconnectOnUnjoin match {
-                case true => 
-                    disconnect(()=> {
-                        disconnectCallback.foreach(_(this))
-                        unjoinCallback.foreach( _(unjoined,this))
-                    })
-                case false => 
-                    unjoinCallback.foreach( _(unjoined,this))
-            }
-        })
+        disconnectOnUnjoin match {
+            case true =>
+                val maybeJoined = joinedTo
+                _joinedTo = None
+                disconnect( ()=>{
+                    disconnectCallback.foreach(_(this))
+                    //maybeJoined.foreach( unjoined => 
+                    //    unjoinCallback.foreach( _(unjoined, this)) 
+                    //)
+                    f()
+                })
+            case false =>
+                realConnect(telco.silentJoinable(), f)
+        }
     }
 	
   
-    private def onDisconnect() =
+    private def onDisconnect() = {
         joinedTo.foreach( joined=>{
                 this._joinedTo = None 
                 joined.unjoin(()=>Unit) //uuugh how did the ohter one get unjoined
          })
-    
+    }
        
     override def toString() = 
 	    "JainSipConnection " + direction + " TO:"+destination + " State = " + state + " Hashcode = " + hashCode

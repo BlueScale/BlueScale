@@ -160,9 +160,9 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
     
     //override def onConnect(callback:()=>Unit) = callback()
 
-    def silence(f:()=>Unit) : Unit = return
+    def silence(f:()=>Unit) : Unit = f()
 
-    override def unjoin(f:()=>Unit) : Unit = return
+    override def unjoin(f:()=>Unit) : Unit = f() 
 
     override def toString() =
         "SdpJoinable ......"
