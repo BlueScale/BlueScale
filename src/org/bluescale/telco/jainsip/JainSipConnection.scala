@@ -181,14 +181,14 @@ class JainSipConnection protected[telco](
 	override def reject(rejectCallback:FinishFunction) = 
 	    incomingResponse(606, telco.silentJoinable(), rejectCallback)
 
-	override def disconnect(disconnectCallback:FinishFunction) = wrapLock {
+	override def disconnect(callback:FinishFunction) = wrapLock {
 		transaction.foreach( tx => {
 		    val newTx = telco.internal.sendByeRequest(tx)
 		    clientTx = Some(newTx)
             setRequestCallback( newTx.getBranchId(), ()=> { //change callback singature
                 state = UNCONNECTED()
                 onDisconnect()//BUG HERE. what if disconnect is CALLED from unjoin? 
-                disconnectCallback()
+                callback()
             })
         })
   	}
@@ -284,9 +284,9 @@ class JainSipConnection protected[telco](
                 _joinedTo = None
                 disconnect( ()=>{
                     disconnectCallback.foreach(_(this))
-                    //maybeJoined.foreach( unjoined => 
-                    //    unjoinCallback.foreach( _(unjoined, this)) 
-                    //)
+                    maybeJoined.foreach( unjoined => 
+                        unjoinCallback.foreach( _(unjoined, this)) 
+                    )
                     f()
                 })
             case false =>
@@ -296,6 +296,7 @@ class JainSipConnection protected[telco](
 	
   
     private def onDisconnect() = {
+        println("i'm in onDisconnect for " + this)
         joinedTo.foreach( joined=>{
                 this._joinedTo = None 
                 joined.unjoin(()=>Unit) //uuugh how did the ohter one get unjoined

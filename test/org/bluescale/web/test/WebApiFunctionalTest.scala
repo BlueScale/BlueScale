@@ -41,15 +41,16 @@ object WebApiFunctionalTest {
         val wt = new WebApiFunctionalTest()
         println(" TEEEEEEEST" )
         wt.setUp()
-        //wt.tempTest()
         wt.testClickToCall()
         wt.tearDown()
+        /*
         wt.setUp()
         wt.testIncomingCall()
         wt.tearDown()
         wt.setUp()
         wt.testIncomingForward()
         wt.tearDown()
+        */
         println("Doooooooooooooone")
     }
 }
@@ -93,7 +94,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
     @Test
     def testIncomingCall() {
-        println("test incomingCall")  
+        println("!!!!!!!!!! test incomingCall")  
         var callid:Option[String] = None
         val inConn = b2bServer.createConnection("7147773456", "7145555555")
 
@@ -185,7 +186,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
     @Test
     def testClickToCall() { 
-        println("testClickTocall")
+        println("~~~~~~~~~~~~~~~tESTcLIckTocall")
         b2bServer.ringSome = true
         
         var call1id:String = null

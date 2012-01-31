@@ -215,6 +215,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     }
 
     def handleDisconnect(url:String, conn:SipConnection) {
+        println(" OK WE GOT a handleDisconnect.....weird")
         //ok, wtf. do we post a join callback? or what?
     }
 
