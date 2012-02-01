@@ -190,7 +190,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	    		                }
                             }) 
 			                           
-			case Response.OK => 
+			case Response.OK =>
+			            println("  RESPONSE METHOD = " + cseq.getMethod())
 		    			cseq.getMethod() match {
 		    				case Request.INVITE =>
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )

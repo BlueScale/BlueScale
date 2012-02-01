@@ -67,11 +67,11 @@ class JainSipConnection protected[telco](
  
 	override def direction = dir
  
-	override def protocol = "SIP"
+	override def protocol = "SIP" //should move to SipConnection
 
 	override def connectionState = state
 
-	private var progressingCallback:Option[(SipConnection)=>Unit] = None 
+	private var progressingCallback:Option[(SipConnection)=>Unit] = None //should be in SipConnection or another trait 
   	
 	protected[jainsip] def setConnectionid(id:String) = connid = id
  
@@ -89,6 +89,7 @@ class JainSipConnection protected[telco](
 
     //can only be called after unjoining whatever was connected previous
     private def realConnect(join:Joinable[_], callback:()=>Unit) {
+        println("thi sis the only shit taht causes an actual invite, for " + this )
          state match {
             case s:UNCONNECTED =>
                 val t = telco.internal.sendInvite(this, join.sdp)
@@ -128,7 +129,6 @@ class JainSipConnection protected[telco](
         telco.silentSdp()
     
     private var callbacks = Map[String, AnyRef]()
-    //private var callbacks = Map[String, (Int,SessionDescription)=>Unit]()
 
     private def setRequestCallback(branchId:String, f:(Int, SessionDescription)=>Unit) =
         callbacks += branchId->f
@@ -195,6 +195,7 @@ class JainSipConnection protected[telco](
 
   	override def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = wrapLock {
   	    try {
+  	        println(" oooh, here, for " + this + " responseCode = " + responseCode + " + branchId = " + clientTx.getBranchId())
             val callback = callbacks(clientTx.getBranchId())
             val previousSdp = sdp
             sdp = newsdp
