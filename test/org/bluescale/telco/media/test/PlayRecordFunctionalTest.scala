@@ -65,8 +65,9 @@ class PlayRecordFunctionalTest extends TestHelper {
 		
 		conn.connect( ()=> 
 			media.join(conn, ()=>
-				media.play( "resources/gulp.wav", ()=> finishedPlaying(conn) ))
-		  )
+			    media.play( "resources/gulp.wav", ()=> finishedPlaying(conn) ))
+		)
+		
 		//lets see if we can get this working!	
 		println("awaiting")
 		latch.await()

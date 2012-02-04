@@ -27,6 +27,6 @@ object Types {
     
     type FinishFunction = ()=>Unit
 
-    type FinishMap = Map[VersionedState,FinishFunction]
+    //type FinishMap = Map[VersionedState,FinishFunction]
     
 }

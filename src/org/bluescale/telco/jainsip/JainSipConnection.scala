@@ -89,7 +89,6 @@ class JainSipConnection protected[telco](
 
     //can only be called after unjoining whatever was connected previous
     private def realConnect(join:Joinable[_], callback:()=>Unit) {
-        println("thi sis the only shit taht causes an actual invite, for " + this )
          state match {
             case s:UNCONNECTED =>
                 val t = telco.internal.sendInvite(this, join.sdp)
@@ -99,8 +98,9 @@ class JainSipConnection protected[telco](
             case s:CONNECTED =>
                 transaction.foreach( tx =>
                     clientTx = Some(telco.internal.sendReinvite(tx, join.sdp) ))
+                    
             }
-        clientTx.foreach( tx => {        
+        clientTx.foreach( tx => {
             setRequestCallback(tx.getBranchId(), (responseCode, previousSdp) => {
                 responseCode match {
                     case Response.RINGING =>
@@ -121,10 +121,9 @@ class JainSipConnection protected[telco](
         })
     }
     
-    private def clearCallbacks(tx:Transaction) =
+    private def clearCallbacks(tx:Transaction) = 
         callbacks = callbacks.filter( kv => tx.getBranchId() == kv._1)
-        
-
+    
     override protected def loadInitialSdp() = 
         telco.silentSdp()
     
@@ -138,7 +137,6 @@ class JainSipConnection protected[telco](
         
     
     override def joinedMediaChange() = wrapLock {
-        
         joinedTo.foreach( join => connect(join,()=>{}) )
     }
 
@@ -195,18 +193,19 @@ class JainSipConnection protected[telco](
 
   	override def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = wrapLock {
   	    try {
-  	        println(" oooh, here, for " + this + " responseCode = " + responseCode + " + branchId = " + clientTx.getBranchId())
-            val callback = callbacks(clientTx.getBranchId())
             val previousSdp = sdp
             sdp = newsdp
-  	        callback match {
-                case f:((Int,SessionDescription)=>Unit) =>
-                     //FIXME: do we want to leave them here forever?
-                    f(responseCode, previousSdp)
-                case f:(()=>Unit) =>
-                    f()
-                case _ => println("error")
-            }
+            if (callbacks.contains(clientTx.getBranchId()))
+                callbacks(clientTx.getBranchId()) match {
+                    case f:((Int,SessionDescription)=>Unit) =>
+                        //FIXME: do we want to leave them here forever?
+                        f(responseCode, previousSdp)
+                    case f:(()=>Unit) =>
+                        f()
+                    case _ => println("error")
+                }
+            else 
+                println(" we couldn't find an entry for " + clientTx.getBranchId() + " | for " + this)
         } catch {
             case ex:Exception =>
                 println("Exception in setUAC = "+ ex + " | responseCode = " + responseCode)
@@ -241,11 +240,11 @@ class JainSipConnection protected[telco](
         serverTx.foreach( tx => { 
             state = CONNECTED()
             callbacks(tx.getBranchId()) match {
-                case f:( ()=>Unit ) => 
+                case f:( ()=>Unit ) =>
+                    clearCallbacks(tx)
                     f()
                 case _ => println("error")
             }
-            clearCallbacks(tx)
         })
     }
 
@@ -297,7 +296,6 @@ class JainSipConnection protected[telco](
 	
   
     private def onDisconnect() = {
-        println("i'm in onDisconnect for " + this)
         joinedTo.foreach( joined=>{
                 this._joinedTo = None 
                 joined.unjoin(()=>Unit) //uuugh how did the ohter one get unjoined

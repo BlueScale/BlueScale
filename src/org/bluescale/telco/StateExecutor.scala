@@ -27,7 +27,7 @@ import org.bluescale.telco.api._
 import org.bluescale.telco.Types._
 
 trait StateExecutor  {
-    
+   /* 
     protected var stateMap = Map[VersionedState,FinishFunction]()
     
     protected var function : Option[FinishFunction] = None
@@ -40,4 +40,5 @@ trait StateExecutor  {
     def debugStateExecutor() = {
         println(" ########           expectedState = " + stateMap + "!")
     }
+    */
 }

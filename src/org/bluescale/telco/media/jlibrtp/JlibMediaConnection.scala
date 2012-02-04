@@ -74,6 +74,7 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     override def join(conn:Joinable[_], f:()=>Unit) =
       	conn.connect(this, false, ()=> {
+      	    println(" conn " + conn + " Is now Reconnected and listening to the Media's CONNECTION INFO")
     		this._joinedTo = Some(conn)
     		f()
     	})

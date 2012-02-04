@@ -32,10 +32,12 @@ import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._
 import org.junit._
 import Assert._
+import org.bluescale.telco.jainsip.unittest._
+import org.bluescale.telco.media.jlibrtp._
 
-class IncomingPlay {
-//extends TestHelper {
-/*
+class IncomingPlayFunctionalTest
+extends TestHelper {
+
     val alice = telcoServer.createConnection("7147579999","555444333")
 
     //val bob = telcoServer.createConnection("9495554444", "234567789")
@@ -48,29 +50,33 @@ class IncomingPlay {
     //var incomingCall:SipConnection = null
 
     @Test
-    def testIncomingPlay() : Unit = { 
-        val testCall = b2bServer.createConnection( "", "" )
-        telcoServer.setIncomingCallback( (call:SipConnection)=> call.accept(playMedia) )
-        testCall.connect( ()=> println("connected") )
-        answeredLatch.await()
+    def testIncomingPlay() : Unit = {
+        val testCall = b2bServer.createConnection("3334445555", "2223334444" )
+        telcoServer.setIncomingCallback(acceptAndPlay)
+        testCall.connect( ()=> println(" test call connected") )
+        playedLatch.await()
+        println("finished playing!")
     }
 
-    def playMedia() {
-        val mediaConnection = MediaServer.CreateMediaConnection("url")
-        mediaConnection.connectAndPlay( () => println("Playing") )
-
+    def acceptAndPlay(conn:SipConnection) {
+        val mediaConn = new JlibMediaConnection(telcoServer)
+        conn.accept( ()=> {
+            mediaConn.join(conn, ()=>
+                mediaConn.play( "resources/gulp.wav", ()=> playedLatch.countDown() )
+            )   
+        })
     }
 
-    */
 }
 
-/*
-object IncomingForward {
+object IncomingPlayFunctionalTest {
     def main(args:Array[String]) { 
-        val test = new IncomingForward()
+        println("Starting IncomingPlayFunctionalTest")
+        val test = new IncomingPlayFunctionalTest()
         test.setUp()
-        test.testIncomingForward()
+        println("starting testIncomingPlay method")
+        test.testIncomingPlay()
         test.tearDown()
     }
 }
-*/
+
