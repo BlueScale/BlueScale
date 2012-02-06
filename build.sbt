@@ -4,9 +4,9 @@ version := ".3"
 
 scalaVersion := "2.9.1"
 
-sourceDirectories in Compile := Seq(file("scala"))
+scalaSource in Compile := new File("src")
 
-sourceDirectories in Test += new File("test")
+scalaSource in Test := new File("test")
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.7" % "test->default"
 

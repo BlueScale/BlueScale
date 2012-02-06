@@ -11,6 +11,7 @@ heap.bin
 bin/
 log/
 dist/
+target/
 
 # generated media
 ###############

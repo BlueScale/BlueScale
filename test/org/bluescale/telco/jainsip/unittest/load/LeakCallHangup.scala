@@ -32,7 +32,7 @@ import java.util._
 import org.bluescale.telco.jainsip._
 
 class LeakCallHangup  extends TestHelper  {
-	
+/*	
 	def getCounter = None
 	
     System.setProperty("actors.enableForkJoin", "false")
@@ -66,14 +66,15 @@ class LeakCallHangup  extends TestHelper  {
 	    println(" freeBefore = " + freeBeforeMem/1024 + " | freeAfterMem = " + freeAfterMem/1024)
 	    //assertTrue(freeBeforeMem < freeAfterMem )
 	}
-
+*/
 }
 
+/*
 object LeakCallHangup {
     def main(args:Array[String]) {
         val lch = new LeakCallHangup()
         lch.testNoLeaks()
         val r = readLine()
     }
-}
+}*/
  

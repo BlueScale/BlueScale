@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.CountDownLatch
 
 class ConccurentSimpleCall  extends junit.framework.TestCase  {
-	
+    /*	
 	val telcoServer  = new SipTelcoServer( "127.0.0.1", 4000, "127.0.0.1", 4001) 
 	val b2bServer = new B2BServer( "127.0.0.1", 4001, "127.0.0.1", 4000)
  
@@ -94,6 +94,7 @@ class ConccurentSimpleCall  extends junit.framework.TestCase  {
             }
 	  	}
 	}
+	*/
 }
 
  

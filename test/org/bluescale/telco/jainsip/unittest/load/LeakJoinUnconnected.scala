@@ -32,7 +32,7 @@ import org.bluescale.telco.jainsip._
 
 
 class LeakJoinUnconnected  extends TestHelper {
-	
+    /*	
 	 
 	b2bServer.start()
 	telcoServer.start()
@@ -63,6 +63,7 @@ class LeakJoinUnconnected  extends TestHelper {
 	   
  	 
 	}
+	*/
   
  
 }
