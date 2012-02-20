@@ -155,7 +155,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
 				//transaction.sendResponse(messageFactory.createResponse(Response.TRYING, request))
 				val destination = parseToHeader(request.getRequestURI().toString())
-				val conn = new JainSipConnection(getCallId(request), destination, "", INCOMING(), telco, true)
+				val conn = new SipConnectionImpl(getCallId(request), destination, "", INCOMING(), telco, true)
                 val sdp = SdpHelper.getSdp(request.getRawContent())
                 telco.addConnection(conn) 
                 conn.invite(transaction,sdp)
@@ -245,8 +245,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         return tx
     }
 	
-	def sendInvite(conn:JainSipConnection, sdp:SessionDescription) : (String,ClientTransaction) = {
-		val request = inviteCreator.getInviteRequest(conn.origin, conn.destination, sdp.toString().getBytes())
+	def sendInvite(from:String, to:String, sdp:SessionDescription) : (String,ClientTransaction) = {
+		val request = inviteCreator.getInviteRequest(from, to, sdp.toString().getBytes())
 		//FIXME: add FROM
 		request.addHeader(inviteCreator.getViaHeader().get(0))
 		//conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])

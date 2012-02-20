@@ -32,8 +32,8 @@ trait TelcoServer {
 
    	def createConnection(destPhone:String, callerId:String, disconnectOnUnjoin:Boolean) : SipConnection
   	  
-   	def findConnection(connectionId:String) : SipConnection; 
-  
+   	def findConnection(connectionId:String) : SipConnection;
+
   	def setFailureCallback(f:(SipConnection) => Unit)
   	
 	def setIncomingCallback(f:(SipConnection) => Unit)

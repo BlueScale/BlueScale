@@ -40,7 +40,6 @@ trait SipConnection
 
     def hold(f:()=>Unit):Unit
 
-    var state : ConnectionState = UNCONNECTED()
 }
 
 

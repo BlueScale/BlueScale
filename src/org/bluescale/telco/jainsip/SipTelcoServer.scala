@@ -52,12 +52,14 @@ class SipTelcoServer(
 
 	private var unjoinCallback:Option[(Joinable[_],SipConnection) => Unit] = None
 
-	protected[jainsip] val connections = new ConcurrentHashMap[String, JainSipConnection]()
+	protected[jainsip] val connections = new ConcurrentHashMap[String, SipConnectionImpl]()
 	
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
  
    	override def createConnection(dest:String, callerid:String, disconnectOnUnjoin:Boolean) : SipConnection = {
-   	    val conn = new JainSipConnection( null, dest, callerid, new OUTGOING, this, disconnectOnUnjoin)  //this gets in the connections map when an ID is created
+   	    //val conn = new JainSipConnection( null, dest, callerid, new OUTGOING, this, disconnectOnUnjoin)  //this gets in the connections map when an ID is created
+   	    val conn = new SipConnectionImpl( null, dest, callerid, new OUTGOING, this, disconnectOnUnjoin)  //this gets in the connections map when an ID is created
+
    	    conn.disconnectCallback = disconnectedCallback
    	    conn.unjoinCallback = unjoinCallback
    	    return conn
@@ -66,12 +68,12 @@ class SipTelcoServer(
    	override def createConnection(dest:String, callerid:String) = 
         createConnection(dest, callerid, true) 
 	   		
-	override def findConnection(id:String): SipConnection = 
+	override def findConnection(id:String): SipConnectionImpl = 
 		connections.get(id)
 	
 	protected[jainsip] def getConnection(id:String) = connections.get(id)
 	
-	protected[jainsip] def addConnection(conn:JainSipConnection) : Unit = 
+	protected[jainsip] def addConnection(conn:SipConnectionImpl) : Unit = 
     	connections.put(conn.connectionid, conn)
     
     protected[jainsip] def removeConnection(conn:SipConnection) : Unit = 
@@ -93,11 +95,11 @@ class SipTelcoServer(
 
 	override def setUnjoinCallback(f:(Joinable[_],SipConnection) => Unit) = unjoinCallback = Some(f)
 	
-	def fireFailure(c:SipConnection) 		= failureCallback.foreach( _(c) ) 
+	def fireFailure(c:SipConnection) = failureCallback.foreach( _(c) ) 
 
-	def fireDisconnected(c:SipConnection) 	= disconnectedCallback.foreach( _(c) ) 
+	def fireDisconnected(c:SipConnection) = disconnectedCallback.foreach( _(c) ) 
 	
-	def fireIncoming(c:SipConnection)   = incomingCallback.foreach( _(c) )
+	def fireIncoming(c:SipConnection) = incomingCallback.foreach( _(c) )
 
 	def silentSdp() =
 	    SdpHelper.getBlankSdp(this.contactIp)
@@ -112,14 +114,14 @@ class SipTelcoServer(
         if ( c1.joinedTo == None || c2.joinedTo == None ) 
     	    return false
     
-    	c1.asInstanceOf[JainSipConnection].joinedTo.foreach( conn1 =>
-            c2.asInstanceOf[JainSipConnection].joinedTo.foreach( conn2 => {
+    	c1.asInstanceOf[SipConnectionImpl].joinedTo.foreach( conn1 =>
+            c2.asInstanceOf[SipConnectionImpl].joinedTo.foreach( conn2 => {
 
-            val mediatrans1 =  conn1.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-            val medialist1 = conn2.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+            val mediatrans1 =  conn1.asInstanceOf[SipConnectionImpl].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+            val medialist1 = conn2.asInstanceOf[SipConnectionImpl].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
       
-            val mediatrans2 =  conn2.asInstanceOf[JainSipConnection].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
-            val medialist2 = conn1.asInstanceOf[JainSipConnection].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+            val mediatrans2 =  conn2.asInstanceOf[SipConnectionImpl].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
+            val medialist2 = conn1.asInstanceOf[SipConnectionImpl].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
       
             //TODO: Check Media Connection!
       

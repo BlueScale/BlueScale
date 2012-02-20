@@ -60,10 +60,10 @@ class JoinTwoConnectedFunctionalTest extends TestHelper {
                    
 	def firstJoined() {
 		println(" FIRST joined, now waiting for moviepHONE!!")
-		System.err.println("!!!!ARE BOth connected = ? " + getTelcoServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
+		System.err.println("!!!!ARE BOth connected = ? " + getTelcoServer.areTwoConnected(cell.asInstanceOf[SipConnectionImpl], desk.asInstanceOf[SipConnectionImpl]))
 		println("cell joined to = " + cell.joinedTo )
 		println("desk joined to = " + desk.joinedTo )
-        assertTrue(getTelcoServer.areTwoConnected(cell.asInstanceOf[JainSipConnection], desk.asInstanceOf[JainSipConnection]))
+        assertTrue(getTelcoServer.areTwoConnected(cell.asInstanceOf[SipConnectionImpl], desk.asInstanceOf[SipConnectionImpl]))
         //Thread.sleep(30)
 		moviePhone1.connect( ()=>
                          	 	{println("this should implicitly put desk on hold.")
@@ -77,15 +77,15 @@ class JoinTwoConnectedFunctionalTest extends TestHelper {
  
 	def joined(c1:SipConnection, c2:SipConnection) : Unit = {
 	    println("OK now we should hear moviephone and not each other....")
-        assertTrue(getTelcoServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
-	    System.err.println("are both connected = ? " + getTelcoServer.areTwoConnected(c1.asInstanceOf[JainSipConnection], c2.asInstanceOf[JainSipConnection]))
+        assertTrue(getTelcoServer.areTwoConnected(c1.asInstanceOf[SipConnectionImpl], c2.asInstanceOf[SipConnectionImpl]))
+	    System.err.println("are both connected = ? " + getTelcoServer.areTwoConnected(c1.asInstanceOf[SipConnectionImpl], c2.asInstanceOf[SipConnectionImpl]))
         
         //println(" desk.joinedto.get sdp = " + desk.joinedTo.get.sdp)
         //desk should be disconnected
         
         //assertTrue(SdpHelper.isBlankSdp(desk.joinedTo.get.sdp))
         println(" desk is = " + desk )
-	    System.err.println("desk should be disconnected" + SdpHelper.isBlankSdp(desk.asInstanceOf[JainSipConnection].sdp) ) //b2bServer.areTwoConnected(desk.asInstanceOf[SipConnection], )
+	    System.err.println("desk should be disconnected" + SdpHelper.isBlankSdp(desk.asInstanceOf[SipConnectionImpl].sdp) ) //b2bServer.areTwoConnected(desk.asInstanceOf[SipConnection], )
 	    latch.countDown
 	}
  

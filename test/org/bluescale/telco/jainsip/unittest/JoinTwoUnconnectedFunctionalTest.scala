@@ -79,7 +79,7 @@ class JoinTwoUnconnectedFunctionalTest extends TestHelper {
 				  		assertEquals(alice.connectionState, UNCONNECTED())
 				  		//make sure bob is on hold now!
 				  		//assertFalse(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
-				  		val b = SdpHelper.isBlankSdp(bob.asInstanceOf[JainSipConnection].sdp)
+				  		val b = SdpHelper.isBlankSdp(bob.sdp)
 				  		System.err.println("b = " + b)
 				  		//Now bob should be disconnected
 					})

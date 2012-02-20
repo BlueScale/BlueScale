@@ -125,6 +125,7 @@ Once you finish editing your config, launch the run.sh script and you're ready t
 
 
 ## TODO
+- Ability to register SIP phones and expose the rigister through the Web API
 
 - Media support for playing .wav files to connected calls.
 
