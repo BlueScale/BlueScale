@@ -39,7 +39,8 @@ class Launcher {
 object Launcher {
 
 	def main(args:Array[String]) : Unit = {
-		val config = new ConfigParser("BlueScaleConfig.xml")
+	    //TODO: take an arg for the config file.  
+		val config = new ConfigParser("/BlueScaleConfig.xml")
 
 	
          config.isB2BTestServer() match {
