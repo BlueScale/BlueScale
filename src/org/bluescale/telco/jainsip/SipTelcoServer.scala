@@ -113,10 +113,12 @@ class SipTelcoServer(
       
         if ( c1.joinedTo == None || c2.joinedTo == None ) 
     	    return false
-    
-    	c1.asInstanceOf[SipConnectionImpl].joinedTo.foreach( conn1 =>
-            c2.asInstanceOf[SipConnectionImpl].joinedTo.foreach( conn2 => {
 
+
+        for (
+            conn1 <- c1.asInstanceOf[SipConnectionImpl].joinedTo;
+            conn2 <- c2.asInstanceOf[SipConnectionImpl].joinedTo
+        ) {
             val mediatrans1 =  conn1.asInstanceOf[SipConnectionImpl].joinedTo.get.sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
             val medialist1 = conn2.asInstanceOf[SipConnectionImpl].sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription];
       
@@ -130,7 +132,8 @@ class SipTelcoServer(
       
             if ( mediatrans2.getMedia().getMediaPort != medialist2.getMedia().getMediaPort() ) 
                 return false
-        }))
+        }
+    	
         return true
     }
 

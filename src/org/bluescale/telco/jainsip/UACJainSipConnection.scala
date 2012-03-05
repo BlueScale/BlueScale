@@ -123,10 +123,10 @@ trait UACJainSipConnection extends BaseJainSipConnection with Lockable {
                 val maybeJoined = joinedTo
                 _joinedTo = None
                 disconnect( ()=>{
+
                     disconnectCallback.foreach(_(this))
-                    maybeJoined.foreach( unjoined => 
-                        unjoinCallback.foreach( _(unjoined, this)) 
-                    )
+                    for (unjoined <- maybeJoined;
+                        callback <- unjoinCallback) callback(unjoined, this)
                     f()
                 })
             case false =>
