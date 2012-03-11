@@ -40,6 +40,8 @@ trait SipConnection
 
     def hold(f:()=>Unit):Unit
 
+    //def IgnoreEarlyMedia()
+
 }
 
 

@@ -89,9 +89,14 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     }
    
     protected def dialVoicemail(conn:SipConnection, dialVM:DialVoicemail, verbs:Seq[BlueMLVerb]) = {
-        val connections = List(telcoServer.createConnection(dialVM.number, dialVM.from),
-                        telcoServer.createConnection(dialVM.number, dialVM.from),
-                        telcoServer.createConnection(dialVM.number, dialVM.from))
+        //lets try incrementing to deal with loopback issues
+        var str = "714444330"
+        val connections = List(telcoServer.createConnection(dialVM.number, str+"0"),
+                        telcoServer.createConnection(dialVM.number, str+"1"),
+                        telcoServer.createConnection(dialVM.number, str+"2"),
+                        telcoServer.createConnection(dialVM.number, str+"3"),
+                        telcoServer.createConnection(dialVM.number, str+"4"),
+                        telcoServer.createConnection(dialVM.number, str+"5"))
 
         val callback = ()=> {
             connections.foreach( conn => if (conn.connectionState != CONNECTED()) conn.cancel(()=>println("cancelling")))
