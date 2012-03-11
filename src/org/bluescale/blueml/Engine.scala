@@ -48,6 +48,8 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         verbs.head match {
             case dial:Dial => 
                 dialJoin(conn, dial, verbs.tail)
+            case dialVM:DialVoicemail =>
+                dialVoicemail(conn, dialVM, verbs.tail) 
             case play:Play => 
                 handlePlay(conn, play, verbs.tail)    
             case hangup:Hangup =>
@@ -85,7 +87,22 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                                 println("progressing") //TODO: should we sleep and call again? 
         }
     }
-    
+   
+    protected def dialVoicemail(conn:SipConnection, dialVM:DialVoicemail, verbs:Seq[BlueMLVerb]) = {
+        val connections = List(telcoServer.createConnection(dialVM.number, dialVM.from),
+                        telcoServer.createConnection(dialVM.number, dialVM.from),
+                        telcoServer.createConnection(dialVM.number, dialVM.from))
+
+        val callback = ()=> {
+            connections.foreach( conn => if (conn.connectionState != CONNECTED()) conn.cancel(()=>println("cancelling")))
+            val connectedConn = connections.find(conn => conn.connectionState == CONNECTED())
+            connectedConn.foreach( connected =>
+               connectAnswer(conn, connected, dialVM.url)())
+        }
+        //connectAnswer should only happen once since we're cancelling the others, so there should be only one successful connect!
+        connections.foreach( conn => conn.connect(callback))
+        
+    }
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
         val destConn = telcoServer.createConnection(dial.number, dial.from)
@@ -96,7 +113,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 })
             
-            case _ => connectAnswer(conn, destConn, dial)
+            case _ => destConn.connect(connectAnswer(conn, destConn, dial.url))
                 
         }
     
@@ -117,22 +134,22 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         }
     }
 
-    protected def connectAnswer(conn:SipConnection, destConn:SipConnection, dial:Dial) = {
-        destConn.connect(()=> {
-            postCallStatus(dial.url, destConn)
+    protected def connectAnswer(conn:SipConnection, destConn:SipConnection, url:String) = 
+        ()=> {
+            postCallStatus(url, destConn)
             conn.direction match {
                 case i:INCOMING =>
                             conn.accept( ()=> {
                                  conn.join(destConn, ()=> 
-                                    postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
+                                    postConversationStatus(addConvoInfo(url, conn, destConn)))
                                } )
                                 
                 case o:OUTGOING =>
                             conn.join(destConn, ()=> 
-                                postConversationStatus(addConvoInfo(dial.url, conn, destConn)))
+                                postConversationStatus(addConvoInfo(url, conn, destConn)))
             }
-        })
-    }
+        }
+    
 
     def addConvoInfo(url:String, conn1:SipConnection, conn2:SipConnection) : ConversationInfo = {
         val ci = new ConversationInfo(conn1, conn2, url)

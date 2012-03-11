@@ -39,7 +39,6 @@ import org.bluescale.util.WebUtil
 object WebApiFunctionalTest {
     def main(args:Array[String]) {
         val wt = new WebApiFunctionalTest()
-        println(" TEEEEEEEST" )
         wt.setUp()
         wt.testClickToCall()
         wt.tearDown()
@@ -51,7 +50,6 @@ object WebApiFunctionalTest {
         wt.testIncomingForward()
         wt.tearDown()
         */
-        println("Doooooooooooooone")
     }
 }
 
@@ -111,7 +109,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
             assertEquals( inConn.connectionState, CONNECTED() )
             assertEquals( "Connected", request.getParameter("ConversationStatus"))
             assertFalse( SdpHelper.isBlankSdp(inConn.sdp))
-            println(" ---------------------------- testIncomingCall, we've joined -------------")
             inConn.disconnect( ()=>println("disconnected") )
             ""
         })
@@ -128,6 +125,49 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         latch.await()
         println("Finished testINcomingCall")
     }
+
+/*
+    @Test
+    def testIncomingSendToVM() {
+        println("test incomingSendToVM()")
+        var callid:Option[String] = None
+        val joinedLatch = new CountDownLatch(1)
+        val clientConn = b2bServer.createConnection(gatewayNumber, "1112223333")
+       
+        testWS.setNextResponse( request=>{
+            callid = Some( request.getParameter("CallId") )
+            getForwardVMResponse(aliceNumber, bobNumber)
+        })
+
+        testWS.setNextResponse( request=> {
+            println(" ok i'm connected here")
+            //assertEquals(request.getParameter("To"), bobNumber)
+            ""
+        })
+
+        testWS.setNextResponse( request=> {
+            println("......joined")
+            Thread.sleep(500)
+            assertEquals(request.getParameter("ConversationStatus"), "Connected")
+            joinedLatch.countDown()
+            ""
+        })
+
+        testWS.setNextResponse( request=> {
+            println("disconnected")
+            latch.countDown()
+            ""
+        })
+
+        b2bServer.simulateCellVM = true
+        clientConn.connect( ()=>println("connected"))
+        joinedLatch.await()
+        println("we've joined")
+        WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
+        latch.await()
+        println("finished testIncomingForward")
+    }
+*/
 
     @Test
     def testIncomingForward() {
@@ -237,7 +277,14 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         println("finisehd click to call")
     }
     
-    
+    def getForwardVMResponse(dest:String, dest2:String) : String = 
+        return (<Response>
+                    <DialVoicemail>
+                       <Number>{dest}</Number>
+                       <Action>http://localhost:8100</Action>
+                    </DialVoicemail>
+                </Response>).toString()
+
     def getForwardResponse(dest:String, dest2:String) : String = 
         return (<Response>
                     <Dial>

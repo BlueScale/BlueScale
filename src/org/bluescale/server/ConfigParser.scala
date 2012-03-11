@@ -30,7 +30,7 @@ import org.mozilla.javascript.Context
 
 class ConfigParser(val filename:String) {
 
-	private val nodes = XML.load(getClass().getResourceAsStream(filename))
+	private val nodes = XML.loadFile(filename)
 	
 	private def parseTags(tag:String) : String = ((nodes \\ tag) \ "@value").text
 	

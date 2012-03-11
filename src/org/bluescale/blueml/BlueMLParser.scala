@@ -36,6 +36,7 @@ object BlueMLParser extends Util {
     private def parseVerb(n:Node) : BlueMLVerb = {
         n.label match {
             case "Dial" => parseDial(n)
+            case "DialVoicemail" => parseDialVoicemail(n)
             case "Say" => throw new UnsupportedOperationException("Say")
             case "Play" => parsePlay(n)
             case "Gather"=>throw new UnsupportedOperationException("Gather")
@@ -50,8 +51,14 @@ object BlueMLParser extends Util {
                   fixNumber((n \ "From").text),
                   fixNumber((n \ "Action") .text),
                   parseInt((n \ "RingLimit").text))
+    
+    private def parseDialVoicemail(n:Node) : DialVoicemail = 
+        new DialVoicemail( GetNonEmpty((n \ "Number").text, n.text),
+                fixNumber((n \ "From").text),
+                fixNumber((n \ "Action").text))
+
                   
-   private def parsePlay(n:Node) : Play = 
+    private def parsePlay(n:Node) : Play = 
         new Play( parseInt( (n \ "loop").text),
         		(n \ "MediaUrl").text,
         		(n \ "Action").text)
@@ -67,11 +74,9 @@ object BlueMLParser extends Util {
 
     private def fixNumber(number:String) =
         number.replace(" ", "")
-    
-    
-
-
-
+        .replace("-","")
+        .replace("(","")
+        .replace(")","")
 }
 
 
@@ -86,6 +91,10 @@ case class Dial(val number:String,
                 val from:String,
                 val url:String,
                 val ringLimit:Int) extends BlueMLVerb
+
+case class DialVoicemail(val number:String,
+                    val from:String,
+                    val url:String) extends BlueMLVerb
 
 case class Hangup(val url:String) extends BlueMLVerb
 

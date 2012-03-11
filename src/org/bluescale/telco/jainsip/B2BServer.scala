@@ -40,7 +40,8 @@ import org.bluescale.telco.api._
 import org.bluescale.telco._
 import scala.collection.JavaConversions._
 import org.bluescale.telco.media.jlibrtp._
-import  java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic._
 
 class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   
@@ -49,6 +50,10 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
     var ringSome = false
     
     var answerWithMedia = false
+
+    var simulateCellVM = false
+
+    var cellMap = new ConcurrentHashMap[String,AtomicInteger]()
     
 	private val b2bTelcoServer    = new SipTelcoServer(ip, port, destIp, destPort)
 	
@@ -72,6 +77,13 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
   
 	def handleIncoming(conn:SipConnection) : Unit = { 
 		//set the joinedTo.get.sdp
+        if (simulateCellVM) {
+            cellMap.putIfAbsent(conn.destination,new AtomicInteger(3))
+            val ringsleep = cellMap.get(conn.destination).getAndDecrement()
+            Thread.sleep(500*ringsleep) 
+        }
+
+
 		if (ignore.contains(conn.destination))
 		    return
 
