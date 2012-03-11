@@ -40,7 +40,7 @@ object WebApiFunctionalTest {
     def main(args:Array[String]) {
         val wt = new WebApiFunctionalTest()
         wt.setUp()
-        wt.testClickToCall()
+        wt.testIncomingSendToVM()
         wt.tearDown()
         /*
         wt.setUp()
@@ -126,7 +126,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         println("Finished testINcomingCall")
     }
 
-/*
+
     @Test
     def testIncomingSendToVM() {
         println("test incomingSendToVM()")
@@ -165,9 +165,9 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         println("we've joined")
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
         latch.await()
-        println("finished testIncomingForward")
+        println("finished testIncomingSendToVMForward")
     }
-*/
+
 
     @Test
     def testIncomingForward() {
