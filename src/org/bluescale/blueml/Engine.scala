@@ -123,20 +123,21 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         }
     
         dial.ringLimit match {
-            case -1 => println("ok nothing to do but hope it connects")
+            case x if x > 0 =>
+                    Thread.sleep(dial.ringLimit*(1000))
+                    try {
+                        destConn.cancel( ()=> { 
+                            handleBlueML(conn, verbs)
+                        })
 
-            case _ => 
-                Thread.sleep(dial.ringLimit*(1000))
-                try {
-                    destConn.cancel( ()=> { 
-                    handleBlueML(conn, verbs)
-                    })
+                    } catch {
+                        case ex:InvalidStateException => println("first connect succeeded")
+                        case ex:Exception=> throw ex
+                    }
 
-                } catch {
-                    case ex:InvalidStateException => println("first connect succeeded")
-                    case ex:Exception=> throw ex
-                }
-        }
+           case _ => 
+                println("nothing to do but hope it connects!")
+           }
     }
 
     protected def connectAnswer(conn:SipConnection, destConn:SipConnection, url:String) = 

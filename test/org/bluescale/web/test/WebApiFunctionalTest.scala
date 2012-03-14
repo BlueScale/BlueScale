@@ -39,16 +39,18 @@ import org.bluescale.util.WebUtil
 object WebApiFunctionalTest {
     def main(args:Array[String]) {
         val wt = new WebApiFunctionalTest()
-        //..wt.setUp()
+        wt.setUp()
+        wt.testClickToCall()
         //wt.testIncomingSendToVM()
-        //wt.tearDown()
-        
+        wt.tearDown()
+       /* 
         wt.setUp()
         wt.testIncomingCall()
         wt.tearDown()
         wt.setUp()
         wt.testIncomingForward()
         wt.tearDown()
+        */
         
     }
 }
