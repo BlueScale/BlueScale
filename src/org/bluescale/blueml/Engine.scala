@@ -90,7 +90,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     protected def dialVoicemail(conn:SipConnection, dialVM:DialVoicemail, verbs:Seq[BlueMLVerb]) = {
         //lets try incrementing to deal with loopback issues
         var str = "714444330"
-        val connections = List(telcoServer.createConnection(dialVM.number, str+"0"),
+        val connections = List(telcoServer.createConnection(FixPhoneNumber(dialVM.number), str+"0"),
                         telcoServer.createConnection(dialVM.number, str+"1"),
                         telcoServer.createConnection(dialVM.number, str+"2"),
                         telcoServer.createConnection(dialVM.number, str+"3"),
@@ -109,7 +109,8 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     }
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
-        val destConn = telcoServer.createConnection(dial.number, dial.from)
+        
+        val destConn = telcoServer.createConnection(FixPhoneNumber(dial.number), dial.from)
         conn.connectionState match {
             case c:CONNECTED =>
                 conn.join(destConn, ()=>{
@@ -212,7 +213,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     
      def newCall(to:String, from:String, url:String) {
         //todo: make sure it's all valid
-        val conn = telcoServer.createConnection(to, from)
+        val conn = telcoServer.createConnection(FixPhoneNumber(to), from)
         conn.connect(() => {
             handleConnect(url, conn)
             //send status to the url

@@ -37,6 +37,25 @@ trait Util {
             case None    => str2
         }
     }
+
+    def FixPhoneNumber(number:String) : String = {
+        var ret = number.replace(" ","")
+        return ret.head match {
+            case '+' => ret
+            case '1' => "+"+ret
+            case _ => "+1"+ret
+        }
+    }
+
+    def scrubNumbers(number:String) : String = {
+        val ret = number.replace("+","").replace(" ","")
+        return ret.head match {
+            case '1' => ret.substring(1,ret.length)
+            case _ => ret
+        }
+
+
+    }
 }
 
 
