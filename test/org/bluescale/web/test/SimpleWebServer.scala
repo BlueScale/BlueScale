@@ -82,7 +82,7 @@ class CallbackServlet(ws:SimpleWebServer) extends HttpServlet {
         
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) = { 
         println(" REQUEST = " + request + " ConversationStatus = " + request.getParameter("ConversationStatus"))
-        println(" REQUEST CallStatus = " + request.getParameter("CallStatus") )
+        println(" REQUEST To " + request.getParameter("To") + " From= " + request.getParameter("From") +" CallStatus = " + request.getParameter("CallStatus") )
         ws.getNextResponse().foreach( cb =>{
             response.setContentType("text/xml") //XML
             response.setStatus(HttpServletResponse.SC_OK)

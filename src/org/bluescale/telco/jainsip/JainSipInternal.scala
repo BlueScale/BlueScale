@@ -155,7 +155,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
 				//transaction.sendResponse(messageFactory.createResponse(Response.TRYING, request))
 				val destination = parseToHeader(request.getRequestURI().toString())
-				val conn = new SipConnectionImpl(getCallId(request), destination, "", INCOMING(), telco, true)
+				val origin      = parseFromHeader(request)
+				println("Origin = " + origin)
+				//printHeaders(request)
+				val conn = new SipConnectionImpl(getCallId(request), destination, origin, INCOMING(), telco, true)
                 val sdp = SdpHelper.getSdp(request.getRawContent())
                 telco.addConnection(conn) 
                 conn.invite(transaction,sdp)
@@ -307,7 +310,17 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         //TODO: fix case where there is no callerID
         to.toString().split("@")(0).split(":")(1)
   	}
-   
+
+  	private def parseFromHeader(request:Request) : String = { 
+  	    try {
+            return request.getHeader("From").asInstanceOf[FromHeader].getAddress().toString.split("@")(0).split(":")(1)
+        } catch  {
+            case ex:Exception =>
+                println("Exception parsing FROM header, it was " + request.getHeader("From"))
+        }
+        return ""
+    }
+  	
   	
   	private def printHeaders(request:Request) = { 
   		val iter = request.getHeaderNames()

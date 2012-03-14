@@ -39,17 +39,17 @@ import org.bluescale.util.WebUtil
 object WebApiFunctionalTest {
     def main(args:Array[String]) {
         val wt = new WebApiFunctionalTest()
-        wt.setUp()
-        wt.testIncomingSendToVM()
-        wt.tearDown()
-        /*
+        //..wt.setUp()
+        //wt.testIncomingSendToVM()
+        //wt.tearDown()
+        
         wt.setUp()
         wt.testIncomingCall()
         wt.tearDown()
         wt.setUp()
         wt.testIncomingForward()
         wt.tearDown()
-        */
+        
     }
 }
 
@@ -98,6 +98,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         //BlueScale API is goign to post back an incoming call to in
         testWS.setNextResponse( request=> {
+            println("got one resopnse")
             callid = Some( request.getParameter("CallId") )
             getDialResponse("9494443333")
         })
@@ -107,6 +108,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         testWS.setNextResponse( (request:HttpServletRequest)=> {
             Thread.sleep(500)//benign race condition here because of the fact the ack comes to this and gets sent to an actor... 
             assertEquals( inConn.connectionState, CONNECTED() )
+            println("got next response!")
             assertEquals( "Connected", request.getParameter("ConversationStatus"))
             assertFalse( SdpHelper.isBlankSdp(inConn.sdp))
             inConn.disconnect( ()=>println("disconnected") )

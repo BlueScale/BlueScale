@@ -44,7 +44,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     protected def handleBlueML(conn:SipConnection, verbs:Seq[BlueMLVerb]) : Unit = {
         if (verbs.isEmpty)
             return
-
         verbs.head match {
             case dial:Dial => 
                 dialJoin(conn, dial, verbs.tail)
@@ -74,7 +73,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         handleBlueML(conn, verbs)
     }
     
-    protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = { 
+    protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
         conn.connectionState match {
             case c:CONNECTED =>
                                 dialJoin(conn, dial, verbs)
