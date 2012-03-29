@@ -4,6 +4,8 @@
 *.log.txt
 *.classpath
 *.scala_dependencies
+.project
+.history
 heap.bin
 
 # FOLDERS
@@ -12,6 +14,8 @@ bin/
 log/
 dist/
 target/
+project/
+.settings/
 
 # generated media
 ###############
