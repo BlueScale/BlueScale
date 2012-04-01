@@ -40,7 +40,7 @@ trait UACJainSipConnection extends BaseJainSipConnection with Lockable {
 
  	def connect(join:Joinable[_], callback:FinishFunction) : Unit = connect(join, false, callback) 
 
-    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, callback:()=>Unit) = wrapLock {
+    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, callback:()=>Unit) = orderedexec {
         joinedTo match {
             case Some(currentJoin) =>
                 currentJoin.unjoin( ()=>realConnect(join, callback))
@@ -82,7 +82,7 @@ trait UACJainSipConnection extends BaseJainSipConnection with Lockable {
         })
     }
 
-    def join(otherCall:Joinable[_], joinCallback:FinishFunction) = wrapLock {
+    def join(otherCall:Joinable[_], joinCallback:FinishFunction) = orderedexec {
         val f = ()=> {
             println(" join for " + this + " to " + otherCall )
             otherCall.connect(this, ()=>{
@@ -98,7 +98,7 @@ trait UACJainSipConnection extends BaseJainSipConnection with Lockable {
   	    }
     }
 
-	def disconnect(callback:FinishFunction) = wrapLock {
+	def disconnect(callback:FinishFunction) = orderedexec {
 		transaction.foreach( tx => {
 		    val newTx = telco.internal.sendByeRequest(tx)
 		    clientTx = Some(newTx)
@@ -110,14 +110,14 @@ trait UACJainSipConnection extends BaseJainSipConnection with Lockable {
         })
   	}
 
-    def cancel(f:FinishFunction) = wrapLock {
+    def cancel(f:FinishFunction) = orderedexec {
  	    clientTx.foreach( tx=> {
             clientTx = Some(telco.internal.sendCancel(tx))
             callbacks += tx.getBranchId()->(() => f())
  	    })
  	}
 
-    def unjoin(f:FinishFunction) = wrapLock {
+    def unjoin(f:FinishFunction) = orderedexec {
         disconnectOnUnjoin match {
             case true =>
                 val maybeJoined = joinedTo
@@ -134,7 +134,7 @@ trait UACJainSipConnection extends BaseJainSipConnection with Lockable {
         }
     }
 
-    def hold(f:FinishFunction) = wrapLock {
+    def hold(f:FinishFunction) = orderedexec {
         throw new Exception("Not Implemented yet")
     }
 

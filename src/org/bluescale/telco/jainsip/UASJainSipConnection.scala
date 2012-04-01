@@ -37,7 +37,7 @@ import org.bluescale.util._
 
 trait UASJainSipConnection extends BaseJainSipConnection with Lockable {
 
-    def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = wrapLock {
+    def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = orderedexec {
   	    try {
             val previousSdp = sdp
             sdp = newsdp
@@ -59,7 +59,7 @@ trait UASJainSipConnection extends BaseJainSipConnection with Lockable {
         }
     }
     
-    def bye(tx:ServerTransaction) = wrapLock {
+    def bye(tx:ServerTransaction) = orderedexec {
         _state = UNCONNECTED()
         serverTx = Some(tx)
 
@@ -68,7 +68,7 @@ trait UASJainSipConnection extends BaseJainSipConnection with Lockable {
         disconnectCallback.foreach(_(this))
     }
 
-    def reinvite(tx:ServerTransaction, sdp:SessionDescription) = wrapLock {
+    def reinvite(tx:ServerTransaction, sdp:SessionDescription) = orderedexec {
         this.serverTx = Some(tx)
         this.sdp = sdp ///here is the weird part? 
         serverTx = Some(tx)
@@ -77,12 +77,12 @@ trait UASJainSipConnection extends BaseJainSipConnection with Lockable {
         incomingResponse(200, joinable, ()=>{})
     }
 
-    def invite(tx:ServerTransaction, sdp:SessionDescription) = wrapLock {
+    def invite(tx:ServerTransaction, sdp:SessionDescription) = orderedexec {
         this.sdp = sdp
         serverTx = Some(tx)
     }
     
-    def cancel(cancelTx:ServerTransaction) = wrapLock {
+    def cancel(cancelTx:ServerTransaction) = orderedexec {
         telco.internal.sendResponse(200, cancelTx, null)
         serverTx.foreach( tx => {
             telco.internal.sendResponse(487, tx, null)
@@ -93,7 +93,7 @@ trait UASJainSipConnection extends BaseJainSipConnection with Lockable {
         })
  	}
  	
- 	def ack(newtx:ServerTransaction) {
+ 	def ack(newtx:ServerTransaction) = orderedexec {
         serverTx.foreach( tx => { 
             _state = CONNECTED()
             callbacks(tx.getBranchId()) match {
@@ -112,7 +112,7 @@ trait UASJainSipConnection extends BaseJainSipConnection with Lockable {
 	 	})
     }
     
-    def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = {
+    def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = orderedexec {
         incomingResponse(200, toJoin, ()=> {
             _joinedTo = Some(toJoin)
             connectedCallback()

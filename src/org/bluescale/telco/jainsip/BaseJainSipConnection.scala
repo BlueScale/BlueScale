@@ -32,9 +32,8 @@ import javax.sip._
 import javax.sdp.SessionDescription
 import javax.sip.message._
 import org.bluescale.util._
-import org.bluescale.telco.Types
 
-protected trait BaseJainSipConnection extends SipConnection { 
+protected trait BaseJainSipConnection extends SipConnection with Actorable { 
    
     val to:String
 
@@ -68,22 +67,22 @@ protected trait BaseJainSipConnection extends SipConnection {
 
     def connectionState = _state
 
-    def loadInitialSdp() = 
+    protected def loadInitialSdp() = 
         telco.silentSdp()
 
-    def clearCallbacks(tx:Transaction) = 
+    protected def clearCallbacks(tx:Transaction) = 
         callbacks = callbacks.filter( kv => tx.getBranchId() == kv._1)
     
-    def setRequestCallback(branchId:String, f:(Int, SessionDescription)=>Unit) =
+    protected def setRequestCallback(branchId:String, f:(Int, SessionDescription)=>Unit) =
         callbacks += branchId->f
 
-    def setRequestCallback(branchId:String, f:()=>Unit) =
+    protected def setRequestCallback(branchId:String, f:()=>Unit) =
         callbacks += branchId->f
     
-    def transaction : Option[Transaction] =
+    protected def transaction : Option[Transaction] =
         Option(clientTx.getOrElse( serverTx.get ))
 
-    def onDisconnect() = {
+    protected def onDisconnect() = {
         joinedTo.foreach( joined=>{
                 this._joinedTo = None 
                 joined.unjoin(()=>Unit) //uuugh how did the ohter one get unjoined
@@ -91,7 +90,7 @@ protected trait BaseJainSipConnection extends SipConnection {
          removeConnection()
     }
 
-    def addConnection() : Unit
+    protected def addConnection() : Unit
 
     def removeConnection() : Unit
 
