@@ -18,7 +18,7 @@
 * Copyright Vincent Marquez 2010
 * 
 * 
-* Please contact us at www.BlueScaleSoftware.com
+* Please contact us at www.BlueScale.org
 *
 */
 package org.bluescale.telco.jainsip
