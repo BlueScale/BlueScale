@@ -35,7 +35,7 @@ import javax.sip.message._
 import org.bluescale.telco.Types
 import org.bluescale.util._
 
-trait UASJainSipConnection extends BaseJainSipConnection with Lockable {
+trait UASJainSipConnection extends BaseJainSipConnection  {
 
     def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = orderedexec {
   	    try {
@@ -105,7 +105,7 @@ trait UASJainSipConnection extends BaseJainSipConnection with Lockable {
         })
     }
 
-    private def incomingResponse(responseCode:Int, toJoin:Joinable[_], connectedCallback:FinishFunction) = wrapLock {
+    private def incomingResponse(responseCode:Int, toJoin:Joinable[_], connectedCallback:FinishFunction)  {
         serverTx.foreach( tx => {
             callbacks += tx.getBranchId()->(() => connectedCallback() )
 		    telco.internal.sendResponse(200, tx, toJoin.sdp.toString().getBytes())  

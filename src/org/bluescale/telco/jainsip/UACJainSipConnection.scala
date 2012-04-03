@@ -32,9 +32,8 @@ import javax.sip.header._
 import javax.sip._
 import javax.sdp.SessionDescription
 import javax.sip.message._
-import org.bluescale.util.Lockable
 
-trait UACJainSipConnection extends BaseJainSipConnection with Lockable {
+trait UACJainSipConnection extends BaseJainSipConnection {
     
     def connect( f:FinishFunction) = connect(SdpHelper.getJoinable(sdp), false, f)//shouldn't be this.  that's weird
 
