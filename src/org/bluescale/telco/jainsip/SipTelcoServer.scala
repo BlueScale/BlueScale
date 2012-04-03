@@ -44,19 +44,21 @@ class SipTelcoServer(
      def this(ip:String, port:Int, destIp:String, destPort:Int) =
         this(ip, ip, port, destIp, destPort)
  
-	private var incomingCallback:Option[SipConnection=>Unit] = None
+	private var incomingCallback: Option[SipConnection=>Unit] = None
 	
-	private var disconnectedCallback:Option[SipConnection=>Unit] = None
+	private var disconnectedCallback: Option[SipConnection=>Unit] = None
 	
-	private var failureCallback:Option[SipConnection=>Unit] = None
+	private var failureCallback: Option[SipConnection=>Unit] = None
 
-	private var unjoinCallback:Option[(Joinable[_],SipConnection) => Unit] = None
+	private var unjoinCallback: Option[(Joinable[_],SipConnection) => Unit] = None
+	
+	private var incomingcancelCallback: Option[SipConnection=>Unit] = None
 
 	protected[jainsip] val connections = new ConcurrentHashMap[String, SipConnectionImpl]()
 	
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
  
-   	override def createConnection(dest:String, callerid:String, disconnectOnUnjoin:Boolean) : SipConnection = {
+   	override def createConnection(dest: String, callerid :String, disconnectOnUnjoin: Boolean) : SipConnection = {
    	    //val conn = new JainSipConnection( null, dest, callerid, new OUTGOING, this, disconnectOnUnjoin)  //this gets in the connections map when an ID is created
    	    val conn = new SipConnectionImpl( null, dest, callerid, new OUTGOING, this, disconnectOnUnjoin)  //this gets in the connections map when an ID is created
 
@@ -65,15 +67,15 @@ class SipTelcoServer(
    	    return conn
    	}
    	
-   	override def createConnection(dest:String, callerid:String) = 
+   	override def createConnection(dest: String, callerid: String) = 
         createConnection(dest, callerid, true) 
 	   		
-	override def findConnection(id:String): SipConnectionImpl = 
+	override def findConnection(id: String): SipConnectionImpl = 
 		connections.get(id)
 	
-	protected[jainsip] def getConnection(id:String) = connections.get(id)
+	protected[jainsip] def getConnection(id: String) = connections.get(id)
 	
-	protected[jainsip] def addConnection(conn:SipConnectionImpl) : Unit = 
+	protected[jainsip] def addConnection(conn: SipConnectionImpl) : Unit = 
     	connections.put(conn.connectionid, conn)
     
     protected[jainsip] def removeConnection(conn:SipConnection) : Unit = 
@@ -87,13 +89,15 @@ class SipTelcoServer(
 		internal.stop()
 	}
  
-	override def setFailureCallback(f:(SipConnection) => Unit) = failureCallback = Some(f)
+	override def setFailureCallback(f: (SipConnection) => Unit) = failureCallback = Some(f)
 		
-	override def setIncomingCallback(f:(SipConnection) => Unit) = incomingCallback = Some(f)
+	override def setIncomingCallback(f: (SipConnection) => Unit) = incomingCallback = Some(f)
 			
-	override def setDisconnectedCallback(f:(SipConnection) => Unit) = disconnectedCallback = Some(f)
+	override def setDisconnectedCallback(f: (SipConnection) => Unit) = disconnectedCallback = Some(f)
 
-	override def setUnjoinCallback(f:(Joinable[_],SipConnection) => Unit) = unjoinCallback = Some(f)
+	override def setUnjoinCallback(f: (Joinable[_],SipConnection) => Unit) = unjoinCallback = Some(f)
+	
+	override def setIncomingCancelCallback(f: (SipConnection) => Unit) = incomingcancelCallback = Some(f)
 	
 	def fireFailure(c:SipConnection) = failureCallback.foreach( _(c) ) 
 
