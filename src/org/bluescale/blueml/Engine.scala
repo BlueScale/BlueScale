@@ -1,6 +1,4 @@
-/*
-*  
-* This file is part of BlueScale.
+/* This file is part of BlueScale.
 *
 * BlueScale is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License as published by
@@ -118,7 +116,11 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 })
             
-            case _ => destConn.connect(connectAnswer(conn, destConn, dial.url))
+            case _ =>
+                conn.incomingCancelCallback = Some((c:SipConnection)=>
+                  	destConn.cancel( ()=>
+                  	  	println("cancelled")))
+                destConn.connect(connectAnswer(conn, destConn, dial.url))
                 
         }
     

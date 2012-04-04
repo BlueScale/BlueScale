@@ -31,19 +31,21 @@ case class INCOMING extends DIRECTION
 
 case class OUTGOING extends DIRECTION
 
-protected[telco] trait Answerable {
+protected[telco] trait Answerable[T] {
     
-  	def direction : DIRECTION //should probably be in SipConnection
+  	def direction: DIRECTION //should probably be in SipConnection
 
- 	def accept(f:()=> Unit) : Unit
+ 	def accept(f: ()=> Unit): Unit
   
-    def accept(toJoin:Joinable[_], f:()=> Unit) : Unit
+    def accept(toJoin: Joinable[_], f: ()=> Unit): Unit
 
- 	def reject(f:()=> Unit) : Unit
+ 	def reject(f: ()=> Unit) : Unit
 
-    def ring() : Unit
+    def ring(): Unit
 
  	def ring(toJoin:Joinable[_]) : Unit //sends a 180 to the phone
+ 	
+ 	var incomingCancelCallback: Option[(T)=>Unit] = None
     
 }
 

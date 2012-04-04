@@ -52,8 +52,6 @@ class SipTelcoServer(
 
 	private var unjoinCallback: Option[(Joinable[_],SipConnection) => Unit] = None
 	
-	private var incomingcancelCallback: Option[SipConnection=>Unit] = None
-
 	protected[jainsip] val connections = new ConcurrentHashMap[String, SipConnectionImpl]()
 	
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
@@ -97,14 +95,12 @@ class SipTelcoServer(
 
 	override def setUnjoinCallback(f: (Joinable[_],SipConnection) => Unit) = unjoinCallback = Some(f)
 	
-	override def setIncomingCancelCallback(f: (SipConnection) => Unit) = incomingcancelCallback = Some(f)
-	
 	def fireFailure(c:SipConnection) = failureCallback.foreach( _(c) ) 
 
 	def fireDisconnected(c:SipConnection) = disconnectedCallback.foreach( _(c) ) 
 	
 	def fireIncoming(c:SipConnection) = incomingCallback.foreach( _(c) )
-
+	
 	def silentSdp() =
 	    SdpHelper.getBlankSdp(this.contactIp)
 

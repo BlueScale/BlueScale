@@ -28,7 +28,7 @@ import org.bluescale.telco._
 trait SipConnection 
     extends Joinable[SipConnection]
     with Connectable[SipConnection]
-	with Answerable {
+	with Answerable[SipConnection] {
 
 	def connectionid:String
 

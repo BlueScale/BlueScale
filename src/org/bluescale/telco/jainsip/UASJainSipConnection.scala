@@ -83,14 +83,19 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
     }
     
     def cancel(cancelTx:ServerTransaction) = orderedexec {
-        telco.internal.sendResponse(200, cancelTx, null)
-        serverTx.foreach( tx => {
+        _state match {
+        	case UNCONNECTED() =>
+        		telco.removeConnection(this)
+        		incomingCancelCallback.foreach(_(this))
+        	case _ =>
+        		telco.internal.sendResponse(200, cancelTx, null) 
+        }
+    	
+        
+        //TODO: isn't this already cancelled? 
+        serverTx.foreach( tx => 
             telco.internal.sendResponse(487, tx, null)
-            callbacks(tx.getBranchId) match {
-                case f:(()=>Unit) =>
-                    f()
-            }
-        })
+        )
  	}
  	
  	def ack(newtx:ServerTransaction) = orderedexec {

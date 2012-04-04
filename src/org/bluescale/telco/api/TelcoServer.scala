@@ -38,8 +38,6 @@ trait TelcoServer {
   	
 	def setIncomingCallback(f: (SipConnection) => Unit)
   	
-  	def setIncomingCancelCallback(f :(SipConnection) => Unit)
-  	
   	def setDisconnectedCallback(f: (SipConnection) => Unit)
 
   	def setUnjoinCallback(f: (Joinable[_],SipConnection) => Unit)
