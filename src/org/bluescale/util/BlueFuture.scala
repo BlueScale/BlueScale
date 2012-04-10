@@ -21,33 +21,16 @@
 * Please contact us at www.BlueScale.org
 *
 */
-package org.bluescale.telco
 
-import org.bluescale.telco.api.Joinable
-import org.bluescale.util.BlueFuture
+package org.bluescale.util
 
-case class DIRECTION
-
-case class INCOMING extends DIRECTION
-
-case class OUTGOING extends DIRECTION
-
-protected[telco] trait Answerable[T] {
-    
-  	def direction: DIRECTION //should probably be in SipConnection
-
- 	def accept(): BlueFuture[String] 
-  
-    def accept(toJoin: Joinable[_]): BlueFuture[String] 
-
- 	def reject(f: ()=> Unit) : Unit
-
-    def ring(): Unit
-
- 	def ring(toJoin:Joinable[_]) : Unit //sends a 180 to the phone
- 	
- 	var incomingCancelCallback: Option[(T)=>Unit] = None
-    
+class BlueFuture[T](callback:(T=>Unit)=>Unit) {
+	def foreach(f:T=>Unit) : Unit = {
+		callback(f)
+	}
 }
 
-
+object BlueFuture {
+	def apply[T](callback:(T=>Unit)=>Unit) =
+	  new BlueFuture[T](callback)
+}

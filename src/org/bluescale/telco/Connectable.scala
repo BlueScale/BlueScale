@@ -22,14 +22,15 @@
 *
 */
 package org.bluescale.telco
+import org.bluescale.util.BlueFuture
 
 protected[telco] trait Connectable[T] {
   
-	def connect(f:()=> Unit)
+	def connect(): BlueFuture[String]
 
 	def cancel(f:()=> Unit)
 		
- 	def disconnect(f:()=> Unit)
+ 	def disconnect(): BlueFuture[String]
 
     var disconnectCallback:Option[(T)=>Unit] = None
 

@@ -32,23 +32,30 @@ import javax.sip.header._
 import javax.sip._
 import javax.sdp.SessionDescription
 import javax.sip.message._
+import org.bluescale.util._
 
 trait UACJainSipConnection extends BaseJainSipConnection {
     
-    def connect( f:FinishFunction) = connect(SdpHelper.getJoinable(sdp), false, f)//shouldn't be this.  that's weird
+    def connect() = connect(SdpHelper.getJoinable(sdp), false)//shouldn't be this.  that's weird
 
- 	def connect(join:Joinable[_], callback:FinishFunction) : Unit = connect(join, false, callback) 
+ 	def connect(join:Joinable[_]) = connect(join, false) 
 
-    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, callback:()=>Unit) = orderedexec {
-        joinedTo match {
-            case Some(currentJoin) =>
-                currentJoin.unjoin( ()=>realConnect(join, callback))
-            case None => realConnect(join, callback)
-         }
-    }
+    protected def connectNew(join:Joinable[_], connectAnyMedia:Boolean) = BlueFuture[String]( callback => orderedexec {
+    	joinedTo match {
+    		case Some(currentJoin) =>
+    	  		for (state <- currentJoin.unjoin();
+    	  			state <- realConnect(join)) 
+    	  		     callback(_state.toString)
+    		case None =>
+    	  		for(state <- realConnect(join))
+    	  			callback(_state.toString)
+    	  
+    	}
+    })
+    
 
     //can only be called after unjoining whatever was connected previous
-    private def realConnect(join:Joinable[_], callback:()=>Unit) {
+    private def realConnect(join:Joinable[_]) = BlueFuture[String]( callback => orderedexec {
          _state match {
             case s:UNCONNECTED =>
                 val t = telco.internal.sendInvite(from, to, join.sdp)
@@ -74,67 +81,65 @@ trait UACJainSipConnection extends BaseJainSipConnection {
                         //if (!previousSdp.toString().equals(sdp.toString()))
                         //    joinedTo.foreach( join => join.joinedMediaChange() )
                         clearCallbacks(tx)
-                        callback()
+                        callback(_state.toString)
                 }
             })
            progressingCallback.foreach( _(this) )
         })
-    }
+    })
 
-    def join(otherCall:Joinable[_], joinCallback:FinishFunction) = orderedexec {
+    def join(otherCall:Joinable[_]) = BlueFuture[String]( callback => orderedexec {
         val f = ()=> {
             println(" join for " + this + " to " + otherCall )
-            otherCall.connect(this, ()=>{
-                println(" other call is " + otherCall + " now connected")
-                connect(otherCall, joinCallback)
-            })
+            for (state <- otherCall.connect(this);
+                 state <- connect(otherCall))
+                 callback(_state.toString)
         }
-        println(" ok here....")
   	    joinedTo match { 
-            case Some(joined) => 
-                joined.connect(telco.silentJoinable(), f)
-            case None => f()
+            case Some(joined) =>
+            	for(state <- joined.connect(telco.silentJoinable()))
+              		f()
+            case None => 
+              	f()
   	    }
-    }
+    })
 
-	def disconnect(callback:FinishFunction) = orderedexec {
-		transaction.foreach( tx => {
-		    val newTx = telco.internal.sendByeRequest(tx)
-		    clientTx = Some(newTx)
-            setRequestCallback( newTx.getBranchId(), ()=> { //change callback singature
-                _state = UNCONNECTED()
-                onDisconnect()//BUG HERE. what if disconnect is CALLED from unjoin? 
-                callback()
-            })
-        })
-  	}
-
-    def cancel(f:FinishFunction) = orderedexec {
+    def cancel() = BlueFuture[String](callback => orderedexec { 
  	    clientTx.foreach( tx=> {
             clientTx = Some(telco.internal.sendCancel(tx))
-            callbacks += tx.getBranchId()->(() => f())
+            callbacks += tx.getBranchId()->(() => callback(_state.toString))
  	    })
- 	}
+ 	})
 
-    def unjoin(f:FinishFunction) = orderedexec {
+    def unjoin() = BlueFuture[String](callback => orderedexec {
         disconnectOnUnjoin match {
             case true =>
                 val maybeJoined = joinedTo
                 _joinedTo = None
-                disconnect( ()=>{
-
+                for (state <- disconnect())
                     disconnectCallback.foreach(_(this))
                     for (unjoined <- maybeJoined;
-                        callback <- unjoinCallback) callback(unjoined, this)
-                    f()
-                })
+                        ucallback <- unjoinCallback) ucallback(unjoined, this)
+                        callback(_state.toString)
             case false =>
-                realConnect(telco.silentJoinable(), f)
+                for(state <- realConnect(telco.silentJoinable()))
+                    callback(_state.toString)
         }
-    }
+    })
 
     def hold(f:FinishFunction) = orderedexec {
         throw new Exception("Not Implemented yet")
     }
-
+    
+    def disconnect() = BlueFuture[String](callback => orderedexec { 
+		transaction.foreach( tx => {
+			val newTx = telco.internal.sendByeRequest(tx)
+		    clientTx = Some(newTx)
+            setRequestCallback( newTx.getBranchId(), ()=> { //change callback singature
+                _state = UNCONNECTED()
+                onDisconnect()//BUG HERE. what if disconnect is CALLED from unjoin? 
+                callback(_state.toString)
+            })
+        })
+  	})
 }
