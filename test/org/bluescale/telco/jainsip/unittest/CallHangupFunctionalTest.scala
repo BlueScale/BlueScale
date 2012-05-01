@@ -53,11 +53,11 @@ class CallHangupFunctionalTest extends TestHelper {
  		val destNumber = "9495557777" 
  		val alice = telcoServer.createConnection(destNumber, "4445556666")
  		 
- 		alice.connect(()=>{ 
+ 		alice.connect().run(status=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
 		  	println("OK i'm Connected now...how did that happen?")
 		  	assertFalse(SdpHelper.isBlankSdp(alice.sdp))
-		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect( ()=> {
+		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect().run(status => {
                         Thread.sleep(50)
                         println("Is alice disconnected alice = " + alice.connectionState)
                         assertEquals(alice.connectionState,UNCONNECTED())

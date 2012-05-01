@@ -28,7 +28,7 @@ protected[telco] trait Connectable[T] {
   
 	def connect(): BlueFuture[String]
 
-	def cancel(f:()=> Unit)
+	def cancel(): BlueFuture[String]
 		
  	def disconnect(): BlueFuture[String]
 

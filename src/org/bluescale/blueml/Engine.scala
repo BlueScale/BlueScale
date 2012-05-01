@@ -50,20 +50,20 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case play:Play => 
                 handlePlay(conn, play, verbs.tail)    
             case hangup:Hangup =>
-            	conn.disconnect( ()=> postCallStatus(hangup.url,conn))
+            	conn.disconnect().run(state => postCallStatus(hangup.url,conn))
             	
         }
     }
 
     protected def handlePlay(conn:SipConnection, play:Play, verbs:Seq[BlueMLVerb]) = {
         val mediaConn = new JlibMediaConnection(telcoServer)
-        val f = ()=>
+        val f = state:String=>
             mediaConn.joinPlay(play.mediaUrl, conn, ()=> handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ))
         conn.direction match {
             case i:INCOMING => 
                 conn.connectionState match {
                     case CONNECTED() => f()
-                    case UNCONNECTED() => conn.accept(f)
+                    case UNCONNECTED() => conn.accept().run(f)
                 } 
             case o:OUTGOING => 
                 f()
@@ -95,14 +95,14 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                         telcoServer.createConnection(dialVM.number, str+"4"),
                         telcoServer.createConnection(dialVM.number, str+"5"))
 
-        val callback = ()=> {
-            connections.foreach( conn => if (conn.connectionState != CONNECTED()) conn.cancel(()=>println("cancelling")))
+        val callback = (state:String)=> {
+            connections.foreach( conn => if (conn.connectionState != CONNECTED()) conn.cancel().run((state)=>println("cancelling")))
             val connectedConn = connections.find(conn => conn.connectionState == CONNECTED())
             connectedConn.foreach( connected =>
                connectAnswer(conn, connected, dialVM.url)())
         }
         //connectAnswer should only happen once since we're cancelling the others, so there should be only one successful connect!
-        connections.foreach( conn => conn.connect(callback))
+        connections.foreach( conn => conn.connect().run(callback))
         
     }
 
@@ -111,16 +111,16 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         val destConn = telcoServer.createConnection(FixPhoneNumber(dial.number), dial.from)
         conn.connectionState match {
             case c:CONNECTED =>
-                conn.join(destConn, ()=>{
+                conn.join(destConn).run( state=>{
                     postCallStatus(dial.url, destConn)
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 })
             
             case _ =>
                 conn.incomingCancelCallback = Some((c:SipConnection)=>
-                  	destConn.cancel( ()=>
+                  	destConn.cancel().run(state=>
                   	  	println("cancelled")))
-                destConn.connect(connectAnswer(conn, destConn, dial.url))
+                destConn.connect().run(state=>connectAnswer(conn, destConn, dial.url))
                 
         }
     
@@ -129,7 +129,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                     println("ring limit = " + dial.ringLimit)
                     Thread.sleep(dial.ringLimit*(1000))
                     try {
-                        destConn.cancel( ()=> { 
+                        destConn.cancel().run( state=> { 
                             handleBlueML(conn, verbs)
                         })
 
@@ -148,13 +148,13 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             postCallStatus(url, destConn)
             conn.direction match {
                 case i:INCOMING =>
-                            conn.accept( ()=> {
-                                 conn.join(destConn, ()=> 
+                            conn.accept().run(state=> {
+                                 conn.join(destConn).run( state=> 
                                     postConversationStatus(addConvoInfo(url, conn, destConn)))
                                } )
                                 
                 case o:OUTGOING =>
-                            conn.join(destConn, ()=> 
+                            conn.join(destConn).run(state=>  
                                 postConversationStatus(addConvoInfo(url, conn, destConn)))
             }
         }
@@ -218,7 +218,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
      def newCall(to:String, from:String, url:String) {
         //todo: make sure it's all valid
         val conn = telcoServer.createConnection(FixPhoneNumber(to), from)
-        conn.connect(() => {
+        conn.connect().run( state => {
             handleConnect(url, conn)
             //send status to the url
         })
@@ -229,7 +229,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         action match {
             case h:Hangup =>  
                 val joinedTo = conn.joinedTo
-                conn.disconnect( () => joinedTo match {
+                conn.disconnect().run( state => joinedTo match {
                     case Some(x) => println("The unjoin will fire and post back the status, no need to tell it we're hanging up")
                     case None => 
                         postCallStatus(h.url, conn)

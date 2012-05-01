@@ -116,15 +116,17 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
 	 	})
     }
     
-    def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = orderedexec {
+    def accept(toJoin:Joinable[_]) = BlueFuture[String](callback => orderedexec {
         incomingResponse(200, toJoin, ()=> {
             _joinedTo = Some(toJoin)
-            connectedCallback()
+            callback(_state.toString)
         })
-    }
+    })
 
-    def accept(connectedCallback:FinishFunction) =
-	    accept(SdpHelper.getBlankJoinable(telco.contactIp), connectedCallback)
+    def accept() = BlueFuture[String](callback => orderedexec {
+	    for(state <- accept(SdpHelper.getBlankJoinable(telco.contactIp)))
+	    	callback(_state.toString)
+    })
 
     def ring(toJoin:Joinable[_]) =
         incomingResponse(183, toJoin, ()=>{})

@@ -96,8 +96,8 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		  case true		=>
 		    	val mediaConn = new JlibMediaConnection(b2bTelcoServer)
 		    	mediaConnmap.put(conn.destination, mediaConn)
-		    	conn.accept(mediaConn, ()=> println("b2bserver accepted call with medai support to " + conn.destination))
-		  case false	=>	conn.accept(getFakeJoinable(ip), ()=> Unit)//println("b2bServer accepted call to " + conn.destination ) )
+		    	conn.accept(mediaConn).run(state=> println("b2bserver accepted call with medai support to " + conn.destination))
+		  case false	=>	conn.accept(getFakeJoinable(ip)).run(state=>Unit)//println("b2bServer accepted call to " + conn.destination ) )
 		}
 	}
 	

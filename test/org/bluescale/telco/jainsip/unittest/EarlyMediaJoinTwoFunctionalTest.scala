@@ -68,9 +68,9 @@ class EarlyMediaJoinTwoFunctionalTest extends TestHelper {
     def runJoinConnect() {
         b2bServer.ringSome = true
         latch = new CountDownLatch(1)
- 		alice.connect(()=>{ 
+ 		alice.connect().run(s=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
-		    alice.join(bob, ()=> {
+		    alice.join(bob).run(status=> {
 		        println(" what is the state of bob = " + bob.connectionState + " alice = " + alice.connectionState )
 
 		        assertEquals(alice.connectionState, CONNECTED())
@@ -78,7 +78,7 @@ class EarlyMediaJoinTwoFunctionalTest extends TestHelper {
 		        println(" alice.joinedTo = " + alice.joinedTo + " | bob.joinedTo = " + bob.joinedTo )
 		        //println("are two connected = " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
                 assertTrue(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
-                bob.disconnect( ()=> {
+                bob.disconnect().run(state=> {
                     println("disconnected")
                     assertEquals(bob.connectionState, UNCONNECTED() )
                     latch.countDown()
@@ -92,15 +92,15 @@ class EarlyMediaJoinTwoFunctionalTest extends TestHelper {
 
  		latch = new CountDownLatch(1)
 	          
- 		alice.connect(()=>{
+ 		alice.connect().run(s=>{
 		  	assertEquals(alice.connectionState, CONNECTED())
-		  	bob.connect(()=>{
+		  	bob.connect().run(s=>{
 		  		assertEquals(bob.connectionState, CONNECTED())
-				alice.join(bob, ()=>{
+				alice.join(bob).run( state=>{
 				assertTrue(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  System.err.println("are both connected = ? " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  
-				  	alice.disconnect( ()=>{
+				  	alice.disconnect().run(s=>{
 				  	  println("alice connectionstate = "+ alice.connectionState)
 				  		assertEquals(alice.connectionState, UNCONNECTED())
 				  		//make sure bob is on hold now!

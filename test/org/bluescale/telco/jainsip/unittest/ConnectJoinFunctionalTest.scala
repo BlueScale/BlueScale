@@ -69,9 +69,9 @@ class ConnectJoinFunctionalTest extends TestHelper {
 	def runConn() {
  		latch = new CountDownLatch(1)
 
- 		alice.connect(()=>{ 
+ 		alice.connect().run(status=>{ 
 		  	assertEquals(alice.connectionState, CONNECTED())
-		    alice.join(bob, ()=> {
+		    alice.join(bob).run(status=> {
 		        assertEquals(alice.connectionState, CONNECTED())
                 println( "ARE TWO CONNECTED = " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
                 assertTrue(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))

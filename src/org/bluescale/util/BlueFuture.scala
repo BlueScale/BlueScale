@@ -28,6 +28,10 @@ class BlueFuture[T](callback:(T=>Unit)=>Unit) {
 	def foreach(f:T=>Unit) : Unit = {
 		callback(f)
 	}
+	
+	def run(f:T=>Unit) = foreach(f)
+	
+	//def run(f: =>Unit) = foreach( ) 
 }
 
 object BlueFuture {

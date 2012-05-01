@@ -45,7 +45,7 @@ trait UACJainSipConnection extends BaseJainSipConnection {
     		case Some(currentJoin) =>
     	  		for (state <- currentJoin.unjoin();
     	  			state <- realConnect(join)) 
-    	  		     callback(_state.toString)
+    	  		    callback(_state.toString)
     		case None =>
     	  		for(state <- realConnect(join))
     	  			callback(_state.toString)
