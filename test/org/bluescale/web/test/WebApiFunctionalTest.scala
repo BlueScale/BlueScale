@@ -57,8 +57,6 @@ object WebApiFunctionalTest {
 
 class WebApiFunctionalTest extends junit.framework.TestCase {
     
- 	val config = new ConfigParser("resources/BlueScaleConfig.Sample.xml")
- 
     val telcoServer  = new SipTelcoServer( "127.0.0.1", 4000, "127.0.0.1", 4001)
 
     val ws = new WebServer(8200, 8080, telcoServer, "http://localhost:8100/")

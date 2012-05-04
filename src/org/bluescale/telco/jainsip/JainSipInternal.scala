@@ -51,10 +51,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 										val destPort:Int) extends SipListener 
 														 //with LogHelper
 														 {
-    /*
-    	*/
-
-	println("listeningIp = " + listeningIp)
+    println("listeningIp = " + listeningIp)
 	println("contactIp = " + contactIp)
     val sipFactory = SipFactory.getInstance()
 	sipFactory.setPathName("gov.nist")
@@ -105,14 +102,16 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
     	
 	override def processRequest(requestEvent:RequestEvent) {
+	    println(" IN PROCESS REQUEST")
 		val request = requestEvent.getRequest()
-		val serverTransactionId = requestEvent.getServerTransaction()
+		
 		 request.getMethod() match {
 		  case Request.INVITE 	=> processInvite(requestEvent)
 		  case Request.ACK 		=> processAck(requestEvent, requestEvent.getRequest())
-		  case Request.BYE 		=> processBye(requestEvent, requestEvent.getRequest(), requestEvent.getServerTransaction())
-		  case Request.REGISTER => //processRegister(requestEvent)
-		  case Request.CANCEL 	=> processCancel(requestEvent)		    
+		  case Request.BYE 		=> processBye(requestEvent, requestEvent.getRequest())
+		  case Request.REGISTER => processRegister(requestEvent)
+		  case Request.CANCEL 	=> processCancel(requestEvent)
+		  case Request.OPTIONS  => processOptions(requestEvent)
 		    //TODO: handle cancels...may be too late for most things but we can try to cancel.
 		  case _ => println("err, what?")
 		            //serverTransactionId.sendResponse( messageFactory.createResponse( 202, request ) )
@@ -120,20 +119,34 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 					//val prov = requestEvent.getSource()
 					//val refer = requestEvent.getDialog().createRequest("REFER")
 					//requestEvent.getDialog().sendRequest( prov.getNewClientTransaction(refer) )
-					
 		 }		 
 	}
+
+	private def processOptions(requestEvent: RequestEvent) {
+	    println("in process options")
+        val response = messageFactory.createResponse(200, requestEvent.getRequest())
+        val allowHeader = headerFactory.createAllowHeader("INVITE")
+        val encodingHeader = headerFactory.createAcceptEncodingHeader("application/sdp")
+        response.addHeader(allowHeader)
+        requestEvent.getServerTransaction().sendResponse(response) 
+	}
     
-    private def processBye(requestEvent: RequestEvent, request:Request, transaction:ServerTransaction) : Unit = {
-		transaction.sendResponse(messageFactory.createResponse(200, request))
+    private def processBye(requestEvent: RequestEvent, request:Request): Unit = {
+		val tx = requestEvent.getServerTransaction()
+		tx.sendResponse(messageFactory.createResponse(200, request))
 		val conn = telco.getConnection(getCallId(request))
-		conn.bye(transaction)
+		conn.bye(tx)
 	}
 
 	private def processRegister(requestEvent:RequestEvent) {
-		val r = requestEvent.getRequest()
-		printHeaders(requestEvent.getRequest())
-		sendRegisterResponse(200, requestEvent)
+		val request = requestEvent.getRequest()
+	    val tx = sipProvider.get.getNewServerTransaction(request) 
+		printHeaders(request)
+        //sip addr
+        val sipaddr = parseToHeader(request.getRequestURI().toString())
+        val contact = requestEvent.getRequest().getHeader("Contact")
+		//telco.addSipBinding(sipaddr, contact)
+		sendRegisterResponse(200, requestEvent, tx)
     }
 
     private def processCancel(requestEvent:RequestEvent) {
@@ -167,6 +180,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
   	
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
+		println("GOT AN ACK")
 		val request = requestEvent.getRequest()
   	    val conn = telco.getConnection(getCallId(request))//FIXME: return an option and foreach on it... prevent NPE
   	    conn.ack(requestEvent.getServerTransaction())
@@ -194,7 +208,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
                             }) 
 			                           
 			case Response.OK =>
-			            println("  RESPONSE METHOD = " + cseq.getMethod())
 		    			cseq.getMethod() match {
 		    				case Request.INVITE =>
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
@@ -220,17 +233,26 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		}
 	}
 
-	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent) = {
-		val response = messageFactory.createResponse(responseCode, requestEvent.getRequest() ) //transaction.getRequest())
+	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent, tx:ServerTransaction) = {
+        println("RESPONDING TO THE REGISTER REQUEST")
+        //SOMETHING IS BREAKING IN HERE
+        val response = messageFactory.createResponse(responseCode, requestEvent.getRequest() ) //transaction.getRequest())
 		response.addHeader( requestEvent.getRequest().getHeader("Contact"))
-		requestEvent.getServerTransaction().sendResponse(response)
+        val contact =  headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port))
+        contact.setExpires(999999)
+        response.addHeader(contact)
+        //response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
+		
+		println("trying to send the response!")
+		tx.sendResponse(response)
+		println(" SENT THE REGISTER RESPONSE")
 	}
  
 	//TODO: deal with dead transactions...
 	def sendResponse(responseCode:Int, tx:ServerTransaction, content:Array[Byte] ) { 
 	    val response = messageFactory.createResponse(responseCode,tx.getRequest)
 		//response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
-	    response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
+        response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
         if ( null != content ) response.setContent(content,headerFactory.createContentTypeHeader("application", "sdp"))
 		tx.sendResponse(response)
     }

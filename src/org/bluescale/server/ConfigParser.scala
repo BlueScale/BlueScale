@@ -28,9 +28,11 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.immutable._
 import org.mozilla.javascript.Context
 
-class ConfigParser(val filename:String) {
+class ConfigParser(nodes:Elem) {
 
-	private val nodes = XML.loadFile(filename)
+//val filename:String) {
+
+	//private val nodes = XML.loadFile(filename)
 	
 	private def parseTags(tag:String) : String = ((nodes \\ tag) \ "@value").text
 	

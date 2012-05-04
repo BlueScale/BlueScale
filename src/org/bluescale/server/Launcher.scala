@@ -39,9 +39,16 @@ class Launcher {
 object Launcher {
 
 	def main(args:Array[String]) : Unit = {
-	    //TODO: take an arg for the config file.  
-		val config = new ConfigParser("BlueScaleConfig.xml")
+	    //TODO: take an arg for the config file. 
+        
+        val xml = 
+            if (args.length > 0 && args(0) != "")
+                XML.loadFile(args(0))
+            else 
+                XML.loadString(defaultConfig)
 
+        println("loading XML")
+		val config = new ConfigParser(xml)
 	
          config.isB2BTestServer() match {
             case "true"  =>
@@ -60,6 +67,7 @@ object Launcher {
                                                     config.destPort())
                 
                 val ws = new WebServer(config.webPort(), 8080, telcoServer, config.callbackUrl())
+
 
 		        telcoServer.start()
 		        ws.start()
@@ -81,16 +89,36 @@ object Launcher {
 			case false =>   return XML.loadFile(url)
 
 		}
-		/*
-		if ( url.startsWith("file://") )
-			return XML.loadFile(url)
+
+    val defaultConfig = 
+    """
+    <BlueScaleConfig>
+		<TelcoServer>
+            <!--<StartingDoc value="http://localhost:81/incoming" type="BlueML"/>-->
+			<ListeningAddress value="127.0.0.1"/>
+			<ContactAddress value="127.0.0.1" />
+			<ListeningPort value ="5060"/>
+			<DestAddress value="127.0.0.1"/>
+			<DestPort value = "5060"/>
+			<B2BTestServer value="false"/>
+		</TelcoServer>
+
+		<WebServer>
+            <Protocol value="REST"/>
+            <CallbackUrl value="http://127.0.0.1:8081"/>
+            <WebIP value="127.0.0.1"/>
+            <WebPort value="8080"/>
+		</WebServer>
+
+		<!-- NOTE: JMF does not play nice with 127.0.0.1 as a dest address, so you will need to change the IP to a real IP
+			 future types will be jlibrtp, MSML, etc.-->
+		<MediaServer type="LocalJMF"/> 
 		
-		if ( url.startsWith("http://") ) {
-			val conn = new URL(url).openConnection()
-			return XML.load(conn.getInputStream())
-		}
-		throw new Exception("unable to retrieve file " + url)
-		*/
-	
+		<!--
+		<Logging>
+		</Logging>
+		-->
+    </BlueScaleConfig>	
+    """
 
 }

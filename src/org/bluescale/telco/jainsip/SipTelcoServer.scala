@@ -53,6 +53,8 @@ class SipTelcoServer(
 	private var unjoinCallback: Option[(Joinable[_],SipConnection) => Unit] = None
 	
 	protected[jainsip] val connections = new ConcurrentHashMap[String, SipConnectionImpl]()
+
+	protected[jainsip] val registeredAddresses = new ConcurrentHashMap[String, String]()
 	
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
  
@@ -86,6 +88,7 @@ class SipTelcoServer(
 	override def stop() {
 		internal.stop()
 	}
+
  
 	override def setFailureCallback(f: (SipConnection) => Unit) = failureCallback = Some(f)
 		
@@ -135,6 +138,18 @@ class SipTelcoServer(
         }
     	
         return true
+    }
+
+
+    //TODO: fire callback
+    def addSipBinding(phone:String, sip:String) =
+        registeredAddresses.put(phone, sip)
+
+
+    def getSipAddrForPhone(phone:String): String = {
+        //try the local cache, if not, webservice request.
+        return registeredAddresses.get(phone)
+
     }
 
 }
