@@ -24,7 +24,6 @@
 
 package org.bluescale.telco.jainsip
 
-
 import java.util.concurrent.ConcurrentHashMap
 import org.bluescale.telco._
 import org.bluescale.telco.api._
@@ -39,10 +38,15 @@ class SipTelcoServer(
     val contactIp:String, 
     val port:Int,
     val destIp:String,
-    val destPort:Int) extends TelcoServer {
+    val destPort:Int,
+    val authenticateRegister:Boolean = true) extends TelcoServer {
      
      def this(ip:String, port:Int, destIp:String, destPort:Int) =
         this(ip, ip, port, destIp, destPort)
+        
+    /*
+     * Callbakcs users of the API can register for 
+     */
  
 	private var incomingCallback: Option[SipConnection=>Unit] = None
 	
@@ -52,12 +56,19 @@ class SipTelcoServer(
 
 	private var unjoinCallback: Option[(Joinable[_],SipConnection) => Unit] = None
 	
+	private var registerCallback: Option[(RegisterRequest)=>Unit] = None
+	
+	/*
+	 * Internal collections
+	 */
+	
 	protected[jainsip] val connections = new ConcurrentHashMap[String, SipConnectionImpl]()
 
 	protected[jainsip] val registeredAddresses = new ConcurrentHashMap[String, String]()
 	
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
- 
+
+    
    	override def createConnection(dest: String, callerid :String, disconnectOnUnjoin: Boolean) : SipConnection = {
    	    //val conn = new JainSipConnection( null, dest, callerid, new OUTGOING, this, disconnectOnUnjoin)  //this gets in the connections map when an ID is created
    	    val conn = new SipConnectionImpl( null, dest, callerid, new OUTGOING, this, disconnectOnUnjoin)  //this gets in the connections map when an ID is created
@@ -88,7 +99,6 @@ class SipTelcoServer(
 	override def stop() {
 		internal.stop()
 	}
-
  
 	override def setFailureCallback(f: (SipConnection) => Unit) = failureCallback = Some(f)
 		
@@ -117,7 +127,6 @@ class SipTelcoServer(
         if ( c1.joinedTo == None || c2.joinedTo == None ) 
     	    return false
 
-
         for (
             conn1 <- c1.asInstanceOf[SipConnectionImpl].joinedTo;
             conn2 <- c2.asInstanceOf[SipConnectionImpl].joinedTo
@@ -142,8 +151,10 @@ class SipTelcoServer(
 
 
     //TODO: fire callback
-    def addSipBinding(phone:String, sip:String) =
-        registeredAddresses.put(phone, sip)
+    def addSipBinding(register:RegisterRequest): Unit = {
+        registeredAddresses.put(register.registeredAddress, register.actualAddress)
+        registerCallback.foreach( _(register))
+    }
 
 
     def getSipAddrForPhone(phone:String): String = {

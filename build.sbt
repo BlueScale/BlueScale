@@ -1,4 +1,8 @@
-name := "BlueScale"
+import com.twitter.sbt._
+
+name := "BlueScaleServer"
+
+organization := "BlueScale"
 
 version := ".3"
 
@@ -11,4 +15,5 @@ scalaSource in Test := new File("test")
 libraryDependencies += "com.novocode" % "junit-interface" % "0.7" % "test->default"
 
 parallelExecution in Test := false
+
 

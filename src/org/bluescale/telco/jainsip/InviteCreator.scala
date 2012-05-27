@@ -42,8 +42,11 @@ class InviteCreator(val sipServer:JainSipInternal) {
 		  	val fromName = "BlueScaleServer"
 			val fromDisplayName = callerid 
 
-			val toSipAddress = sipServer.destIp
-			
+			val toSipAddress = dest.contains("@") match {
+		  	  case true => dest.split("@")(1)
+		  	  case false => sipServer.destIp
+		  	}
+			  
 			// create >From Header
 			val fromAddress = sipServer.addressFactory.createSipURI(callerid, sipServer.contactIp)
 			val fromNameAddress = sipServer.addressFactory.createAddress(fromAddress)

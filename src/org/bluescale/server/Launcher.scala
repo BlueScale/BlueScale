@@ -97,9 +97,9 @@ object Launcher {
             <!--<StartingDoc value="http://localhost:81/incoming" type="BlueML"/>-->
 			<ListeningAddress value="127.0.0.1"/>
 			<ContactAddress value="127.0.0.1" />
-			<ListeningPort value ="5060"/>
+			<ListeningPort value ="4000"/>
 			<DestAddress value="127.0.0.1"/>
-			<DestPort value = "5060"/>
+			<DestPort value = "4001"/>
 			<B2BTestServer value="false"/>
 		</TelcoServer>
 
