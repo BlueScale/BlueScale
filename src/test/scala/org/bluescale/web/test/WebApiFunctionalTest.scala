@@ -23,9 +23,8 @@
 */
 package org.bluescale.web.test
 
-
-import org.junit._
-import Assert._
+import org.scalatest.FunSuite
+import org.scalatest.BeforeAndAfter
 import org.bluescale.server._
 import java.net.URLEncoder
 import org.bluescale.telco.api._
@@ -35,7 +34,10 @@ import java.util.concurrent.CountDownLatch
 import org.bluescale.server._
 import javax.servlet.http.HttpServletRequest
 import org.bluescale.util.WebUtil
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+/*
 object WebApiFunctionalTest {
     def main(args:Array[String]) {
         val wt = new WebApiFunctionalTest()
@@ -43,19 +45,14 @@ object WebApiFunctionalTest {
         wt.testClickToCall()
         //wt.testIncomingSendToVM()
         wt.tearDown()
-       /* 
-        wt.setUp()
-        wt.testIncomingCall()
-        wt.tearDown()
-        wt.setUp()
-        wt.testIncomingForward()
-        wt.tearDown()
-        */
+     
         
     }
 }
+*/
 
-class WebApiFunctionalTest extends junit.framework.TestCase {
+@RunWith(classOf[JUnitRunner])
+class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
     
     val telcoServer  = new SipTelcoServer( "127.0.0.1", 4000, "127.0.0.1", 4001)
 
@@ -73,8 +70,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
     val bobNumber       = "1112223333"
         
 
-	@Before
-   	override def setUp() {
+   	before {
    		b2bServer.start()
 		telcoServer.start()
 		ws.start()
@@ -82,16 +78,14 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 		latch = new CountDownLatch(1)
 	}	
 	
-    @After
-	override def tearDown() {
+	after {
         telcoServer.stop()
         b2bServer.stop()
         ws.stop()
         testWS.stop()
     }
 
-    @Test
-    def testIncomingCall() {
+    test("Incoming Call Web API test") {
         println("!!!!!!!!!! test incomingCall")  
         var callid:Option[String] = None
         val inConn = b2bServer.createConnection("7147773456", "7145555555")
@@ -107,16 +101,16 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> {
             Thread.sleep(500)//benign race condition here because of the fact the ack comes to this and gets sent to an actor... 
-            assertEquals( inConn.connectionState, CONNECTED() )
+            assert( inConn.connectionState === CONNECTED() )
             println("got next response!")
-            assertEquals( "Connected", request.getParameter("ConversationStatus"))
-            assertFalse( SdpHelper.isBlankSdp(inConn.sdp))
+            assert( "Connected" === request.getParameter("ConversationStatus"))
+            assert( !SdpHelper.isBlankSdp(inConn.sdp))
             inConn.disconnect( ()=>println("disconnected") )
             ""
         })
 
         testWS.setNextResponse( (request:HttpServletRequest)=> {
-            assertEquals( inConn.connectionState, UNCONNECTED() )
+            assert( inConn.connectionState === UNCONNECTED() )
             //check that it's posting the right info
             latch.countDown()
             ""
@@ -129,7 +123,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
     }
 
 
-    @Test
     def testIncomingSendToVM() {
         println("test incomingSendToVM()")
         var callid:Option[String] = None
@@ -143,14 +136,14 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         testWS.setNextResponse( request=> {
             println(" ok i'm connected here")
-            //assertEquals(request.getParameter("To"), bobNumber)
+            //assert(request.getParameter("To"), bobNumber)
             ""
         })
 
         testWS.setNextResponse( request=> {
             println("......joined")
             Thread.sleep(500)
-            assertEquals(request.getParameter("ConversationStatus"), "Connected")
+            assert(request.getParameter("ConversationStatus") === "Connected")
             joinedLatch.countDown()
             ""
         })
@@ -171,8 +164,7 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
     }
 
 
-    @Test
-    def testIncomingForward() {
+    test("Web API Incoming Forward TEST"){
         println("test incoming forward///////////////////")
         val joinedLatch = new CountDownLatch(1)
         var callid:Option[String] = None
@@ -186,14 +178,13 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
 
         testWS.setNextResponse( request=> {
             println(" ok i'm connected here")
-            //assertEquals(request.getParameter("To"), bobNumber)
+            //assert(request.getParameter("To"), bobNumber)
             ""
         })
 
         testWS.setNextResponse( request=> {
             println("......joined")
-            Thread.sleep(500)
-            assertEquals(request.getParameter("ConversationStatus"), "Connected")
+            assert(request.getParameter("ConversationStatus") === "Connected")
             joinedLatch.countDown()
             ""
         })
@@ -215,19 +206,8 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         println("finished testIncomingForward")
     }
 
-    @Test
-    def tempTest() {
-        println("tempTest")
-        val fake = b2bServer.getFakeJoinable("127.0.0.1")
-        println("fake = " +fake)
-        val raw = fake.sdp.toString().getBytes()
-        println("raw length = " + raw.length)
-        val sdp = SdpHelper.getSdp(raw)
-        println(sdp)
-    }
 
-    @Test
-    def testClickToCall() { 
+    test("Web API Click to Call test") { 
         println("~~~~~~~~~~~~~~~tESTcLIckTocall")
         b2bServer.ringSome = true
         
@@ -268,9 +248,9 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
         val call2 = telcoServer.findConnection(call2id)        
         println(" call1 = " + call1)
         println(" call2 = " + call2)
-        assertTrue( telcoServer.areTwoConnected(call1, call2) )
-        assertFalse(SdpHelper.isBlankSdp(call1.sdp))
-        assertFalse(SdpHelper.isBlankSdp(call2.sdp))
+        assert( telcoServer.areTwoConnected(call1, call2) )
+        assert(!SdpHelper.isBlankSdp(call1.sdp))
+        assert(!SdpHelper.isBlankSdp(call2.sdp))
         
         Thread.sleep(900)//our post might happen before the join callback finishes, could be a benign race conidtion in our test
         WebUtil.postToUrl("http://localhost:8200/Calls/"+call1id+"/Hangup", Map("Url"->"http://localhost:8100"))
@@ -299,8 +279,6 @@ class WebApiFunctionalTest extends junit.framework.TestCase {
                         <Action>http://localhost:8100</Action>
                     </Dial>
                 </Response>).toString()
-
-
   
     def getDialResponse(dest:String) : String =
         return (<Response>
