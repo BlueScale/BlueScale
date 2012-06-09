@@ -42,12 +42,11 @@ class JoinTwoRemoteHangup extends FunTestHelper {
  	val bob = telcoServer.createConnection("1112223333", "7147773333")
     
     def disconnected(call:SipConnection) {
-        Thread.sleep(1000)
         println(" alice = " + alice)
         println(" bob = " + bob )
-        if (alice.connectionState == UNCONNECTED() &&
-            bob.connectionState == UNCONNECTED())
-            latch.countDown()
+        tryAssertEq(alice.connectionState,UNCONNECTED())
+        tryAssertEq(bob.connectionState,UNCONNECTED())
+        latch.countDown()
     }
  
 	def runConn() {
@@ -60,7 +59,6 @@ class JoinTwoRemoteHangup extends FunTestHelper {
 				    assert(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				    println("are both connected = ? " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 			        //Now initiate a remote hangup.
-			        Thread.sleep(1000)
 			        b2bServer.findConnByDest("4445556666").foreach( _.disconnect( ()=> println("disconnected") ))
 				})
 			})

@@ -37,7 +37,6 @@ class JoinTwoUnconnected extends FunTestHelper {
   
  	def handleDisconnect(conn:SipConnection) = {
  	    //this should be bob!
- 	    println(" oooooooKAY, lets see what the conncetion is, conn = " + conn)
  	    assert(bob.connectionState === UNCONNECTED())
 		System.err.println("assert that alice is disconnected = " + alice.connectionState)
 		System.err.println("assert that bob is disconnected = " + bob.connectionState)
@@ -63,14 +62,14 @@ class JoinTwoUnconnected extends FunTestHelper {
 				println(" bob connected" )
 				//Thread.sleep(4000)
 				alice.join(bob, ()=>{
-				assert(SdpHelper.isBlankSdp(alice.sdp)) 
-				assert(SdpHelper.isBlankSdp(bob.sdp))
+				assert(!SdpHelper.isBlankSdp(alice.sdp)) 
+				assert(!SdpHelper.isBlankSdp(bob.sdp))
 				assert(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  System.err.println("are both connected = ? " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  
 				  	alice.disconnect( ()=>{
 				  	  println("alice connectionstate = "+ alice.connectionState)
-				  		assert(alice.connectionState === UNCONNECTED())
+				  		tryAssertEq(alice.connectionState,UNCONNECTED())
 				  		//make sure bob is on hold now!
 				  		//assertFalse(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  		val b = SdpHelper.isBlankSdp(bob.sdp)
@@ -81,12 +80,10 @@ class JoinTwoUnconnected extends FunTestHelper {
 			})
 		})
 	} 
-/*
 	test("Join two previously unjoined connections") {
 	 	runConn()
 		getLatch.await()
 	}
-	*/
 }
  
 

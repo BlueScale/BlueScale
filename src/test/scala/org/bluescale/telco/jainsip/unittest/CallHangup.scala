@@ -58,9 +58,7 @@ class CallHangup extends FunTestHelper {
 		  	println("trying a remote hangup")
 		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect( ()=> {
 		  				println("disconnect has happened")
-                        Thread.sleep(5000)
-                        println("Is alice disconnected alice = " + alice.connectionState)
-                        assert(alice.connectionState === UNCONNECTED())
+                        tryAssertEq(alice.connectionState,UNCONNECTED())
                         latch.countDown()
 			        }))
 		})

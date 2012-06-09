@@ -10,14 +10,23 @@ class FunTestHelper extends FunSuite with BeforeAndAfter {
 	val telcoServer  = new SipTelcoServer( "127.0.0.1", 4000, "127.0.0.1", 4001) 
 	val b2bServer = new B2BServer( "127.0.0.1", 4001, "127.0.0.1", 4000)
   
-  before {
-    b2bServer.start()
-	telcoServer.start()
-
-  }
+	
+	def tryAssertEq(a:Any, b:Any): Unit = {
+		for (x <- 1 to 5) {
+			if (a == b)
+				assert(a === b)
+			Thread.sleep(500)
+		}
+		throw new Exception("possible error here, "+ a +" should be equal to " + b)
+	}
+	
+	before {
+		b2bServer.start()
+		telcoServer.start()
+	}
   
-  after {
-     telcoServer.stop()
-     b2bServer.stop()
-  }
+	after {
+		telcoServer.stop()
+		b2bServer.stop()
+	}
 }
