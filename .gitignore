@@ -12,11 +12,13 @@ heap.bin
 ############
 bin/
 log/
-dist/
+dist/*
 target/
-project/
+project/boot/
+project/plugins/project/
 .settings/
 
 # generated media
 ###############
 *.bs.wav
+*.wav
