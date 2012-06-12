@@ -36,6 +36,8 @@ import javax.sdp.MediaDescription
 import gov.nist.javax.sip.SipStackImpl
 import gov.nist.javax.sip.stack.ServerLog
 import gov.nist.javax.sip.clientauthutils._
+import gov.nist.javax.sip.SipStackExt
+import gov.nist.javax.sip.clientauthutils.AuthenticationHelper
 import java.net.InetAddress
 import scala.actors.Actor
 import java.util.Properties
@@ -148,12 +150,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		conn.bye(tx)
 	}
     
+    
+    
     /*
-     * 
-     * 
-     * 
-     *             // System.out.println("shootme: " + request);
-            Response response = messageFactory.createResponse(Response.TRYING, request);
+          Response response = messageFactory.createResponse(Response.TRYING, request);
             st.sendResponse(response);
        
             // Verify AUTHORIZATION !!!!!!!!!!!!!!!!
@@ -212,7 +212,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			}
 		  
 		val rejectFunction = ()=>sendRegisterResponse(500, requestEvent, tx)
-		
 	      
 	    //printHeaders(request)
         /*
@@ -231,7 +230,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         val contact = getUri(requestEvent.getRequest().getHeader("Contact").toString)
 		println("sipaddr =" + sipaddr + " = " + contact)
 		//notify telco of a register
-        telco.addSipBinding(new RegisterRequest(sipaddr, contact, authFunction, rejectFunction)) 
+        telco.addSipBinding(new IncomingRegisterRequest(sipaddr, contact, authFunction, rejectFunction)) 
     }
 
     private def processCancel(requestEvent:RequestEvent) {
@@ -313,11 +312,40 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
     	    				case _ => 
 			    			  	error("	wtf ")
 		    			}
+			case Response.UNAUTHORIZED | Response.PROXY_AUTHENTICATION_REQUIRED =>
+				cseq.getMethod() match {
+					case Request.REGISTER =>
+					  	val authinfo = telco.registerAuthInfo.get(transaction.getBranchId())
+						val credentialHelper = new { 
+								def getCredentials(challengeTx:ClientTransaction,realm:String) =
+					  		    {
+					  	  			def getUsername() = authinfo.user 
+					  	  			def getPassword() = authinfo.pass
+					  	  			def getSipDomain() = authinfo.domain
+					  		   }
+					  	}
+					  	
+						val authenticationHelper = 
+						       		sipStack.asInstanceOf[SipStackExt].getAuthenticationHelper(credentialHelper.asInstanceOf[AccountManager], headerFactory);
+						val inviteTid = authenticationHelper.handleChallenge(asResponse(re), transaction, sipProvider.get, 5);
+						inviteTid.sendRequest();
+					case _ => error(" unaothorized for non register")
+				
+				}
+			  
+			  
 		    case Response.REQUEST_TERMINATED =>
 		        println("TERMINATED")
 			case _ => error("Unexpected Response = " + asResponse(re).getStatusCode())
 		}
 	}
+	
+	def sendRegisterRequest(dest:String): String = {
+    	val request = inviteCreator.createInviteRegister(dest,SdpHelper.getBlankSdp(this.contactIp).toString.getBytes())
+    	val tx = sipProvider.get.getNewClientTransaction(request)
+    	tx.sendRequest()
+    	return tx.getBranchId()
+    }
 
 	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent, tx:ServerTransaction) = {
         println("RESPONDING TO THE REGISTER REQUEST")
@@ -354,7 +382,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
     }
 	
 	def sendInvite(from:String, to:String, sdp:SessionDescription) : (String,ClientTransaction) = {
-		val request = inviteCreator.getInviteRequest(from, to, sdp.toString().getBytes())
+		val request = inviteCreator.createInviteRequest(from, to, sdp.toString().getBytes())
 		//FIXME: add FROM
 		request.addHeader(inviteCreator.getViaHeader().get(0))
 		//conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])

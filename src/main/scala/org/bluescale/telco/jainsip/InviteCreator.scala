@@ -37,7 +37,83 @@ class InviteCreator(val sipServer:JainSipInternal) {
     val magicSipCookie = "z9hG4bK"
     
     var ctr:Long = 1
+    
+    def createInviteRegister(dest:String, sdp:Array[Byte]): Request = {
+    	val tosip = sipServer.addressFactory.createSipURI(dest, sipServer.destIp)	
+    	return createInviteRequest(tosip, "", dest, sdp)
+    } 
+    
+    def createInviteRequest(callerid:String, dest:String, sdp:Array[Byte]): Request = {
+    	val toSipAddress = dest.contains("@") match {
+		  	  case true => dest.split("@")(1)
+		  	  case false => sipServer.destIp
+		  	}
+    	val toAddress = sipServer.addressFactory.createSipURI(dest, toSipAddress)
+    	return createInviteRequest(toAddress,callerid,dest,sdp)
+    }
+    
+    
+    private def createInviteRequest(toAddress:SipURI, callerid:String, dest:String, sdp:Array[Byte]): Request = {
+			val fromName = "BlueScaleServer"
+    		val fromDisplayName = callerid 
 
+			// create >From Header
+			val fromAddress = sipServer.addressFactory.createSipURI(callerid, sipServer.contactIp)
+			val fromNameAddress = sipServer.addressFactory.createAddress(fromAddress)
+			fromNameAddress.setDisplayName(fromDisplayName)
+			val fromHeader = sipServer.headerFactory.createFromHeader(fromNameAddress, "12345")
+
+			// create To Header
+			val toNameAddress = sipServer.addressFactory.createAddress(toAddress)
+			toNameAddress.setDisplayName(dest)
+			val toHeader = sipServer.headerFactory.createToHeader(toNameAddress,null)
+
+			// create Request URI
+			val requestURI = sipServer.addressFactory.createSipURI(dest.trim(), sipServer.destIp)
+
+			
+		 	// Create ContentTypeHeader
+			val contentTypeHeader = sipServer.headerFactory.createContentTypeHeader("application", "sdp")
+ 			// Create a new CallId header
+			val callIdHeader = sipServer.sipProvider.get.getNewCallId()
+ 			// Create a new Cseq header
+			val cSeqHeader = sipServer.headerFactory.createCSeqHeader(1L,Request.INVITE)
+ 			// Create a new MaxForwardsHeader
+			val maxForwards = sipServer.headerFactory.createMaxForwardsHeader(70)
+ 			// Create the request.
+			val request = sipServer.messageFactory.createRequest(requestURI, 
+                                                  		  		Request.INVITE, 
+                                                  		  		callIdHeader, 
+                                                  		  		cSeqHeader, 
+                                                  		  		fromHeader,
+                                                  		  		toHeader, 
+                                                  		  		getViaHeader(), 
+                                                  		  		maxForwards)
+			// Create contact headers
+			val contactUrl = sipServer.addressFactory.createSipURI(fromName, sipServer.contactIp)
+			contactUrl.setPort(sipServer.udpListeningPoint.get.getPort())
+			contactUrl.setLrParam()
+
+			// Create the contact name address.
+			val contactURI = sipServer.addressFactory.createSipURI(fromName, sipServer.contactIp)
+			contactURI.setPort(sipServer.sipProvider.get.getListeningPoint(sipServer.transport).getPort())
+			val contactAddress = sipServer.addressFactory.createAddress(contactURI)
+
+			// Add the contact address.
+			contactAddress.setDisplayName(fromName)
+			val contactHeader = sipServer.headerFactory.createContactHeader(contactAddress)
+			request.addHeader(contactHeader)
+			request.setContent(sdp, contentTypeHeader)
+
+			val callInfoHeader = sipServer.headerFactory.createHeader("Call-Info","<http://www.antd.nist.gov>"); 
+			request.addHeader(callInfoHeader)
+			return request      
+      
+    }
+   
+    
+    //do we need a callerid?	
+    /*
     def getInviteRequest(callerid:String, dest:String, sdp:Array[Byte]):Request =  {
 		  	val fromName = "BlueScaleServer"
 			val fromDisplayName = callerid 
@@ -100,6 +176,7 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			request.addHeader(callInfoHeader)
 			return request
   	}
+  	*/
 
   	def getViaHeader() : ArrayList[ViaHeader] = {
         // Create ViaHeaders

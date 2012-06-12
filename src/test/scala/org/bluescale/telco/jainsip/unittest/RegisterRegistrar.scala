@@ -1,3 +1,5 @@
+package org.bluescale.telco.jainsip.unittest
+
 /*
 *  
 * This file is part of BlueScale.
@@ -21,34 +23,64 @@
 * Please contact us at www.BlueScale.org
 *
 */
-package org.bluescale.telco.jainsip.unittest
 
 import org.bluescale.telco.jainsip._
-
-import org.bluescale.telco.api._
 import org.bluescale.telco._
+import org.bluescale.telco.api._
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 
-
-@RunWith(classOf[JUnitRunner])
-class CallHangup extends FunTestHelper {
+class RegisterRegistrar extends FunTestHelper {
 	
-	
-	test("Simple Call with Remote Hangup") {
-		println("running");
-		runConn()
-		getLatch.await()
-		println("finished")
-	}
-	
+	/*
+	 *   This test involves three instances of the BlueScale server.  One to represent a SIP phone Client, 
+	 *   One to represent the PSTN (b2b server), and another to represent our actual BlueScale server.  
+	 *   
+	 *   SIPClient -> (register) -> BlueScale 
+	 *   B2BServer -> (invite) -> BlueScale 
+	 *   BlueScale -> (invite) -> SipClient
+	 *   BlueScale -> Join(sipclient, b2b)
+	 * 
+	 */
+  
+  
 	var latch:CountDownLatch = null
   
 	def getLatch = latch
 	
-  
+	var addrOfRecord:String = ""
+	
+	//test("Test Register and Registrar capabilities") {
+	def xtest() {
+		val sipClientTelcoServer  = new SipTelcoServer( "127.0.0.1", 4002, "127.0.0.1", 4000) 
+		sipClientTelcoServer.start()
+		telcoServer.setIncomingCallback(incomingCallback)
+		telcoServer.setRegisterCallback(incomingRegister)
+		sipClientTelcoServer.sendRegisterRequest("","vince", "mypass", "bluescale.org") 
+		println("running");
+		//runConn()
+		getLatch.await()
+		println("finished")
+	}
+	
+	
+	def incomingCallback(conn:SipConnection): Unit = {
+		assert(conn.destination === addrOfRecord)
+		//now make an outgoing call to the sipclient!
+		
+		
+		
+	  
+	}
+	
+	def incomingRegister(request:IncomingRegisterRequest): Unit = {
+		request.successFunction("mypass")
+		//record internal association
+		val outgoingconn = b2bServer.createConnection("","")
+		outgoingconn.connect(()=>println("connected"))
+	}
+	
+ /* 
 	def runConn() {
 	    println("in runConn")
  		latch = new CountDownLatch(1)
@@ -67,7 +99,8 @@ class CallHangup extends FunTestHelper {
                         latch.countDown()
 			        }))
 		})
-	}	
+	}
+	*/	
 }
 
  

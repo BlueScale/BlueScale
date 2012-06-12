@@ -42,6 +42,10 @@ trait TelcoServer {
 
   	def setUnjoinCallback(f: (Joinable[_],SipConnection) => Unit)
   
+  	def setRegisterCallback(f: IncomingRegisterRequest=>Unit)
+  	
+  	def sendRegisterRequest(dest:String, user:String, password:String, domain:String) 
+  	
   	def start()
 
   	def stop()

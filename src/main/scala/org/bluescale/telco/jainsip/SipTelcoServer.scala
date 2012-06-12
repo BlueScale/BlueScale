@@ -56,7 +56,7 @@ class SipTelcoServer(
 
 	private var unjoinCallback: Option[(Joinable[_],SipConnection) => Unit] = None
 	
-	private var registerCallback: Option[(RegisterRequest)=>Unit] = None
+	private var registerCallback: Option[(IncomingRegisterRequest)=>Unit] = None
 	
 	/*
 	 * Internal collections
@@ -65,6 +65,8 @@ class SipTelcoServer(
 	protected[jainsip] val connections = new ConcurrentHashMap[String, SipConnectionImpl]()
 
 	protected[jainsip] val registeredAddresses = new ConcurrentHashMap[String, String]()
+	
+	protected[jainsip] val registerAuthInfo = new ConcurrentHashMap[String, SipAuth]()
 	
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
 
@@ -100,13 +102,15 @@ class SipTelcoServer(
 		internal.stop()
 	}
  
-	override def setFailureCallback(f: (SipConnection) => Unit) = failureCallback = Some(f)
+	override def setFailureCallback(f: SipConnection => Unit) = failureCallback = Some(f)
 		
-	override def setIncomingCallback(f: (SipConnection) => Unit) = incomingCallback = Some(f)
+	override def setIncomingCallback(f: SipConnection => Unit) = incomingCallback = Some(f)
 			
-	override def setDisconnectedCallback(f: (SipConnection) => Unit) = disconnectedCallback = Some(f)
+	override def setDisconnectedCallback(f: SipConnection => Unit) = disconnectedCallback = Some(f)
 
 	override def setUnjoinCallback(f: (Joinable[_],SipConnection) => Unit) = unjoinCallback = Some(f)
+	
+	override def setRegisterCallback(f: IncomingRegisterRequest=>Unit ) = registerCallback = Some(f) 
 	
 	def fireFailure(c:SipConnection) = failureCallback.foreach( _(c) ) 
 
@@ -149,9 +153,13 @@ class SipTelcoServer(
         return true
     }
 
-
+	override def sendRegisterRequest(dest:String, user:String, password:String, domain:String) {
+		val txid = internal.sendRegisterRequest(dest)
+		registerAuthInfo.put(txid, SipAuth(user,password, domain))
+	}
+	
     //TODO: fire callback
-    def addSipBinding(register:RegisterRequest): Unit = {
+    def addSipBinding(register:IncomingRegisterRequest): Unit = {
         registeredAddresses.put(register.registeredAddress, register.actualAddress)
         registerCallback.foreach( _(register))
     }
@@ -162,7 +170,10 @@ class SipTelcoServer(
         return registeredAddresses.get(phone)
 
     }
-
 }
+
+case class SipAuth(val user:String, val pass:String, val domain:String)
+
+
 
 

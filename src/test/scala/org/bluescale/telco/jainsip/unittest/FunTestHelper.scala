@@ -12,11 +12,14 @@ class FunTestHelper extends FunSuite with BeforeAndAfter {
   
 	
 	def tryAssertEq(a:Any, b:Any): Unit = {
-		for (x <- 1 to 5) {
-			if (a == b)
-				assert(a === b)
-			Thread.sleep(500)
-		}
+		for (x <- 1 to 5) 
+			(a == b) match {
+				case true => 
+					assert(a === b)
+				  	return
+				case false => 
+				  Thread.sleep(500)
+			}
 		throw new Exception("possible error here, "+ a +" should be equal to " + b)
 	}
 	

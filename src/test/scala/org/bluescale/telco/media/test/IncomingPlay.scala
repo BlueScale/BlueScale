@@ -47,7 +47,6 @@ extends TestHelper {
     val playedLatch = new CountDownLatch(1)
     //var bobJoined = false
 
-    //var incomingCall:SipConnection = null
 
     @Test
     def testIncomingPlay() : Unit = {
