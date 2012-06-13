@@ -75,7 +75,7 @@ class EarlyMediaJoinTwo extends FunTestHelper {
                 assert(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
                 bob.disconnect( ()=> {
                     println("disconnected")
-                    assert(bob.connectionState === UNCONNECTED() )
+                    tryAssertEq(bob.connectionState,UNCONNECTED() )
                     latch.countDown()
                 })
                 })
