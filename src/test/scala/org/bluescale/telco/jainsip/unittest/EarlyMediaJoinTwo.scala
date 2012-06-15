@@ -97,7 +97,7 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 				  
 				  	alice.disconnect( ()=>{
 				  	  println("alice connectionstate = "+ alice.connectionState)
-				  		assert(alice.connectionState === UNCONNECTED())
+				  		tryAssertEq(alice.connectionState,UNCONNECTED())
 				  		//make sure bob is on hold now!
 				  		//assertFalse(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  		val b = SdpHelper.isBlankSdp(bob.sdp)
