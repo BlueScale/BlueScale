@@ -27,9 +27,10 @@ package org.bluescale.telco.media.jlibrtp
 import javax.sdp._
 
 import org.bluescale.telco.SdpHelper;
-
+import org.bluescale.util.DoAsync._
 import org.bluescale.telco.api._
 import org.bluescale.telco._
+import org.bluescale.util.BlueFuture
 import java.net.DatagramSocket
 import jlibrtp.RTPSession
 import jlibrtp.RTPAppIntf
@@ -48,6 +49,7 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     val listeningSdp = SdpHelper.createSdp(rtpPort._1.getLocalPort(), telco.contactIp)
     
     rtpSession.naivePktReception(true)
+    
     rtpSession.RTPSessionRegister( new RTPAppIntf {
     		override def receiveData(frame:DataFrame, participant:Participant) =
     		  receive(frame, participant)
@@ -72,12 +74,12 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     override def joinedTo = _joinedTo
     
-    override def join(conn:Joinable[_], f:()=>Unit) =
-      	conn.connect(this, false, ()=> {
-      	    println(" conn " + conn + " Is now Reconnected and listening to the Media's CONNECTION INFO")
-    		this._joinedTo = Some(conn)
-    		f()
-    	})
+    override def join(conn:Joinable[_]) = BlueFuture(callback => {
+    	conn.connect(this, false) ~> 
+      	println(" conn " + conn + " Is now Reconnected and listening to the Media's CONNECTION INFO") ~>
+    	(this._joinedTo = Some(conn)) ~>
+      	callback() run()
+    })
 	
     
     override def sdp = 
@@ -85,9 +87,9 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     def connectionState = connState
 
-    def joinPlay(url:String, conn:Joinable[_], f:()=>Unit) = join(conn, ()=> {
+    def joinPlay(url:String, conn:Joinable[_], f:()=>Unit) = join(conn).run {
     	play(url, f)
-    })
+    }
    
     override def joinedMediaChange() {
         println("do nothing here?")
@@ -120,23 +122,21 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     }
 
     //PROTECTED STUFF FOR JOINABLE
-    override protected[telco] def connect(join:Joinable[_], connectedCallback:()=>Unit) {
-    	//store SDP somewhere
-    	connectedCallback()
-    }
+    override protected[telco] def connect(join:Joinable[_])= connect(join, true)
 
-    override protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, connectedCallback:()=>Unit) {//doesn't need to be here? 
-    	connectedCallback()
-	}
+    override protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean ) = BlueFuture(callback => {//doesn't need to be here? 
+    	
+      callback()
+	})
     
     //protected[telco] def onConnect(f:()=>Unit) = f() //more to do? 
 
-    protected[telco] def unjoin(f:()=>Unit) = {
+    protected[telco] def unjoin() = BlueFuture(callback => {
     	finishListen()
     	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
-    	f()
+    	callback()
     	unjoinCallback.foreach(_(joinedTo.get,this))
-    }
+    })
     
     private def finishListen() =
     	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)

@@ -38,7 +38,7 @@ class PlayRecordFunctionalTest extends TestHelper {
 	  //get file from server. 
 	  //compare with sent file.
 	  println("finishedPlaying")
-	  conn.disconnect( ()=> {
+	  conn.disconnect().run {
 	    Thread.sleep(1000)//lets let the connection finish writing the file
 	  	val files = b2bServer.getMediaConnection("7145554444").recordedFiles
 	    files.foreach( f => { 
@@ -46,7 +46,7 @@ class PlayRecordFunctionalTest extends TestHelper {
 	  		latch.countDown()
 	  		println("countdown for the latch")
 	  	})
-	  })
+	  }
 	  
 	  //get filename somehow.  
 	  //compare to the recorded file
@@ -63,10 +63,11 @@ class PlayRecordFunctionalTest extends TestHelper {
 		conn = telcoServer.createConnection("7145554444", "7148889999")
 		val media = new JlibMediaConnection(telcoServer)
 		
-		conn.connect( ()=> 
-			media.join(conn, ()=>
-			    media.play( "resources/gulp.wav", ()=> finishedPlaying(conn) ))
-		)
+		conn.connect().run { 
+			media.join(conn).run {
+			    media.play( "resources/gulp.wav", ()=> finishedPlaying(conn) )
+			}
+		}
 		
 		//lets see if we can get this working!	
 		println("awaiting")

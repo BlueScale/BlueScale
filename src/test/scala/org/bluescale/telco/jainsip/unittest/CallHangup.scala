@@ -56,17 +56,17 @@ class CallHangup extends FunTestHelper {
  		println("here1")
  		val alice = telcoServer.createConnection(destNumber, "4445556666")
  		println("here2")
- 		alice.connect(()=>{ 
+ 		alice.connect().run { 
 		  	assert(alice.connectionState === CONNECTED())
 		  	println("OK i'm Connected now...how did that happen?")
 		  	assert(!SdpHelper.isBlankSdp(alice.sdp))
 		  	println("trying a remote hangup")
-		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect( ()=> {
+		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect().run {
 		  				println("disconnect has happened")
                         tryAssertEq(alice.connectionState,UNCONNECTED())
                         latch.countDown()
-			        }))
-		})
+			        })
+		}
 	}	
 }
 

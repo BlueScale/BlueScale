@@ -63,9 +63,9 @@ class EarlyMediaJoinTwo extends FunTestHelper {
     def runJoinConnect() {
         b2bServer.ringSome = true
         latch = new CountDownLatch(1)
- 		alice.connect(()=>{ 
+ 		alice.connect().run { 
 		  	assert(alice.connectionState === CONNECTED())
-		    alice.join(bob, ()=> {
+		    alice.join(bob).run {
 		        println(" what is the state of bob = " + bob.connectionState + " alice = " + alice.connectionState )
 
 		        assert(alice.connectionState === CONNECTED())
@@ -73,13 +73,13 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 		        println(" alice.joinedTo = " + alice.joinedTo + " | bob.joinedTo = " + bob.joinedTo )
 		        //println("are two connected = " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
                 assert(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
-                bob.disconnect( ()=> {
+                bob.disconnect().run {
                     println("disconnected")
                     tryAssertEq(bob.connectionState,UNCONNECTED() )
                     latch.countDown()
-                })
-                })
-		  } )
+                }
+            }
+		  } 
     }
 
 	def runJoinTwoConnected() {
@@ -87,15 +87,15 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 
  		latch = new CountDownLatch(1)
 	          
- 		alice.connect(()=>{
+ 		alice.connect().run {
 		  	assert(alice.connectionState === CONNECTED())
-		  	bob.connect(()=>{
+		  	bob.connect().run {
 		  		assert(bob.connectionState === CONNECTED())
-				alice.join(bob, ()=>{
+				alice.join(bob).run {
 				assert(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  System.err.println("are both connected = ? " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  
-				  	alice.disconnect( ()=>{
+				  	alice.disconnect().run {
 				  	  println("alice connectionstate = "+ alice.connectionState)
 				  		tryAssertEq(alice.connectionState,UNCONNECTED())
 				  		//make sure bob is on hold now!
@@ -103,10 +103,10 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 				  		val b = SdpHelper.isBlankSdp(bob.sdp)
 				  		System.err.println("b = " + b)
 				  		//Now bob should be disconnected
-				    })
-				})
-			})
-		})
+				    }
+				}
+			}
+		}
 	}
  }
 

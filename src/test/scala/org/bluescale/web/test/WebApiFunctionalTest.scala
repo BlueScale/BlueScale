@@ -105,7 +105,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
             println("got next response!")
             assert( "Connected" === request.getParameter("ConversationStatus"))
             assert( !SdpHelper.isBlankSdp(inConn.sdp))
-            inConn.disconnect( ()=>println("disconnected") )
+            inConn.disconnect().run { println("disconnected") }
             ""
         })
 
@@ -116,7 +116,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
             ""
         })
 
-        inConn.connect( ()=> println("connected!") )
+        inConn.connect().run { println("connected!") }
 
         latch.await()
         println("Finished testINcomingCall")
@@ -155,7 +155,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         })
 
         b2bServer.simulateCellVM = true
-        clientConn.connect( ()=>println("connected"))
+        clientConn.connect().run { println("connected") }
         joinedLatch.await()
         println("we've joined")
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
@@ -198,7 +198,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         b2bServer.addIgnore(aliceNumber)
         
         val inConn = b2bServer.createConnection(gatewayNumber, "4443332222")
-        inConn.connect( ()=> println("connected") ) 
+        inConn.connect().run { ()=> println("connected") }
         joinedLatch.await()
         println("done waiting for joined --------")
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))

@@ -55,10 +55,11 @@ class JoinTwoConnected extends FunTestHelper {
 		println("desk joined to = " + desk.joinedTo )
         assert(telcoServer.areTwoConnected(cell.asInstanceOf[SipConnectionImpl], desk.asInstanceOf[SipConnectionImpl]))
         //Thread.sleep(30)
-		moviePhone1.connect( ()=>
-                         	 	{println("this should implicitly put desk on hold.")
-                                moviePhone1.join(cell, ()=>joined(moviePhone1, cell))
-                         	 })
+		moviePhone1.connect().run{ 
+								println("this should implicitly put desk on hold.")
+                                moviePhone1.join(cell).run { joined(moviePhone1, cell) }
+                                
+                         	 }
 	 }
 	
 	def disconnected(c:SipConnection): Unit  = {
@@ -81,18 +82,18 @@ class JoinTwoConnected extends FunTestHelper {
 	    cell 			= telcoServer.createConnection("9495550982", "7147579999")
 	    desk   		    = telcoServer.createConnection("7147579999", "9495550982")
 	    moviePhone1 	= telcoServer.createConnection("9497773456", "9495550982")
-		cell.connect( ()=>{
+		cell.connect().run {
 			 			println("cellphoneconnected, = " + cell)
-                    	desk.connect( ()=>{
+                    	desk.connect().run {
                     						println("desk connecte, = " + desk)
-                                            cell.join(desk, firstJoined _)
-                                          })
-                  })
+                                            cell.join(desk).run { firstJoined() }
+                                          }
+                  }
 	}
 
 	def tryCall {
 		val call1 = telcoServer.createConnection("", "")
-		call1.connect( ()=> println("connected"))
+		call1.connect().run { println("connected")}
 	}
 }
 

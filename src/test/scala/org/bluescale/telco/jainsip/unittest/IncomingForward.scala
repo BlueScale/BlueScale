@@ -48,7 +48,7 @@ class IncomingForward extends FunTestHelper {
         b2bServer.addIgnore("7147579999")
         val testCall = b2bServer.createConnection("7147579999", "5554443333")
         telcoServer.setIncomingCallback(answerCall)
-        testCall.connect( ()=> println("b2b INCOMING CALL IS...........connected") )
+        testCall.connect().run { println("b2b INCOMING CALL IS...........connected") }
         joinedLatch.await()
 
         println(        telcoServer.areTwoConnected(incomingCall, bob) )
@@ -57,25 +57,25 @@ class IncomingForward extends FunTestHelper {
 
     def answerCall(call:SipConnection) : Unit ={
         //try the call that they're trying to go for.
-        call.accept( ()=> {
+        call.accept().run {
         assert(CONNECTED() === call.connectionState)
         println(" call = " + call )
         incomingCall = call
-        alice.connect( ()=>assert(false) ) //shouldn't succeed...
+        alice.connect().run { assert(false) } //shouldn't succeed...
         //start a timer, 
         Thread.sleep(1000)
-        alice.cancel( ()=>{
+        alice.cancel().run {
             println(" alice canceled !")
-            bob.connect( ()=> {
+            bob.connect().run {
                 println(" bob connected = " + bob )
                 assert(CONNECTED() === bob.connectionState)
-                bob.join(incomingCall, ()=>{
+                bob.join(incomingCall).run {
                 //call.join(bob, ()=> {
                     println("~~~~~~~JOINED~~~~~~")
                     joinedLatch.countDown()
-                    })
-            })})
-        })
+                    }
+            }}
+        }
     }
 	
 }

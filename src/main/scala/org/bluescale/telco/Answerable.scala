@@ -24,7 +24,8 @@
 package org.bluescale.telco
 
 import org.bluescale.telco.api.Joinable
-
+import org.bluescale._
+import org.bluescale.util.BlueFuture
 case class DIRECTION
 
 case class INCOMING extends DIRECTION
@@ -35,11 +36,11 @@ protected[telco] trait Answerable[T] {
     
   	def direction: DIRECTION //should probably be in SipConnection
 
- 	def accept(f: ()=> Unit): Unit
+ 	def accept(): BlueFuture[Unit] 
   
-    def accept(toJoin: Joinable[_], f: ()=> Unit): Unit
+    def accept(toJoin: Joinable[_]): BlueFuture[Unit] 
 
- 	def reject(f: ()=> Unit) : Unit
+ 	def reject() : BlueFuture[Unit]
 
     def ring(): Unit
 

@@ -54,20 +54,20 @@ class JoinTwoUnconnected extends FunTestHelper {
 	def runConn() {
  		latch = new CountDownLatch(1)
 	          
- 		alice.connect(()=>{
+ 		alice.connect().run {
 		  	assert(alice.connectionState === CONNECTED())
 		  	println( "alice connected" )
-		  	bob.connect(()=>{
+		  	bob.connect().run {}
 		  		assert(bob.connectionState === CONNECTED())
 				println(" bob connected" )
 				//Thread.sleep(4000)
-				alice.join(bob, ()=>{
+				alice.join(bob).run {
 				assert(!SdpHelper.isBlankSdp(alice.sdp)) 
 				assert(!SdpHelper.isBlankSdp(bob.sdp))
 				assert(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  System.err.println("are both connected = ? " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  
-				  	alice.disconnect( ()=>{
+				  	alice.disconnect().run {
 				  	  println("alice connectionstate = "+ alice.connectionState)
 				  		tryAssertEq(alice.connectionState,UNCONNECTED())
 				  		//make sure bob is on hold now!
@@ -75,10 +75,9 @@ class JoinTwoUnconnected extends FunTestHelper {
 				  		val b = SdpHelper.isBlankSdp(bob.sdp)
 				  		System.err.println("b = " + b)
 				  		//Now bob should be disconnected
-					})
-				})
-			})
-		})
+					}
+				}
+			}
 	} 
 	test("Join two previously unjoined connections") {
 	 	runConn()

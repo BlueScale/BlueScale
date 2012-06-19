@@ -51,18 +51,18 @@ class JoinTwoRemoteHangup extends FunTestHelper {
  
 	def runConn() {
  		latch = new CountDownLatch(1)
- 		alice.connect(()=>{ 
+ 		alice.connect().run { 
 		  	assert(alice.connectionState === CONNECTED())
-		  	bob.connect(()=>{
+		  	bob.connect().run {
 		  		assert(bob.connectionState === CONNECTED())
-				alice.join(bob, ()=>{
+				alice.join(bob).run {
 				    assert(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				    println("are both connected = ? " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 			        //Now initiate a remote hangup.
-			        b2bServer.findConnByDest("4445556666").foreach( _.disconnect( ()=> println("disconnected") ))
-				})
-			})
-		})
+			        b2bServer.findConnByDest("4445556666").foreach( _.disconnect().run { println("disconnected")})
+				}
+			}
+		}
 	}
 
 	def testJoinTwoRemoteHangup() = {

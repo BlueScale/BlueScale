@@ -25,54 +25,28 @@
 package org.bluescale.util
 import org.bluescale._
 
-class BlueFuture[T](callback:(T=>_)=>Unit) {
- 
+class BlueFuture[T](myval:T,callback:(()=>_)=>Unit) {
+  
 	def foreach[U](f:T=>U): Unit = {
 		println("FOREACH HERE for " + this)
-		callback(f)
+		callback(()=>f(myval))
 	}
-
-	def run(f:T=>Unit) = foreach(f)
-
+	
+	def run(f: =>Any): Unit = 
+		callback( { ()=> f})
+	
 }
 
 object BlueFuture {
-	def apply[T](callback:(T=>_)=>Unit) =
-	  new BlueFuture[T](callback)
+	def apply(callback:(()=>_)=>Unit) =
+	  new BlueFuture[Unit](Unit,callback)
 }
 
 
-
-object DoAsync {
-	implicit def bluefuture_to_doasync(f:BlueFuture[_]): DoAsync = new DoAsync(List[Foreachable[_]](f))
-}
-class DoAsync(val futures:List[Foreachable[_]]) {
-  
-	def ~> (future: Foreachable[_]): DoAsync = 
-		new DoAsync(futures:+future)
-    
-	def ~> (f: =>Unit): DoAsync = 
-		//val foreachable:Foreachable[_] = new { def foreach[Unit](callback: String=>Unit) = { f; callback; println("")}}
-		new DoAsync(futures:+new { def foreach[Unit](callback: String=>Unit) = { f; callback(""); println("")}})  //passing in empty to the foreach since it doesn't mean anyhting
-	
-	def runLoop(li:List[Foreachable[_]]): ()=>Unit = 
-        	return li.headOption match {
-            	case Some(head) =>
-            		()=> {
-            			println("IN RUNLOOP")
-            			head.foreach(t=> {
-            				println("RECURSING HERE")
-            				runLoop(li.drop(1))()
-            			})
-            		}
-            	case None =>
-            		()=> {}
-        	}
-    
-	def run(): Unit = {
-		println("in run, futures size = " + futures.size)
-        runLoop(futures)()         
-    }
-    
-}
-
+/*
+   def conn() = BlueFuture[connect](callback => 
+       dosomestuff, 
+       //sleep, 
+       callback(this.clone(newstate))
+       )
+        */

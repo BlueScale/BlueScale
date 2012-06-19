@@ -56,15 +56,15 @@ class ConnectJoin extends FunTestHelper {
 	def runConn() {
  		latch = new CountDownLatch(1)
 
- 		alice.connect(()=>{ 
+ 		alice.connect().run { 
 		  	assert(alice.connectionState === CONNECTED())
-		    alice.join(bob, ()=> {
+		    alice.join(bob).run {
 		        assert(alice.connectionState === CONNECTED())
                 println( "ARE TWO CONNECTED = " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
                 assert(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
                 latch.countDown()
-                })
-		  } )
+                }
+		  }
 	}
 }
 

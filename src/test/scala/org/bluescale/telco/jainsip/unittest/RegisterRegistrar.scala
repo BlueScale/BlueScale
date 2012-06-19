@@ -77,7 +77,7 @@ class RegisterRegistrar extends FunTestHelper {
 		request.successFunction("mypass")
 		//record internal association
 		val outgoingconn = b2bServer.createConnection("","")
-		outgoingconn.connect(()=>println("connected"))
+		outgoingconn.connect().run {println("connected")}
 	}
 	
  /* 

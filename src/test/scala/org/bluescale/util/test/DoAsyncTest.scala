@@ -39,11 +39,12 @@ class DoAsyncTest extends FunSuite {
 		var test = ""
         //the idea is here the callbacks woiuld occur in a separate thread, happening when network events return. We could start downlaoding something,
         //asynchronously, in anohter thread, execute the callback...
-        def connect1() = new BlueFuture[Unit](callback => { println("yay"); delay(callback())})
-        def connect2() = new BlueFuture[Unit](callback => { seqLatch.await(); callback()})  //this happens in another thread so there isn't a deadlock here!
-        def connect3() = new BlueFuture[Unit](callback => { test = "success"; delay(callback())})
+        def connect1() = BlueFuture(callback => { println("yay"); delay(callback())})
+        def connect2() = BlueFuture(callback => { seqLatch.await(); callback()})  //this happens in another thread so there isn't a deadlock here!
+        def connect3() = BlueFuture(callback => { test = "success"; delay(callback())})
         
-        connect1() ~> 
+        connect1() ~>
+		println("ok i'm here")
         connect2() ~> 
         println("the first to futures have executed...") ~>
         connect3() ~>
@@ -54,6 +55,24 @@ class DoAsyncTest extends FunSuite {
         finishLatch.await()
         assert(test === "success")
     }
+	
+	test("Test for comprehension") {
+		val seqLatch = new CountDownLatch(1)
+		val finishLatch = new CountDownLatch(1)
+		var test = ""
+		def connect1() = BlueFuture(callback => { println("yay"); delay(callback())})
+        def connect2() = BlueFuture(callback => { seqLatch.await(); callback()})  //this happens in another thread so there isn't a deadlock here!
+        def connect3() = BlueFuture(callback => { test = "success"; delay(callback())})
+        
+        
+        for(_ <- connect1();
+        	//_ = println("yay");
+        	_ <- connect2()) {
+        	println("finished with the connects")
+        }	
+        
+	  
+	}
 	
 
 }

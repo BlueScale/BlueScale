@@ -85,7 +85,7 @@ protected trait BaseJainSipConnection extends SipConnection with Actorable {
     protected def onDisconnect() = {
         joinedTo.foreach( joined=>{
                 this._joinedTo = None 
-                joined.unjoin(()=>Unit) //uuugh how did the ohter one get unjoined
+                joined.unjoin() foreach { _ => {}} //uuugh how did the ohter one get unjoined
          })
          removeConnection()
     }
@@ -95,6 +95,6 @@ protected trait BaseJainSipConnection extends SipConnection with Actorable {
     def removeConnection() : Unit
 
     def joinedMediaChange() = 
-        joinedTo.foreach( join => connect(join,()=>{}) )
-    
+        joinedTo.foreach( join => connect(join) foreach { _=> {}} )
+ 
 }

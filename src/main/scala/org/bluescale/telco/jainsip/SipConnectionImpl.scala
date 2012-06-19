@@ -58,7 +58,5 @@ class SipConnectionImpl(var connid:String,
 
     override def toString() = 
 	    "SipConnectionImpl" + direction + " TO:"+destination + " State = " + _state + " Hashcode = " + hashCode
-
-
     
 }

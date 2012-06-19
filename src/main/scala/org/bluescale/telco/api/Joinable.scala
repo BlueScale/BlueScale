@@ -25,7 +25,8 @@ package org.bluescale.telco.api
 
 import javax.sdp.SessionDescription
 import org.bluescale.telco.Connectable
-
+import org.bluescale._
+import org.bluescale.util.BlueFuture
 
 //typed so our callback can return a concrete class
 trait Joinable[T] {
@@ -34,19 +35,19 @@ trait Joinable[T] {
   	
     var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
 	
-	def join(connection:Joinable[_], f:()=>Unit)
+	def join(connection:Joinable[_]): BlueFuture[Unit]
 
     def sdp:SessionDescription
 
     def connectionState:ConnectionState //Possibly not needed here...
 
-    protected[telco] def connect(join:Joinable[_], connectedCallback:()=>Unit)
+    protected[telco] def connect(join:Joinable[_]): BlueFuture[Unit]
 
-    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean, connectedCallback:()=>Unit)//when do ew not want to connect with any media?
+    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean): BlueFuture[Unit]//when do ew not want to connect with any media?
     
     //protected[telco] def onConnect(f:()=>Unit)
 
-    protected[telco] def unjoin(f:()=>Unit) //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
+    protected[telco] def unjoin(): BlueFuture[Unit] //TODO: find out why protected isn't working here?  I'm accessing it from a subclass...
 
     def joinedMediaChange() // called by the joined class when media changes. 
 

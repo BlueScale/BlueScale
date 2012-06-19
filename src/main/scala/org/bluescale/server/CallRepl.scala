@@ -48,7 +48,8 @@ class CallRepl(telco:TelcoServer) {
 	def evalLine(line:String) : String = {
 	    if ( processing ) return "please try again when your previous action completes"
         val command  = line.split(" ")(0)
-        val arg = line.split(" ")(1) 
+        val arg = line.split(" ")(1)
+        /*
         processing = true
         return command match {
 
@@ -82,13 +83,12 @@ class CallRepl(telco:TelcoServer) {
                     processing = false
                     })
                 "holding..." 
-            /*  
-            case "silence" =>
-                val c1 = callmap(arg)
-                c1.silence( ()=> {
-                    println("call " + arg + " is now silenced")
-                    processing = false
-                })*/
+            //case "silence" =>
+               // val c1 = callmap(arg)
+               // c1.silence( ()=> {
+               //     println("call " + arg + " is now silenced")
+               //     processing = false
+               // })
 
             case "hangup" =>
                 callmap(arg).disconnect( ()=> { 
@@ -99,6 +99,8 @@ class CallRepl(telco:TelcoServer) {
                  //remove from map
                 "hanging up..."
         }
+        */
+        ""
     }
 
 }

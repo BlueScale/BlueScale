@@ -39,7 +39,7 @@ import javax.sdp.SdpFactory
 import javax.sdp.SdpParseException
 import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
-
+import org.bluescale.util.BlueFuture
 import org.bluescale.telco.api._
 
 class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] {
@@ -50,10 +50,9 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
     
     var mySdp:Option[SessionDescription] = sdp
     
-    override def join(c:Joinable[_], f:()=>Unit) : Unit =
-        f()
+    override def join(c:Joinable[_]) = BlueFuture(callback => callback()) 
 
-    def reconnect(sdp:SessionDescription, f:()=>Unit) : Unit = return
+    def reconnect(sdp:SessionDescription) = BlueFuture(callback => Unit) // should we execute callback
 
     override def sdp : SessionDescription = { 
         mySdp match {
@@ -62,9 +61,9 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
         }
     }
 
-    override def connect(join:Joinable[_], connectAnyMedia:Boolean, connectedCallback:()=>Unit) = connectedCallback()
+    override def connect(join:Joinable[_], connectAnyMedia:Boolean) = BlueFuture(callback => callback())
 
-    override def connect(join:Joinable[_], connectedCallback:()=>Unit) = connectedCallback()
+    override def connect(join:Joinable[_]) = BlueFuture(callback => callback())
 
     override def joinedMediaChange() = Unit
     
@@ -72,7 +71,7 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
 
     def silence(f:()=>Unit) : Unit = f()
 
-    override def unjoin(f:()=>Unit) : Unit = f() 
+    override def unjoin() = BlueFuture( callback => callback() ) 
 
     override def toString() =
         "SdpJoinable ......"

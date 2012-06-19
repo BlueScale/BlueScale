@@ -84,7 +84,7 @@ class MediaWebApiFunctionalTest extends junit.framework.TestCase {
         		""
         	})
 
-        inConn.connect( ()=> println("connected!") )
+        inConn.connect().run { println("connected!") }
 
         latch.await()
         println("Finished testINcomingPlay")

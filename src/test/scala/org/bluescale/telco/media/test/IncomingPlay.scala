@@ -52,18 +52,18 @@ extends TestHelper {
     def testIncomingPlay() : Unit = {
         val testCall = b2bServer.createConnection("3334445555", "2223334444" )
         telcoServer.setIncomingCallback(acceptAndPlay)
-        testCall.connect( ()=> println(" test call connected") )
+        testCall.connect().run { println(" test call connected")} 
         playedLatch.await()
         println("finished playing!")
     }
 
     def acceptAndPlay(conn:SipConnection) {
         val mediaConn = new JlibMediaConnection(telcoServer)
-        conn.accept( ()=> {
-            mediaConn.join(conn, ()=>
+        conn.accept().run {
+            mediaConn.join(conn).run {
                 mediaConn.play( "resources/gulp.wav", ()=> playedLatch.countDown() )
-            )   
-        })
+            }
+        }
     }
 
 }

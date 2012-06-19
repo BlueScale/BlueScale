@@ -34,6 +34,7 @@ import javax.sdp.SessionDescription
 import javax.sip.message._
 import org.bluescale.telco.Types
 import org.bluescale.util._
+import org.bluescale._
 
 trait UASJainSipConnection extends BaseJainSipConnection  {
 
@@ -74,7 +75,7 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
         serverTx = Some(tx)
         joinedTo.foreach(join => join.joinedMediaChange())
         val joinable = joinedTo.getOrElse(telco.silentJoinable())
-        incomingResponse(200, joinable, ()=>{})
+        for(_ <- incomingResponse(200, joinable)){} 
     }
 
     def invite(tx:ServerTransaction, sdp:SessionDescription) = orderedexec {
@@ -108,38 +109,32 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
             }
         })
     }
-
-    private def incomingResponse(responseCode:Int, toJoin:Joinable[_], connectedCallback:FinishFunction)  {
+ 	  
+    private def incomingResponse(responseCode:Int, toJoin:Joinable[_]) = BlueFuture(connectedCallback => orderedexec {
         serverTx.foreach( tx => {
             callbacks += tx.getBranchId()->(() => connectedCallback() )
 		    telco.internal.sendResponse(200, tx, toJoin.sdp.toString().getBytes())  
 	 	})
+    })
+    
+    def accept(toJoin:Joinable[_]) = BlueFuture{ callback => 
+    	incomingResponse(200,toJoin) foreach { _ =>
+    		_joinedTo = Some(toJoin)
+    	}
     }
     
-    def accept(toJoin:Joinable[_], connectedCallback:FinishFunction) = orderedexec {
-        incomingResponse(200, toJoin, ()=> {
-            _joinedTo = Some(toJoin)
-            connectedCallback()
-        })
-    }
 
-    def accept(connectedCallback:FinishFunction) =
-	    accept(SdpHelper.getBlankJoinable(telco.contactIp), connectedCallback)
+    def accept() =
+	    accept(SdpHelper.getBlankJoinable(telco.contactIp))
 
     def ring(toJoin:Joinable[_]) =
-        incomingResponse(183, toJoin, ()=>{})
+        incomingResponse(183, toJoin)
 	
     def ring() =
-        incomingResponse(180, telco.silentJoinable(), ()=>{}) 
+        incomingResponse(180, telco.silentJoinable()) 
  
-	def reject(rejectCallback:FinishFunction) = 
-	    incomingResponse(606, telco.silentJoinable(), rejectCallback)
-
-
-
-    //def transaction : Option[Transaction] =
-    //    Option(clientTx.getOrElse( serverTx.get ))
+	def reject() = 
+	    incomingResponse(606, telco.silentJoinable())
 
     protected def loadInitialSdp():SessionDescription
-   
 }
