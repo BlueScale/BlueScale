@@ -4,6 +4,7 @@ import org.bluescale._
 object DoAsync {
 	implicit def bluefuture_to_doasync(f:BlueFuture[_]): DoAsync = 
 	  new DoAsync(List[Foreachable[_]](f))
+
 }
 class DoAsync(val futures:List[Foreachable[_]]) {
   

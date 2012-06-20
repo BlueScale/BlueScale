@@ -30,7 +30,11 @@ import org.bluescale.telco._
 
 import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+
+@RunWith(classOf[JUnitRunner])
 class IncomingForward extends FunTestHelper {
 
     val alice = telcoServer.createConnection("7147579999","555444333")
@@ -49,15 +53,17 @@ class IncomingForward extends FunTestHelper {
         val testCall = b2bServer.createConnection("7147579999", "5554443333")
         telcoServer.setIncomingCallback(answerCall)
         testCall.connect().run { println("b2b INCOMING CALL IS...........connected") }
-        joinedLatch.await()
-
+        val result = joinedLatch.await(5,TimeUnit.SECONDS)
+		assert(result)
         println(        telcoServer.areTwoConnected(incomingCall, bob) )
     
     }
 
     def answerCall(call:SipConnection) : Unit ={
         //try the call that they're trying to go for.
+    	println("OK we answered the call!!!!!!!")
         call.accept().run {
+    	println("OK WE ACCEPTED< YAY")
         assert(CONNECTED() === call.connectionState)
         println(" call = " + call )
         incomingCall = call
@@ -70,11 +76,11 @@ class IncomingForward extends FunTestHelper {
                 println(" bob connected = " + bob )
                 assert(CONNECTED() === bob.connectionState)
                 bob.join(incomingCall).run {
-                //call.join(bob, ()=> {
                     println("~~~~~~~JOINED~~~~~~")
                     joinedLatch.countDown()
-                    }
-            }}
+                }
+            }
+        }
         }
     }
 	

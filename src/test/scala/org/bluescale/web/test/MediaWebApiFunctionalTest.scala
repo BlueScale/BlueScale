@@ -30,7 +30,10 @@ import java.util.concurrent._
 import org.junit._
 import Assert._
 import javax.servlet.http.HttpServletRequest
-
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+/*
+@RunWith(classOf[JUnitRunner])
 class MediaWebApiFunctionalTest extends junit.framework.TestCase {
     
  	//val config = new ConfigParser("resources/BlueScaleConfig.Sample.xml")
@@ -114,3 +117,4 @@ object MediaWebApiFunctionalTest {
         test.tearDown()
     }
 }
+*/

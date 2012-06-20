@@ -23,11 +23,13 @@
 */
 package org.bluescale.telco.jainsip.unittest
 
-
-import org.bluescale.telco.jainsip._
 import java.util.concurrent.CountDownLatch
 import org.bluescale.telco.api._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import java.util.concurrent.TimeUnit
 
+@RunWith(classOf[JUnitRunner])
 class JoinTwoRemoteHangup extends FunTestHelper {
 	
  	var latch:CountDownLatch = null
@@ -65,10 +67,11 @@ class JoinTwoRemoteHangup extends FunTestHelper {
 		}
 	}
 
-	def testJoinTwoRemoteHangup() = {
+		test("JoinTwo Remote Hangup"){
 	    println("joinTwoRemoteHangup")
 		runConn()
-		getLatch.await()
+		val result = getLatch.await(5,TimeUnit.SECONDS)
+		assert(result)
 	}
 }
 

@@ -27,13 +27,16 @@ import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._
 import java.util.concurrent.CountDownLatch
 import org.bluescale.telco._
-
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import java.util.concurrent.TimeUnit
+@RunWith(classOf[JUnitRunner])
 class JoinTwoConnected extends FunTestHelper {
 	
 	test("join two connections that were previously connected to other endpoints") {
 		 runConn()
-		 getLatch.await()
- 	 
+		 val result = getLatch.await(5,TimeUnit.SECONDS)
+		assert(result) 
 	}
 	
 	val latch = new CountDownLatch(1)
@@ -66,7 +69,7 @@ class JoinTwoConnected extends FunTestHelper {
 		 println("i've been disconnected for " + c);
 	}
  
-	def joined(c1:SipConnection, c2:SipConnection) : Unit = {
+	def joined(c1:SipConnection, c2:SipConnection): Unit = {
 	    println("OK now we should hear moviephone and not each other....")
         assert(telcoServer.areTwoConnected(c1.asInstanceOf[SipConnectionImpl], c2.asInstanceOf[SipConnectionImpl]))
 	    System.err.println("are both connected = ? " + telcoServer.areTwoConnected(c1.asInstanceOf[SipConnectionImpl], c2.asInstanceOf[SipConnectionImpl]))

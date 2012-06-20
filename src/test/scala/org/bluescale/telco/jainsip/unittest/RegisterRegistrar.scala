@@ -29,7 +29,10 @@ import org.bluescale.telco._
 import org.bluescale.telco.api._
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class RegisterRegistrar extends FunTestHelper {
 	
 	/*

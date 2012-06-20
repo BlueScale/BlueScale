@@ -112,7 +112,10 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
  	  
     private def incomingResponse(responseCode:Int, toJoin:Joinable[_]) = BlueFuture(connectedCallback => orderedexec {
         serverTx.foreach( tx => {
-            callbacks += tx.getBranchId()->(() => connectedCallback() )
+            callbacks += tx.getBranchId()->(() => { 
+            	println("Got the ack packet bavck, we have an ACCEPT!")
+            	connectedCallback()
+            })
 		    telco.internal.sendResponse(200, tx, toJoin.sdp.toString().getBytes())  
 	 	})
     })
@@ -120,6 +123,7 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
     def accept(toJoin:Joinable[_]) = BlueFuture{ callback => 
     	incomingResponse(200,toJoin) foreach { _ =>
     		_joinedTo = Some(toJoin)
+    		callback()
     	}
     }
     

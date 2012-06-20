@@ -28,7 +28,6 @@ import org.bluescale._
 class BlueFuture[T](myval:T,callback:(()=>_)=>Unit) {
   
 	def foreach[U](f:T=>U): Unit = {
-		println("FOREACH HERE for " + this)
 		callback(()=>f(myval))
 	}
 	
@@ -42,11 +41,3 @@ object BlueFuture {
 	  new BlueFuture[Unit](Unit,callback)
 }
 
-
-/*
-   def conn() = BlueFuture[connect](callback => 
-       dosomestuff, 
-       //sleep, 
-       callback(this.clone(newstate))
-       )
-        */

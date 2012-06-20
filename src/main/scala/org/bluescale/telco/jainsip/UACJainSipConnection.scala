@@ -90,16 +90,18 @@ trait UACJainSipConnection extends BaseJainSipConnection {
     override def join(otherCall:Joinable[_]) = BlueFuture(joinCallback => orderedexec {
         val f = ()=> {
             println(" join for " + this + " to " + otherCall )
-            
-            otherCall.connect(this) ~>
-            println("yay") ~>
-            connect(otherCall) ~>
-            joinCallback() run()
+            for(
+            _ <- otherCall.connect(this);
+            //_ = println("yay");
+            _ <- connect(otherCall))
+            	joinCallback()
         }
         println(" ok here....")
   	    joinedTo match { 
             case Some(joined) => 
-                joined.connect(telco.silentJoinable()) foreach { _=> f() }
+                joined.connect(telco.silentJoinable()) foreach { _=> 
+                	f() 
+                 }
             case None => f()
   	    }
     })

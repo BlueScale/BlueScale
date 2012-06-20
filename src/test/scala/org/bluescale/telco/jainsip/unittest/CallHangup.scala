@@ -28,6 +28,7 @@ import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._
 import org.bluescale.telco._
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -40,7 +41,7 @@ class CallHangup extends FunTestHelper {
 	test("Simple Call with Remote Hangup") {
 		println("running");
 		runConn()
-		getLatch.await()
+		val result = getLatch.await(5,TimeUnit.SECONDS)
 		println("finished")
 	}
 	

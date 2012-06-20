@@ -34,7 +34,7 @@ import org.junit._
 import Assert._
 import org.bluescale.telco.jainsip.unittest._
 import org.bluescale.telco.media.jlibrtp._
-
+/*
 class IncomingPlayFunctionalTest
 extends TestHelper {
 
@@ -78,4 +78,5 @@ object IncomingPlayFunctionalTest {
         test.tearDown()
     }
 }
+*/
 

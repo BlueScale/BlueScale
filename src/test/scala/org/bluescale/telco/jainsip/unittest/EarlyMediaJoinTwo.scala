@@ -28,8 +28,11 @@ import org.bluescale.telco.api._
 import org.bluescale.telco.jainsip._
 import org.bluescale.telco._
 import java.util.concurrent.CountDownLatch
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import java.util.concurrent.TimeUnit
 
-
+@RunWith(classOf[JUnitRunner])
 class EarlyMediaJoinTwo extends FunTestHelper {
 	
 	var latch:CountDownLatch = null
@@ -52,12 +55,14 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 
     test("Early Media test"){
         runJoinTwoConnected()
-        latch.await()
-    }
+        val result = latch.await(5,TimeUnit.SECONDS)
+		assert(result)
+	}
     
     test("Join Early Media test") {
         runJoinConnect()
-        latch.await()
+        val result = latch.await(5,TimeUnit.SECONDS)
+		assert(result)
     }
 
     def runJoinConnect() {

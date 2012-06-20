@@ -464,7 +464,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
   		val iter = request.getHeaderNames()
 		while (iter.hasNext()) {
 			val headerName = iter.next().toString()
-			println("  h = " + headerName + "=" + request.getHeader(headerName))
+			//println("  h = " + headerName + "=" + request.getHeader(headerName))
 		}
   	} 
 }

@@ -27,7 +27,10 @@ import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._ 
 import org.bluescale.telco._
 import java.util.concurrent.CountDownLatch
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class JoinTwoUnconnected extends FunTestHelper { 
 
 	var latch:CountDownLatch = null
@@ -57,7 +60,7 @@ class JoinTwoUnconnected extends FunTestHelper {
  		alice.connect().run {
 		  	assert(alice.connectionState === CONNECTED())
 		  	println( "alice connected" )
-		  	bob.connect().run {}
+		  	bob.connect().run {
 		  		assert(bob.connectionState === CONNECTED())
 				println(" bob connected" )
 				//Thread.sleep(4000)
@@ -78,6 +81,7 @@ class JoinTwoUnconnected extends FunTestHelper {
 					}
 				}
 			}
+ 		}
 	} 
 	test("Join two previously unjoined connections") {
 	 	runConn()

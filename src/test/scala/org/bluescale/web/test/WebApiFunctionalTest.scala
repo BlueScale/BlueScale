@@ -49,7 +49,7 @@ object WebApiFunctionalTest {
         
     }
 }
-*/
+
 
 @RunWith(classOf[JUnitRunner])
 class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
@@ -289,4 +289,4 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
                 </Response>).toString() 
 
 }
-
+*/

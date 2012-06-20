@@ -26,14 +26,19 @@ package org.bluescale.telco.jainsip.unittest
 import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._
 import java.util.concurrent.CountDownLatch
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import java.util.concurrent.TimeUnit
 
+@RunWith(classOf[JUnitRunner])
 class ConnectJoin extends FunTestHelper {
 	
  
 	test("Join Two connections, then remote hangup") {
 		println("ConnectJoinTwo")
 		runConn()
-		latch.await()
+		val result = latch.await(5,TimeUnit.SECONDS)
+		assert(result)
 		println("FINISHED")
 	}
 	

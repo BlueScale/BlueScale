@@ -30,7 +30,10 @@ import org.bluescale.telco._
 
 import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class IncomingRemoteHangup extends FunTestHelper {
 
     val alice = telcoServer.createConnection("9494443456", "9494443456")
@@ -46,8 +49,9 @@ class IncomingRemoteHangup extends FunTestHelper {
         val testCall = b2bServer.createConnection("7147579999", "5554443333")
         telcoServer.setIncomingCallback(answerCall)
         testCall.connect().run { println("connected") } 
-        disconnectLatch.await()
-        assert(!telcoServer.areTwoConnected(incomingCall, alice) )
+        val result = disconnectLatch.await(5,TimeUnit.SECONDS)
+		assert(result)
+		assert(!telcoServer.areTwoConnected(incomingCall, alice) )
     }
 
     def answerCall(call:SipConnection) : Unit ={
