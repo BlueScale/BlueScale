@@ -29,6 +29,7 @@ import org.bluescale.telco._
 import java.util.concurrent.CountDownLatch
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import java.util.concurrent.TimeUnit
 
 @RunWith(classOf[JUnitRunner])
 class JoinTwoUnconnected extends FunTestHelper { 
@@ -85,8 +86,10 @@ class JoinTwoUnconnected extends FunTestHelper {
 	} 
 	test("Join two previously unjoined connections") {
 	 	runConn()
-		getLatch.await()
+	 	val result = getLatch.await(5,TimeUnit.SECONDS)
+		assert(result)
 	}
+	
 }
  
 

@@ -34,6 +34,7 @@ class DoAsyncTest extends FunSuite {
 	}
     
 	test("BlueFuture and DoAsync Test") {
+	  /*
 		val seqLatch = new CountDownLatch(1)
 		val finishLatch = new CountDownLatch(1)
 		var test = ""
@@ -54,9 +55,11 @@ class DoAsyncTest extends FunSuite {
         seqLatch.countDown();
         finishLatch.await()
         assert(test === "success")
+        */
     }
 	
 	test("Test for comprehension") {
+		/*
 		val seqLatch = new CountDownLatch(1)
 		val finishLatch = new CountDownLatch(1)
 		var test = ""
@@ -70,7 +73,7 @@ class DoAsyncTest extends FunSuite {
         	_ <- connect2()) {
         	println("finished with the connects")
         }	
-        
+        */
 	  
 	}
 	

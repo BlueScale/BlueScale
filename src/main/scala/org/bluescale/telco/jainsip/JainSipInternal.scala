@@ -107,7 +107,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
     	
 	override def processRequest(requestEvent:RequestEvent) {
-	    println(" IN PROCESS REQUEST")
 		val request = requestEvent.getRequest()
 		
 		 request.getMethod() match {
@@ -265,7 +264,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
   	
   	private def processAck(requestEvent:RequestEvent, request:Request) { 
-		println("GOT AN ACK")
 		val request = requestEvent.getRequest()
   	    val conn = telco.getConnection(getCallId(request))//FIXME: return an option and foreach on it... prevent NPE
   	    conn.ack(requestEvent.getServerTransaction())

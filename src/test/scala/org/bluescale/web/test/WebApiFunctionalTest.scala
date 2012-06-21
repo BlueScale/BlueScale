@@ -36,20 +36,7 @@ import javax.servlet.http.HttpServletRequest
 import org.bluescale.util.WebUtil
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-/*
-object WebApiFunctionalTest {
-    def main(args:Array[String]) {
-        val wt = new WebApiFunctionalTest()
-        wt.setUp()
-        wt.testClickToCall()
-        //wt.testIncomingSendToVM()
-        wt.tearDown()
-     
-        
-    }
-}
-
+import java.util.concurrent.TimeUnit
 
 @RunWith(classOf[JUnitRunner])
 class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
@@ -118,12 +105,13 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
 
         inConn.connect().run { println("connected!") }
 
-        latch.await()
+        val latchresult = latch.await(5, TimeUnit.SECONDS)
+        assert(latchresult)
         println("Finished testINcomingCall")
     }
+/*
 
-
-    def testIncomingSendToVM() {
+    test("Test Incoming send to VM") {
         println("test incomingSendToVM()")
         var callid:Option[String] = None
         val joinedLatch = new CountDownLatch(1)
@@ -156,16 +144,16 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
 
         b2bServer.simulateCellVM = true
         clientConn.connect().run { println("connected") }
-        joinedLatch.await()
+        val latchresult = latch.await(8, TimeUnit.SECONDS)
+        assert(latchresult)
         println("we've joined")
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
-        latch.await()
         println("finished testIncomingSendToVMForward")
     }
-
+*/
 
     test("Web API Incoming Forward TEST"){
-        println("test incoming forward///////////////////")
+        println("test incoming forward")
         val joinedLatch = new CountDownLatch(1)
         var callid:Option[String] = None
 
@@ -199,10 +187,11 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         
         val inConn = b2bServer.createConnection(gatewayNumber, "4443332222")
         inConn.connect().run { ()=> println("connected") }
-        joinedLatch.await()
+        assert(joinedLatch.await(8, TimeUnit.SECONDS))
         println("done waiting for joined --------")
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
-        latch.await()
+        val latchresult = latch.await(8, TimeUnit.SECONDS)
+        assert(latchresult)
         println("finished testIncomingForward")
     }
 
@@ -254,8 +243,8 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         
         Thread.sleep(900)//our post might happen before the join callback finishes, could be a benign race conidtion in our test
         WebUtil.postToUrl("http://localhost:8200/Calls/"+call1id+"/Hangup", Map("Url"->"http://localhost:8100"))
-        latch.await()
-        
+        val latchresult = latch.await(8, TimeUnit.SECONDS)
+        assert(latchresult) 
         println("finisehd click to call")
     }
     
@@ -289,4 +278,3 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
                 </Response>).toString() 
 
 }
-*/

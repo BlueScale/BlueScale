@@ -42,6 +42,7 @@ class CallHangup extends FunTestHelper {
 		println("running");
 		runConn()
 		val result = getLatch.await(5,TimeUnit.SECONDS)
+		assert(result)
 		println("finished")
 	}
 	

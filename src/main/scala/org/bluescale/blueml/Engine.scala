@@ -121,7 +121,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                   	destConn.cancel().run {
                   	  	println("cancelled")
                   	})
-                destConn.connect().run { connectAnswer(conn, destConn, dial.url) }
+                destConn.connect().run { connectAnswer(conn, destConn, dial.url)() }
                 
         }
     
@@ -149,14 +149,14 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             postCallStatus(url, destConn)
             conn.direction match {
                 case i:INCOMING =>
-                            conn.accept().run {
-                                 conn.join(destConn).run { 
-                                    postConversationStatus(addConvoInfo(url, conn, destConn))
-                                 }
-                              } 
+                  			for (
+                  			  _ <- conn.accept;
+                  			  _ <- conn.join(destConn)) {
+                  				postConversationStatus(addConvoInfo(url, conn, destConn))
+                  			}
                                 
                 case o:OUTGOING =>
-                            conn.join(destConn).run{
+                            conn.join(destConn).run {
                                 postConversationStatus(addConvoInfo(url, conn, destConn))
                             }
             }
@@ -186,8 +186,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case None       => //ok...
         }
     
-    //def postMediaStatus(url:String, )
-
     def postConversationStatus(convo:ConversationInfo) = 
         postCallStatus(convo.url,getJoinedMap(convo),None)
         

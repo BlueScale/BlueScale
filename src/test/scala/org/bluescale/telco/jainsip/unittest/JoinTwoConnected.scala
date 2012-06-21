@@ -30,6 +30,7 @@ import org.bluescale.telco._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import java.util.concurrent.TimeUnit
+
 @RunWith(classOf[JUnitRunner])
 class JoinTwoConnected extends FunTestHelper {
 	
