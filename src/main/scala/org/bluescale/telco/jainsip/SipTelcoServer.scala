@@ -31,6 +31,8 @@ import org.bluescale.telco.jainsip._
 import org.bluescale.util._
 import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
+import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.TimeUnit
 
 
 class SipTelcoServer(
@@ -58,6 +60,8 @@ class SipTelcoServer(
 	
 	private var registerCallback: Option[(IncomingRegisterRequest)=>Unit] = None
 	
+	private val registerLock = new ReentrantLock()
+	
 	/*
 	 * Internal collections
 	 */
@@ -66,7 +70,7 @@ class SipTelcoServer(
 
 	protected[jainsip] val registeredAddresses = new ConcurrentHashMap[String, String]()
 	
-	protected[jainsip] val registerAuthInfo = new ConcurrentHashMap[String, SipAuth]()
+	protected val registerAuthInfo = new ConcurrentHashMap[String, SipAuth]()
 	
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
 
@@ -153,10 +157,28 @@ class SipTelcoServer(
         return true
     }
 
-	override def sendRegisterRequest(dest:String, user:String, password:String, domain:String) {
-		val txid = internal.sendRegisterRequest(dest)
-		registerAuthInfo.put(txid, SipAuth(user,password, domain))
+	//FIXME: race condition here
+	override def sendRegisterRequest(dest:String, user:String, password:String, domain:String) =
+		registerLock.tryLock(5,TimeUnit.SECONDS) match {
+			case true =>
+				val txid = internal.sendRegisterRequest(user,dest)
+				registerAuthInfo.put(txid, SipAuth(user,password, domain))	
+			case false =>
+				throw new Exception("Could not aquire lock, better to kill than deadlock!")
 	}
+	
+	def safeLockRegisterAuthInfo(f:()=>SipAuth) =
+		registerLock.tryLock(5,TimeUnit.SECONDS) match {
+			case true =>
+				f()
+			case false =>
+				throw new Exception("Could not acquire lock, better to kill this thread than deadlock!")
+		}
+	
+	def getRegistAuthInfo(str:String) = 
+		safeLockRegisterAuthInfo( ()=>registerAuthInfo.get(str))
+	 
+		
 	
     //TODO: fire callback
     def addSipBinding(register:IncomingRegisterRequest): Unit = {

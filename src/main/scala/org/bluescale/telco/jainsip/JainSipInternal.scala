@@ -108,16 +108,16 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
     	
 	override def processRequest(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
-		
-		 request.getMethod() match {
-		  case Request.INVITE 	=> processInvite(requestEvent)
-		  case Request.ACK 		=> processAck(requestEvent, requestEvent.getRequest())
-		  case Request.BYE 		=> processBye(requestEvent, requestEvent.getRequest())
-		  case Request.REGISTER => processRegister(requestEvent)
-		  case Request.CANCEL 	=> processCancel(requestEvent)
-		  case Request.OPTIONS  => processOptions(requestEvent)
+		val method = request.getMethod()
+		request.getMethod() match {
+			case Request.REGISTER => processRegister(requestEvent)
+			case Request.INVITE 	=> processInvite(requestEvent)
+			case Request.ACK 		=> processAck(requestEvent, requestEvent.getRequest())
+			case Request.BYE 		=> processBye(requestEvent, requestEvent.getRequest())
+			case Request.CANCEL 	=> processCancel(requestEvent)
+			case Request.OPTIONS  => processOptions(requestEvent)
 		    //TODO: handle cancels...may be too late for most things but we can try to cancel.
-		  case _ => println("err, what?")
+			case _ => println("err, what?")
 		            //serverTransactionId.sendResponse( messageFactory.createResponse( 202, request ) )
 					// send one back
 					//val prov = requestEvent.getSource()
@@ -194,39 +194,22 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	    val tx = getServerTx(requestEvent)
 		tx.sendResponse(messageFactory.createResponse(Response.TRYING, request))
 	    
-		/*
-		 * TODO: handle authenticate with an HTTP postback.  We can't send the password to authenticate
-	    val dsam = new DigestServerAuthenticationHelper()
-		if (this.authenticate && dsam.doAuthenticatePlainTextPassword(request, )) {
-	    	val challenge = messageFactory.createResponse
-	    }
-	    */
-	     
 		val authFunction = (pass:String) => 
 			new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
-			  case true => sendRegisterResponse(200, requestEvent, tx)
-					  		true
-			  case false => false
+			  case true => 
+			    	sendRegisterResponse(200, requestEvent, tx)
+					true
+			  case false => 
+			    	false
 			  
 			}
 		  
 		val rejectFunction = ()=>sendRegisterResponse(500, requestEvent, tx)
 	      
-	    //printHeaders(request)
-        /*
-         * 
-         * Authorization
-         * realm
-         * nonce
-         * qop
-         * nc
-         * cnonce
-         * response
-         * opaque
-         */
-		//TODO: authentication, removing of expired addscreateSipUR,
-		val sipaddr = getUri(request.getRequestURI().toString())
-        val contact = getUri(requestEvent.getRequest().getHeader("Contact").toString)
+		//TODO: removing of expired addscreateSipUR,
+		printHeaders(asRequest(requestEvent))
+		val sipaddr = getDest(request.getRequestURI().toString())
+		val contact = requestEvent.getRequest().getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString
 		println("sipaddr =" + sipaddr + " = " + contact)
 		//notify telco of a register
         telco.addSipBinding(new IncomingRegisterRequest(sipaddr, contact, authFunction, rejectFunction)) 
@@ -251,7 +234,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			    //TODO: should we respond with progressing, and only ringing if the user does something? 
 				transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
 				//transaction.sendResponse(messageFactory.createResponse(Response.TRYING, request))
-				val destination = getUri(request.getRequestURI().toString())
+				val destination = getDest(request.getRequestURI().toString())
 				val origin      = parseFromHeader(request)
 				println("Origin = " + origin)
 				//printHeaders(request)
@@ -313,7 +296,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case Response.UNAUTHORIZED | Response.PROXY_AUTHENTICATION_REQUIRED =>
 				cseq.getMethod() match {
 					case Request.REGISTER =>
-					  	val authinfo = telco.registerAuthInfo.get(transaction.getBranchId())
+					  	val authinfo = telco.getRegistAuthInfo(transaction.getBranchId())
 						val credentialHelper = new { 
 								def getCredentials(challengeTx:ClientTransaction,realm:String) =
 					  		    {
@@ -322,24 +305,20 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 					  	  			def getSipDomain() = authinfo.domain
 					  		   }
 					  	}
-					  	
 						val authenticationHelper = 
 						       		sipStack.asInstanceOf[SipStackExt].getAuthenticationHelper(credentialHelper.asInstanceOf[AccountManager], headerFactory);
 						val inviteTid = authenticationHelper.handleChallenge(asResponse(re), transaction, sipProvider.get, 5);
 						inviteTid.sendRequest();
 					case _ => error(" unaothorized for non register")
-				
 				}
-			  
-			  
 		    case Response.REQUEST_TERMINATED =>
 		        println("TERMINATED")
 			case _ => error("Unexpected Response = " + asResponse(re).getStatusCode())
 		}
 	}
 	
-	def sendRegisterRequest(dest:String): String = {
-    	val request = inviteCreator.createInviteRegister(dest,SdpHelper.getBlankSdp(this.contactIp).toString.getBytes())
+	def sendRegisterRequest(from:String, dest:String): String = {
+		val request = inviteCreator.createRegister(from, dest,SdpHelper.getBlankSdp(this.contactIp).toString.getBytes())	
     	val tx = sipProvider.get.getNewClientTransaction(request)
     	tx.sendRequest()
     	return tx.getBranchId()
@@ -446,7 +425,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 
   	private def parseFromHeader(request:Request) : String = { 
   	    try {
-            return getUri(request.getHeader("From").asInstanceOf[FromHeader].getAddress().toString)
+            return getDest(request.getHeader("From").asInstanceOf[FromHeader].getAddress().toString)
         } catch  {
             case ex:Exception =>
                 println("Exception parsing FROM header, it was " + request.getHeader("From"))
@@ -454,7 +433,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         return ""
     }
   	
-  	private def getUri(str:String) =
+  	private def getDest(str:String) =
   	  str.split("@")(0).split(":")(1)
   	
   	
@@ -462,7 +441,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
   		val iter = request.getHeaderNames()
 		while (iter.hasNext()) {
 			val headerName = iter.next().toString()
-			//println("  h = " + headerName + "=" + request.getHeader(headerName))
+			println("  h = " + headerName + "=" + request.getHeader(headerName))
 		}
   	} 
 }

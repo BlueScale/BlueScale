@@ -31,6 +31,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import java.util.concurrent.TimeUnit
 
 @RunWith(classOf[JUnitRunner])
 class RegisterRegistrar extends FunTestHelper {
@@ -51,35 +52,53 @@ class RegisterRegistrar extends FunTestHelper {
   
 	def getLatch = latch
 	
-	var addrOfRecord:String = ""
+	var addrOfRecord = ""
+	  
+	val toNumber = "" 
+	  
+	var regRequest:Option[IncomingRegisterRequest] = None
 	
-	//test("Test Register and Registrar capabilities") {
-	def xtest() {
-		val sipClientTelcoServer  = new SipTelcoServer( "127.0.0.1", 4002, "127.0.0.1", 4000) 
+	
+	test("Test Register and Registrar capabilities") {
+	  	latch = new CountDownLatch(1)
+	  	val sipClientTelcoServer  = new SipTelcoServer( "127.0.0.1", 4002, "127.0.0.1", 4000)
+	  	sipClientTelcoServer.setIncomingCallback((conn)=> conn.accept.run{ println("accepted!") } )
 		sipClientTelcoServer.start()
 		telcoServer.setIncomingCallback(incomingCallback)
 		telcoServer.setRegisterCallback(incomingRegister)
-		sipClientTelcoServer.sendRegisterRequest("","vince", "mypass", "bluescale.org") 
+		sipClientTelcoServer.sendRegisterRequest("7147570982@127.0.0.1:4000","7147570982", "mypass", "127.0.0.1") 
 		println("running");
-		//runConn()
-		getLatch.await()
+		assert(getLatch.await(100,TimeUnit.SECONDS))
 		println("finished")
 	}
 	
 	
 	def incomingCallback(conn:SipConnection): Unit = {
-		assert(conn.destination === addrOfRecord)
+		regRequest match {
+			case Some(reg) =>
+			  	assert(conn.destination === reg.registeredAddress)
+				val sipconn = telcoServer.createConnection(reg.actualAddress,conn.origin)
+				for (_ <- sipconn.connect();
+					_ <- conn.join(sipconn)) {
+						println("YAY")
+						latch.countDown()
+					}
+			case None => 
+				assert(false)
+		  
+		}
+		
 		//now make an outgoing call to the sipclient!
 		
-		
-		
-	  
 	}
 	
 	def incomingRegister(request:IncomingRegisterRequest): Unit = {
-		request.successFunction("mypass")
+		val success = request.successFunction("mypass")
+		println("success = " + success)
+		//assert(success)
+		regRequest = Some(request)
 		//record internal association
-		val outgoingconn = b2bServer.createConnection("","")
+		val outgoingconn = b2bServer.createConnection("7147570982","5554443333")
 		outgoingconn.connect().run {println("connected")}
 	}
 	
