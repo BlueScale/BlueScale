@@ -6,4 +6,5 @@ package object bluescale  {
 		def foreach[U](f: A=>U): Unit  
 	}
 
+
 }

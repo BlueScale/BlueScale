@@ -67,18 +67,20 @@ class InviteCreator(val sipServer:JainSipInternal) {
       
     	return createRequest(Request.REGISTER,sipServer.headerFactory.createCSeqHeader(1l, Request.REGISTER), toAddress, callerid, dest, sdp)
     } 
-    
+    //NOTE: we parse the destinatino because if we're going out to the PSTN, we're going to forward to our SIP Trunk provider. 
     def createInviteRequest(callerid:String, dest:String, sdp:Array[Byte]): Request = {
-    	val toSipAddress = dest.contains("@") match {
-		  	  case true => dest.split("@")(1)
-		  	  case false => sipServer.destIp
+    	val tosip = dest.contains("@") match {
+		  	  case true => 
+		  	    	(dest.split("@")(0).replace("sip:",""), dest.split("@")(1))
+		  	  case false => 
+		  	    	(dest,sipServer.destIp)
 		  	}
-    	val toAddress = sipServer.addressFactory.createSipURI(dest, toSipAddress)
+    	val toAddress = sipServer.addressFactory.createSipURI(tosip._1, tosip._2)
     	return createRequest(Request.INVITE, sipServer.headerFactory.createCSeqHeader(1L,Request.INVITE),toAddress,callerid,dest,sdp)
     }
     
     
-    
+    //handle port
     private def createRequest(method:String, cSeqHeader:CSeqHeader,toAddress:SipURI, callerid:String, dest:String, sdp:Array[Byte]): Request = {
 			val fromName = callerid //"BlueScaleServer"
     		val fromDisplayName = callerid 

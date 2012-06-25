@@ -37,6 +37,11 @@ class BlueFuture[T](myval:T,callback:(()=>_)=>Unit) {
 }
 
 object BlueFuture {
+	import org.bluescale._
+	
+	
+    //new { def foreach[String](callback: String=>Unit) = { f;println("")}
+	
 	def apply(callback:(()=>_)=>Unit) =
 	  new BlueFuture[Unit](Unit,callback)
 }

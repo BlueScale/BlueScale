@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import java.util.concurrent.TimeUnit
+import org.bluescale.util.ForUnitWrap._
 
 @RunWith(classOf[JUnitRunner])
 class RegisterRegistrar extends FunTestHelper {
@@ -79,6 +80,7 @@ class RegisterRegistrar extends FunTestHelper {
 			  	assert(conn.destination === reg.registeredAddress)
 				val sipconn = telcoServer.createConnection(reg.actualAddress,conn.origin)
 				for (_ <- sipconn.connect();
+					_ <- println("sip connection connected");
 					_ <- conn.join(sipconn)) {
 						println("YAY")
 						latch.countDown()
@@ -95,7 +97,7 @@ class RegisterRegistrar extends FunTestHelper {
 	def incomingRegister(request:IncomingRegisterRequest): Unit = {
 		val success = request.successFunction("mypass")
 		println("success = " + success)
-		//assert(success)
+		assert(success)
 		regRequest = Some(request)
 		//record internal association
 		val outgoingconn = b2bServer.createConnection("7147570982","5554443333")
