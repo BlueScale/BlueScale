@@ -284,7 +284,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case _ => error("Unexpected Response = " + asResponse(re).getStatusCode())
 		}
 		} catch {
-		  case ex:Exception => ex.printStackTrace()
+			//note: we don't usually care about errors here, so many times its caused by clients resending data and Txs being null
+			case ex:Exception => //ex.printStackTrace()
 		}
 	}
 	

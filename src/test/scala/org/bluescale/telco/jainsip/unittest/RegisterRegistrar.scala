@@ -48,7 +48,6 @@ class RegisterRegistrar extends FunTestHelper {
 	 * 
 	 */
   
-  
 	var latch:CountDownLatch = null
   
 	def getLatch = latch
@@ -97,13 +96,14 @@ class RegisterRegistrar extends FunTestHelper {
 	}
 	
 	def incomingRegister(request:IncomingRegisterRequest): Unit = {
+		//Thread.sleep(5000)
 		val success = request.successFunction("mypass")
 		println("success = " + success)
 		//assert(success)
 		regRequest = Some(request)
 		//record internal association
-		//val outgoingconn = b2bServer.createConnection("7147570982","5554443333")
-		//outgoingconn.connect().run {println("connected")}
+		val outgoingconn = b2bServer.createConnection("7147570982","5554443333")
+		outgoingconn.connect().run {println("connected")}
 	}
 	
  /* 
