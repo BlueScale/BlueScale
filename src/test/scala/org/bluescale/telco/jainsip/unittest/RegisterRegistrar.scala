@@ -105,28 +105,7 @@ class RegisterRegistrar extends FunTestHelper {
 		val outgoingconn = b2bServer.createConnection("7147570982","5554443333")
 		outgoingconn.connect().run {println("connected")}
 	}
-	
- /* 
-	def runConn() {
-	    println("in runConn")
- 		latch = new CountDownLatch(1)
- 		val destNumber = "9495557777"
- 		println("here1")
- 		val alice = telcoServer.createConnection(destNumber, "4445556666")
- 		println("here2")
- 		alice.connect(()=>{ 
-		  	assert(alice.connectionState === CONNECTED())
-		  	println("OK i'm Connected now...how did that happen?")
-		  	assert(!SdpHelper.isBlankSdp(alice.sdp))
-		  	println("trying a remote hangup")
-		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect( ()=> {
-		  				println("disconnect has happened")
-                        tryAssertEq(alice.connectionState,UNCONNECTED())
-                        latch.countDown()
-			        }))
-		})
-	}
-	*/	
+
 }
 
  

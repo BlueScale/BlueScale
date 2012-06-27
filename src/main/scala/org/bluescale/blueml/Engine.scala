@@ -154,7 +154,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                   			  _ <- conn.join(destConn)) {
                   				postConversationStatus(addConvoInfo(url, conn, destConn))
                   			}
-                                
                 case o:OUTGOING =>
                             conn.join(destConn).run {
                                 postConversationStatus(addConvoInfo(url, conn, destConn))
@@ -164,7 +163,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     
 
     def addConvoInfo(url:String, conn1:SipConnection, conn2:SipConnection) : ConversationInfo = {
-        val ci = new ConversationInfo(conn1, conn2, url)
+    	val ci = new ConversationInfo(conn1, conn2, url)
         conversationMap.put(conn1, ci)
         conversationMap.put(conn2, ci)
         return ci
@@ -186,8 +185,11 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case None       => //ok...
         }
     
-    def postConversationStatus(convo:ConversationInfo) = 
-        postCallStatus(convo.url,getJoinedMap(convo),None)
+    def postConversationStatus(convo:ConversationInfo) = {
+        println("---" + getJoinedMap(convo))
+    	postCallStatus(convo.url,getJoinedMap(convo),None)
+        
+    }
         
     def postMediaStatus(url:String, media:MediaConnection, conn:SipConnection) =
       SequentialWebPoster.postToUrl(url,

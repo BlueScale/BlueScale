@@ -48,7 +48,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
     //testing
     val b2bServer = new B2BServer("127.0.0.1", 4001, "127.0.0.1", 4000)
 
-    val testWS  = new SimpleWebServer(8100)
+    var testWS:SimpleWebServer = null  
 
     var latch:CountDownLatch = null
 
@@ -58,6 +58,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         
 
    	before {
+        testWS = new SimpleWebServer(8100)
    		b2bServer.start()
 		telcoServer.start()
 		ws.start()
@@ -71,8 +72,8 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         ws.stop()
         testWS.stop()
     }
-
-    test("Incoming Call Web API test") {
+	
+	test("Incoming Call Web API test") {
         println("!!!!!!!!!! test incomingCall")  
         var callid:Option[String] = None
         val inConn = b2bServer.createConnection("7147773456", "7145555555")
@@ -109,8 +110,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         assert(latchresult)
         println("Finished testINcomingCall")
     }
-/*
-
+    
     test("Test Incoming send to VM") {
         println("test incomingSendToVM()")
         var callid:Option[String] = None
@@ -129,29 +129,32 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         })
 
         testWS.setNextResponse( request=> {
-            println("......joined")
-            Thread.sleep(500)
+            println("!.....joined")
+            //Thread.sleep(500)
+            println("!!!!" + request.getParameter("ConversationStatus") + "%%%")
             assert(request.getParameter("ConversationStatus") === "Connected")
             joinedLatch.countDown()
+            println("countedDown the joinLatch")
             ""
         })
 
         testWS.setNextResponse( request=> {
-            println("disconnected")
+            println("!disconnected for sendToVm")
             latch.countDown()
+            println("finished counting down the latch for sendToVm")
             ""
         })
 
         b2bServer.simulateCellVM = true
         clientConn.connect().run { println("connected") }
-        val latchresult = latch.await(8, TimeUnit.SECONDS)
+        val latchresult = joinedLatch.await(8, TimeUnit.SECONDS)
+        println("got latchResult in sendToVM")
         assert(latchresult)
-        println("we've joined")
+        println("we've joined in sendToVm")
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
         println("finished testIncomingSendToVMForward")
     }
-*/
-
+    
     test("Web API Incoming Forward TEST"){
         println("test incoming forward")
         val joinedLatch = new CountDownLatch(1)
@@ -171,14 +174,17 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         })
 
         testWS.setNextResponse( request=> {
-            println("......joined")
+            println("!.....joined")
+            println("ConversationStatus iiiiiissssss = " + request.getParameter("ConversationStatus"))
             assert(request.getParameter("ConversationStatus") === "Connected")
+            println("yay it asserted, lets countdown the latch")
             joinedLatch.countDown()
+            println("counting down the latch")
             ""
         })
 
         testWS.setNextResponse( request=> {
-            println("disconnected")
+            println("disconnected in WebApiIncomingForwardTEst")
             latch.countDown()
             ""
         })
@@ -187,15 +193,16 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         
         val inConn = b2bServer.createConnection(gatewayNumber, "4443332222")
         inConn.connect().run { ()=> println("connected") }
-        assert(joinedLatch.await(8, TimeUnit.SECONDS))
+        println("awaiting on joinedLatch in forwardTest")
+        //assert(joinedLatch.await(8, TimeUnit.SECONDS))
+        joinedLatch.await()
         println("done waiting for joined --------")
         WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
         val latchresult = latch.await(8, TimeUnit.SECONDS)
         assert(latchresult)
         println("finished testIncomingForward")
     }
-
-
+    
     test("Web API Click to Call test") { 
         println("~~~~~~~~~~~~~~~tESTcLIckTocall")
         b2bServer.ringSome = true
@@ -248,7 +255,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         println("finisehd click to call")
     }
     
-    def getForwardVMResponse(dest:String, dest2:String) : String = 
+    def getForwardVMResponse(dest:String, dest2:String): String = 
         return (<Response>
                     <DialVoicemail>
                        <Number>{dest}</Number>
@@ -256,7 +263,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
                     </DialVoicemail>
                 </Response>).toString()
 
-    def getForwardResponse(dest:String, dest2:String) : String = 
+    def getForwardResponse(dest:String, dest2:String): String = 
         return (<Response>
                     <Dial>
                         <Number>{dest}</Number>
@@ -269,12 +276,19 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
                     </Dial>
                 </Response>).toString()
   
-    def getDialResponse(dest:String) : String =
+    def getDialResponse(dest:String): String =
         return (<Response>
                     <Dial>
                         <Number>{dest}</Number>
                         <Action>http://localhost:8100/</Action>
                     </Dial>
-                </Response>).toString() 
+                </Response>).toString()
+    
+    def getRegisterAuthResponse(password:String): String =
+    	return(<Response>)
+    				<Auth>
+    					<Password>{password}</Password>
+    				</Auth>
+    			</Response>).toString()
 
 }
