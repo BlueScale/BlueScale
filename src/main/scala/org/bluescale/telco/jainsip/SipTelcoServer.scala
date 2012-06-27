@@ -122,6 +122,8 @@ class SipTelcoServer(
 	
 	def fireIncoming(c:SipConnection) = incomingCallback.foreach( _(c) )
 	
+	def fireRegister(r:IncomingRegisterRequest) = registerCallback.foreach( _(r))
+	
 	def silentSdp() =
 	    SdpHelper.getBlankSdp(this.contactIp)
 
@@ -159,18 +161,18 @@ class SipTelcoServer(
 
 	//FIXME: race condition here
 	override def sendRegisterRequest(dest:String, user:String, password:String, domain:String) =
-		registerLock.tryLock(5,TimeUnit.SECONDS) match {
-			case true =>
+			safeLockRegisterAuthInfo(()=> {
 				val txid = internal.sendRegisterRequest(user,dest)
-				registerAuthInfo.put(txid, SipAuth(user,password, domain))	
-			case false =>
-				throw new Exception("Could not aquire lock, better to kill than deadlock!")
-	}
+				registerAuthInfo.put(txid, SipAuth(user,password, domain))
+			})
 	
 	def safeLockRegisterAuthInfo(f:()=>SipAuth) =
 		registerLock.tryLock(5,TimeUnit.SECONDS) match {
 			case true =>
-				f()
+			  	try 
+			  		f()
+			    finally 
+					registerLock.unlock()
 			case false =>
 				throw new Exception("Could not acquire lock, better to kill this thread than deadlock!")
 		}
@@ -178,12 +180,9 @@ class SipTelcoServer(
 	def getRegistAuthInfo(str:String) = 
 		safeLockRegisterAuthInfo( ()=>registerAuthInfo.get(str))
 	 
-		
-	
     //TODO: fire callback
-    def addSipBinding(register:IncomingRegisterRequest): Unit = {
-        registeredAddresses.put(register.registeredAddress, register.actualAddress)
-        registerCallback.foreach( _(register))
+    def addSipBinding(regAddress:String, contactAddress:String): Unit = {
+        registeredAddresses.put(regAddress, contactAddress)
     }
 
 

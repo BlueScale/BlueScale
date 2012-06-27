@@ -27,5 +27,4 @@ class IncomingRegisterRequest(val registeredAddress:String,
 					val actualAddress:String,
 					val successFunction:String=>Boolean,   //if the password works, we return true and send an OK.  otherwise, try again.  
 					val rejectFunction:()=>Unit) 
-  
 	

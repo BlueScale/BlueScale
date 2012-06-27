@@ -69,7 +69,7 @@ class RegisterRegistrar extends FunTestHelper {
 		telcoServer.setRegisterCallback(incomingRegister)
 		sipClientTelcoServer.sendRegisterRequest("7147570982@127.0.0.1:4000","7147570982", "mypass", "127.0.0.1") 
 		println("running");
-		assert(getLatch.await(100,TimeUnit.SECONDS))
+		assert(getLatch.await(500,TimeUnit.SECONDS))
 		println("finished")
 	}
 	
@@ -81,7 +81,9 @@ class RegisterRegistrar extends FunTestHelper {
 				val sipconn = telcoServer.createConnection(reg.actualAddress,conn.origin)
 				for (_ <- sipconn.connect();
 					_ <- println("sip connection connected");
-					_ <- conn.join(sipconn)) {
+					_ <- conn.join(sipconn);
+					_ <- println("joined!");
+					_ <- sipconn.disconnect()){
 						println("YAY")
 						latch.countDown()
 					}
@@ -97,11 +99,11 @@ class RegisterRegistrar extends FunTestHelper {
 	def incomingRegister(request:IncomingRegisterRequest): Unit = {
 		val success = request.successFunction("mypass")
 		println("success = " + success)
-		assert(success)
+		//assert(success)
 		regRequest = Some(request)
 		//record internal association
-		val outgoingconn = b2bServer.createConnection("7147570982","5554443333")
-		outgoingconn.connect().run {println("connected")}
+		//val outgoingconn = b2bServer.createConnection("7147570982","5554443333")
+		//outgoingconn.connect().run {println("connected")}
 	}
 	
  /* 

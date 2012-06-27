@@ -41,6 +41,7 @@ import gov.nist.javax.sip.clientauthutils.AuthenticationHelper
 import java.net.InetAddress
 import scala.actors.Actor
 import java.util.Properties
+import scala.reflect.BeanProperty
 
 
 import org.bluescale.telco._
@@ -134,7 +135,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	
 
 	private def processOptions(requestEvent: RequestEvent) {
-	    println("in process options")
         val response = messageFactory.createResponse(200, requestEvent.getRequest())
         val allowHeader = headerFactory.createAllowHeader("INVITE")
         val encodingHeader = headerFactory.createAcceptEncodingHeader("application/sdp")
@@ -148,71 +148,36 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		val conn = telco.getConnection(getCallId(request))
 		conn.bye(tx)
 	}
-    
-    
-    
-    /*
-          Response response = messageFactory.createResponse(Response.TRYING, request);
-            st.sendResponse(response);
-       
-            // Verify AUTHORIZATION !!!!!!!!!!!!!!!!
-            dsam = new DigestServerAuthenticationHelper();
-
-            if (!dsam.doAuthenticatePlainTextPassword(request, "pass")) {
-                Response challengeResponse = messageFactory.createResponse(
-                        Response.PROXY_AUTHENTICATION_REQUIRED, request);
-                dsam.generateChallenge(headerFactory, challengeResponse, "nist.gov");
-                st.sendResponse(challengeResponse);
-                return;
-
-            }
-
-            System.out.println("shootme: got an Invite with Authorization, sending Trying");
-            // System.out.println("shootme: " + request);
-
-            dialog = st.getDialog();
-
-            st.sendResponse(response);
-
-            this.okResponse = messageFactory.createResponse(Response.OK, request);
-            Address address = addressFactory.createAddress("Shootme <sip:" + myAddress + ":"
-                    + myPort + ">");
-            ContactHeader contactHeader = headerFactory.createContactHeader(address);
-            response.addHeader(contactHeader);
-            ToHeader toHeader = (ToHeader) okResponse.getHeader(ToHeader.NAME);
-            toHeader.setTag("4321"); // Application is supposed to set.
-            okResponse.addHeader(contactHeader);
-            this.inviteTid = st;
-            // Defer sending the OK to simulate the phone ringing.
-            // Answered in 1 second ( this guy is fast at taking calls)
-            this.inviteRequest = request;
-     */
-    
+        
 
 	private def processRegister(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
 	    val tx = getServerTx(requestEvent)
 		tx.sendResponse(messageFactory.createResponse(Response.TRYING, request))
-	    
-		val authFunction = (pass:String) => 
-			new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
-			  case true => 
-			    	sendRegisterResponse(200, requestEvent, tx)
-					true
-			  case false => 
-			    	false
-			  
-			}
-		  
-		val rejectFunction = ()=>sendRegisterResponse(500, requestEvent, tx)
-	      
-		//TODO: removing of expired addscreateSipUR,
-		printHeaders(asRequest(requestEvent))
+		
 		val sipaddr = getDest(request.getRequestURI().toString())
 		val contact = requestEvent.getRequest().getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString
 		println("sipaddr =" + sipaddr + " = " + contact)
-		//notify telco of a register
-        telco.addSipBinding(new IncomingRegisterRequest(sipaddr, contact, authFunction, rejectFunction)) 
+		
+		val authFunction = (pass:String) => 
+			new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
+				case true => 
+			    	sendRegisterResponse(200, requestEvent, tx)
+			    	telco.addSipBinding(sipaddr, contact) 
+					true
+				case false => 
+			    	//generate challenge for aunauthorized requests
+			    	val dsam = new DigestServerAuthenticationHelper()
+			    	val challengeResponse = messageFactory.createResponse(Response.PROXY_AUTHENTICATION_REQUIRED, request)
+			    	dsam.generateChallenge(headerFactory, challengeResponse, "nist.gov")
+			    	tx.sendResponse(challengeResponse) 
+			    	false
+			}
+		  
+		val rejectFunction = ()=>sendRegisterResponse(401, requestEvent, tx)
+		val registerRequest = new IncomingRegisterRequest(sipaddr, contact, authFunction, rejectFunction)
+		telco.fireRegister(registerRequest)
+        //TODO: removing of expired addscreateSipUR,
     }
 
     private def processCancel(requestEvent:RequestEvent) {
@@ -254,6 +219,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
    
    //TODO: handle re-tries... we can't just let another setState happen, could fuck things up if something else had been set already...
 	override def processResponse(re:ResponseEvent) {
+		try { 
 		var transaction = re.getClientTransaction()
 		val conn = telco.getConnection(getCallId(re))
 		if ( null == transaction) { //we already got a 200OK and the TX was terminated...
@@ -276,6 +242,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case Response.OK =>
 		    			cseq.getMethod() match {
 		    				case Request.INVITE =>
+		    				  			val inviteRequset = transaction.getRequest()
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)//should be done in the call? 
 		    							val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
@@ -284,30 +251,31 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    				case Request.CANCEL =>
 		    				    //cancel, removeConnection,
 		    				    conn.setUAC(transaction, statusCode, conn.sdp) 
-		    				    //conn.setState(VERSIONED_CANCELED( transaction.getBranchId() ) )
 		    					log("	cancel request ")
 		    				case Request.BYE =>
 		    					telco.removeConnection(conn)
 		    					conn.setUAC(transaction, statusCode, conn.sdp)
-		    					//conn./setState( VERSIONED_UNCONNECTED(transaction.getBranchId() ) )	
     	    				case _ => 
 			    			  	error("	wtf ")
 		    			}
 			case Response.UNAUTHORIZED | Response.PROXY_AUTHENTICATION_REQUIRED =>
 				cseq.getMethod() match {
 					case Request.REGISTER =>
+					  	println(" registerResponse TX id = " + transaction.hashCode())
 					  	val authinfo = telco.getRegistAuthInfo(transaction.getBranchId())
-						val credentialHelper = new { 
+						val credentialHelper = new AccountManager { 
 								def getCredentials(challengeTx:ClientTransaction,realm:String) =
-					  		    {
-					  	  			def getUsername() = authinfo.user 
+					  		    new UserCredentials {
+					  	  			def getUserName() = authinfo.user 
 					  	  			def getPassword() = authinfo.pass
 					  	  			def getSipDomain() = authinfo.domain
 					  		   }
 					  	}
+					  	Thread.sleep(300)
+					  	val req = transaction.getRequest()
 						val authenticationHelper = 
-						       		sipStack.asInstanceOf[SipStackExt].getAuthenticationHelper(credentialHelper.asInstanceOf[AccountManager], headerFactory);
-						val inviteTid = authenticationHelper.handleChallenge(asResponse(re), transaction, sipProvider.get, 5);
+						       		sipStack.asInstanceOf[SipStackExt].getAuthenticationHelper(credentialHelper, headerFactory);
+						val inviteTid = authenticationHelper.handleChallenge(asResponse(re), transaction, sipProvider.get, 30);
 						inviteTid.sendRequest();
 					case _ => error(" unaothorized for non register")
 				}
@@ -315,24 +283,27 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		        println("TERMINATED")
 			case _ => error("Unexpected Response = " + asResponse(re).getStatusCode())
 		}
+		} catch {
+		  case ex:Exception => ex.printStackTrace()
+		}
 	}
 	
 	def sendRegisterRequest(from:String, dest:String): String = {
 		val request = inviteCreator.createRegister(from, dest,SdpHelper.getBlankSdp(this.contactIp).toString.getBytes())	
     	val tx = sipProvider.get.getNewClientTransaction(request)
     	tx.sendRequest()
+    	val req = tx.getRequest()
+    	println(" RegisterRequest TX id = " + tx.hashCode())
     	return tx.getBranchId()
     }
 
 	def sendRegisterResponse(responseCode:Int, requestEvent:RequestEvent, tx:ServerTransaction) = {
-        println("RESPONDING TO THE REGISTER REQUEST")
         val response = messageFactory.createResponse(responseCode, requestEvent.getRequest() ) //transaction.getRequest())
 		response.addHeader( requestEvent.getRequest().getHeader("Contact"))
         val contact =  headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port))
         contact.setExpires(999999)
         response.addHeader(contact)
         //response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
-		
 		tx.sendResponse(response)
 	}
  
@@ -364,7 +335,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		request.addHeader(inviteCreator.getViaHeader().get(0))
 		//conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		val tx =  sipProvider.get.getNewClientTransaction(request)
-		
 		val id = getCallId(request)
 		tx.sendRequest()
 		return (id, tx)
@@ -445,3 +415,5 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		}
   	} 
 }
+	
+

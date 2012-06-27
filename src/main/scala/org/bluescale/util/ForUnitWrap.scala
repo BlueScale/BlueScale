@@ -5,9 +5,6 @@ package org.bluescale.util
 class ForUnitWrap {
 	def foreach(f: String=>Unit): Unit =
 	  f("")
- 
-	 
-	
 }
 
 object ForUnitWrap {
