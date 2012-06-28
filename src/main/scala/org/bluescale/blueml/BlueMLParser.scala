@@ -42,10 +42,14 @@ object BlueMLParser extends Util {
             case "Gather"=>throw new UnsupportedOperationException("Gather")
             case "Record"=>throw new UnsupportedOperationException("Record")
             case "Hangup"=>parseHangup(n)
+            case "Auth" => parseAuth(n) 
             case _ => null
         }
     }
 
+    private def parseAuth(n:Node): Auth =
+    	new Auth((n \ "Passwored").text)
+      
     private def parseDial(n:Node) : Dial = 
         new Dial( GetNonEmpty((n \ "Number").text, n.text),
                   fixNumber((n \ "From").text),
@@ -56,19 +60,18 @@ object BlueMLParser extends Util {
         new DialVoicemail( GetNonEmpty((n \ "Number").text, n.text),
                 fixNumber((n \ "From").text),
                 fixNumber((n \ "Action").text))
-
                   
     private def parsePlay(n:Node) : Play = 
         new Play( parseInt( (n \ "loop").text),
         		(n \ "MediaUrl").text,
         		(n \ "Action").text)
-    
 
     private def parseInt(str:String) = 
         StrOption(str) match {
            case Some(s) => Integer.parseInt(s)
            case None => -1
         }
+    
     private def parseHangup(n:Node)  = 
       new Hangup( (n \ "Action").text)
 
@@ -78,26 +81,5 @@ object BlueMLParser extends Util {
         .replace("(","")
         .replace(")","")
 }
-
-
-trait BlueMLVerb
-
-
-case class Play(val loop:Int = 0,
-                val mediaUrl:String,
-                val url:String) extends BlueMLVerb 
-
-case class Dial(val number:String,
-                val from:String,
-                val url:String,
-                val ringLimit:Int) extends BlueMLVerb
-
-case class DialVoicemail(val number:String,
-                    val from:String,
-                    val url:String) extends BlueMLVerb
-
-case class Hangup(val url:String) extends BlueMLVerb
-
-case class Hold() extends BlueMLVerb
 
 

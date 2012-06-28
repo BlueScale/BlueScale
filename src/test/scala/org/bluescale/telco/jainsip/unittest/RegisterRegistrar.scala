@@ -59,6 +59,7 @@ class RegisterRegistrar extends FunTestHelper {
 	var regRequest:Option[IncomingRegisterRequest] = None
 	
 	
+	
 	test("Test Register and Registrar capabilities") {
 	  	latch = new CountDownLatch(1)
 	  	val sipClientTelcoServer  = new SipTelcoServer( "127.0.0.1", 4002, "127.0.0.1", 4000)
@@ -70,6 +71,7 @@ class RegisterRegistrar extends FunTestHelper {
 		println("running");
 		assert(getLatch.await(500,TimeUnit.SECONDS))
 		println("finished")
+		sipClientTelcoServer.stop()
 	}
 	
 	

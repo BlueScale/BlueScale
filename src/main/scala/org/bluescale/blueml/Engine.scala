@@ -50,8 +50,8 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case play:Play => 
                 handlePlay(conn, play, verbs.tail)    
             case hangup:Hangup =>
-            	conn.disconnect().run {  postCallStatus(hangup.url,conn) }
-            	
+            	conn.disconnect().run {  postCallStatus(hangup.url,conn) }//verify we are recursing here?
+            //dcase auth:Auth =>
         }
     }
 
@@ -107,7 +107,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     }
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
-        
         val destConn = telcoServer.createConnection(FixPhoneNumber(dial.number), dial.from)
         conn.connectionState match {
             case c:CONNECTED =>
@@ -122,7 +121,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                   	  	println("cancelled")
                   	})
                 destConn.connect().run { connectAnswer(conn, destConn, dial.url)() }
-                
         }
     
         dial.ringLimit match {
@@ -133,7 +131,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                         destConn.cancel().run { 
                             handleBlueML(conn, verbs)
                         }
-
                     } catch {
                         case ex:InvalidStateException => println("first connect succeeded")
                         case ex:Exception=> throw ex
@@ -180,15 +177,14 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         postCallStatus(url, getConnectionMap(conn), Some( (s:String)=>handleBlueML(conn, s) ) )
 
     def postCallStatus(url:String, map:Map[String,String], handleResponse:Option[(String)=>Unit]) : Unit =
-        Option( SequentialWebPoster.postToUrl(url, map) ) match {
-            case Some(xml)  => handleResponse.foreach( _(xml) )
-            case None       => //ok...
-        }
-    
+      for(xml <- StrOption(SequentialWebPoster.postToUrl(url, map));
+    	  response <- handleResponse;
+    	  _ = response(xml)) 
+    	  	println("finished posting callstatus to " + url)
+     
     def postConversationStatus(convo:ConversationInfo) = {
         println("---" + getJoinedMap(convo))
     	postCallStatus(convo.url,getJoinedMap(convo),None)
-        
     }
         
     def postMediaStatus(url:String, media:MediaConnection, conn:SipConnection) =
@@ -196,6 +192,30 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
           Map( "CallId" -> conn.connectionid,
                "MediaUrl" -> media.playedFiles.firstOption.getOrElse("")
           ))
+    
+    //TODO: reject
+    def handleRegisterRequest(url:String, authInfo:IncomingRegisterRequest): Unit = { 
+    	val parameters = Map("AuthType" -> "Request",
+    					"RegisterAddress" -> authInfo.registeredAddress,
+    	        		"ContactAddress" -> authInfo.actualAddress)
+    	val bluemlverbs = BlueMLParser.parse(SequentialWebPoster.postToUrl(url,parameters))
+    	bluemlverbs
+    		.collectFirst({case auth:Auth => auth})
+    		.foreach( a => 
+    		  	authInfo.successFunction(a.password) match {
+    				case true => postSuccesfulAuth(url, authInfo)
+    				case false =>println("auth rejected")
+    			})
+    }
+	
+	def postSuccesfulAuth(url:String, authInfo:IncomingRegisterRequest): Unit = {
+    	val parameters = Map("AuthType" -> "Authenticated",
+    					"RegisterAddress" -> authInfo.registeredAddress,
+    					"ContactAddress" -> authInfo.actualAddress)	
+    	SequentialWebPoster.postToUrl(url, parameters)       		
+	}
+    	        
+    
     
     protected def getConnectionMap(conn:SipConnection) = 
         Map( "CallId"->conn.connectionid,
@@ -217,7 +237,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case false=> "Unconnected"
         }
 
-    
      def newCall(to:String, from:String, url:String) {
         //todo: make sure it's all valid
         val conn = telcoServer.createConnection(FixPhoneNumber(to), from)

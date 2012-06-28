@@ -255,6 +255,11 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         println("finisehd click to call")
     }
     
+    test("Testing SIpAuth IncomingForward") {
+    	
+      
+    }
+    
     def getForwardVMResponse(dest:String, dest2:String): String = 
         return (<Response>
                     <DialVoicemail>
