@@ -48,7 +48,7 @@ object BlueMLParser extends Util {
     }
 
     private def parseAuth(n:Node): Auth =
-    	new Auth((n \ "Passwored").text)
+    	new Auth((n \ "Password").text)
       
     private def parseDial(n:Node) : Dial = 
         new Dial( GetNonEmpty((n \ "Number").text, n.text),

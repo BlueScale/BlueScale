@@ -101,7 +101,7 @@ class RegisterRegistrar extends FunTestHelper {
 		//Thread.sleep(5000)
 		val success = request.successFunction("mypass")
 		println("success = " + success)
-		//assert(success)
+		assert(success)
 		regRequest = Some(request)
 		//record internal association
 		val outgoingconn = b2bServer.createConnection("7147570982","5554443333")

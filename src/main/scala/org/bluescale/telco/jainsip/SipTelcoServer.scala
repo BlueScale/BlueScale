@@ -70,7 +70,11 @@ class SipTelcoServer(
 
 	protected[jainsip] val registeredAddresses = new ConcurrentHashMap[String, String]()
 	
+	//for UAC register stuff
 	protected val registerAuthInfo = new ConcurrentHashMap[String, SipAuth]()
+	
+	//for UAS regiser stuff
+	protected[jainsip] val sentPasswordPrompt = new ConcurrentHashMap[String, Boolean]()
 	
 	protected[jainsip] val internal = new JainSipInternal(this, listeningIp, contactIp, port, destIp, destPort)
 
@@ -159,8 +163,7 @@ class SipTelcoServer(
         return true
     }
 
-	//FIXME: race condition here
-	override def sendRegisterRequest(dest:String, user:String, password:String, domain:String) =
+	def sendRegisterRequest(dest:String, user:String, password:String, domain:String) =
 			safeLockRegisterAuthInfo(()=> {
 				val txid = internal.sendRegisterRequest(user,dest)
 				registerAuthInfo.put(txid, SipAuth(user,password, domain))

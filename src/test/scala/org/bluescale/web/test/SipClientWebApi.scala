@@ -51,95 +51,36 @@ class SipClientWebApi extends FunSuite with BeforeAndAfter {
     var testWS:SimpleWebServer = null  
 
     var latch:CountDownLatch = null
+    
+    val sipClientTelcoServer  = new SipTelcoServer( "127.0.0.1", 4002, "127.0.0.1", 4000)
 
     val gatewayNumber    = "4445556666"
     val aliceNumber     = "7778889999"
     val bobNumber       = "1112223333"
-        
-
-   	before {
+   	
+    before {
         testWS = new SimpleWebServer(8100)
    		b2bServer.start()
 		telcoServer.start()
 		ws.start()
+    	sipClientTelcoServer.start()
 		testWS.start()
 		latch = new CountDownLatch(1)
 	}	
 	
 	after {
-        telcoServer.stop()
+		sipClientTelcoServer.stop()
+		telcoServer.stop()
         b2bServer.stop()
         ws.stop()
         testWS.stop()
     }
 	
-	/*
-	
-	test("Incoming Call Web API test") {
-        println("!!!!!!!!!! test incomingCall")  
-        var callid:Option[String] = None
-        val inConn = b2bServer.createConnection("7147773456", "7145555555")
-
-        //BlueScale API is goign to post back an incoming call to in
-        testWS.setNextResponse( request=> {
-            println("got one resopnse")
-            callid = Some( request.getParameter("CallId") )
-            getDialResponse("9494443333")
-        })
-        testWS.setNextResponse( request=> "" ) //this is telling us the callID of the other end...
-
-        //API is now going to tell us the call is connected!. We don't need to respond with anything
-        testWS.setNextResponse( (request:HttpServletRequest)=> {
-            Thread.sleep(500)//benign race condition here because of the fact the ack comes to this and gets sent to an actor... 
-            assert( inConn.connectionState === CONNECTED() )
-            println("got next response!")
-            assert( "Connected" === request.getParameter("ConversationStatus"))
-            assert( !SdpHelper.isBlankSdp(inConn.sdp))
-            inConn.disconnect().run { println("disconnected") }
-            ""
-        })
-
-        testWS.setNextResponse( (request:HttpServletRequest)=> {
-            assert( inConn.connectionState === UNCONNECTED() )
-            //check that it's posting the right info
-            latch.countDown()
-            ""
-        })
-
-        inConn.connect().run { println("connected!") }
-
-        val latchresult = latch.await(5, TimeUnit.SECONDS)
-        assert(latchresult)
-        println("Finished testINcomingCall")
-    }
-
-        testWS.setNextResponse( request=> {
-            println("disconnected in WebApiIncomingForwardTEst")
-            latch.countDown()
-            ""
-        })
-
-        b2bServer.addIgnore(aliceNumber)
-        
-        val inConn = b2bServer.createConnection(gatewayNumber, "4443332222")
-        inConn.connect().run { ()=> println("connected") }
-        println("awaiting on joinedLatch in forwardTest")
-        //assert(joinedLatch.await(8, TimeUnit.SECONDS))
-        joinedLatch.await()
-        println("done waiting for joined --------")
-        WebUtil.postToUrl("http://localhost:8200/Calls/"+callid.get +"/Hangup", Map("Url"->"http://localhost:8100"))
-        val latchresult = latch.await(8, TimeUnit.SECONDS)
-        assert(latchresult)
-        println("finished testIncomingForward")
-    }
-    */
-    
+	 
     test("Testing SIpAuth IncomingForward") {
     	val password = "asdf123"
     	val registerLatch = new CountDownLatch(1)
     	val joinedLatch = new CountDownLatch(1)
-    	val sipClientTelcoServer  = new SipTelcoServer( "127.0.0.1", 4002, "127.0.0.1", 4000)
-    	sipClientTelcoServer.start()
     	var contactAddress:String = null
     	var registeredAddress:String = null
     	
@@ -170,10 +111,11 @@ class SipClientWebApi extends FunSuite with BeforeAndAfter {
     		""
     	})
     
+    	sipClientTelcoServer.sendRegisterRequest("7147570982@127.0.0.1:4000","7147570982",  password, "127.0.0.1")
     	assert(registerLatch.await(8, TimeUnit.SECONDS))
-    	val sipConn = sipClientTelcoServer.createConnection("7147570982", "5554443333")
-    	sipConn.connect().run { println("sipConn connected") }
-    	    
+    	val incomingConn = b2bServer.createConnection("7147570982", "5554443333")
+    	incomingConn.connect().run { println("connected") }
+    	
     	assert(joinedLatch.await(8, TimeUnit.SECONDS))
     	sipClientTelcoServer.stop()
     }

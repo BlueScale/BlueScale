@@ -157,13 +157,13 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		
 		val sipaddr = getDest(request.getRequestURI().toString())
 		val contact = requestEvent.getRequest().getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString
-		println("sipaddr =" + sipaddr + " = " + contact)
 		
 		val authFunction = (pass:String) => 
 			new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
 				case true => 
 			    	sendRegisterResponse(200, requestEvent, tx)
 			    	telco.addSipBinding(sipaddr, contact) 
+			    	telco.sentPasswordPrompt.remove(tx.getBranchId())
 					true
 				case false => 
 			    	//generate challenge for aunauthorized requests
@@ -175,9 +175,16 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			}
 		  
 		val rejectFunction = ()=>sendRegisterResponse(401, requestEvent, tx)
+		
 		val registerRequest = new IncomingRegisterRequest(sipaddr, contact, authFunction, rejectFunction)
-		telco.fireRegister(registerRequest)
-        //TODO: removing of expired addscreateSipUR,
+		
+		telco.sentPasswordPrompt.putIfAbsent(sipaddr+contact, true) match {
+		  	case true =>
+		  		telco.fireRegister(registerRequest)
+		  	case false =>
+		  		authFunction(null)
+		}
+		//TODO: removing of expired addscreateSipUR,
     }
 
     private def processCancel(requestEvent:RequestEvent) {
@@ -271,12 +278,12 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 					  	  			def getSipDomain() = authinfo.domain
 					  		   }
 					  	}
-					  	Thread.sleep(300)
+					  	Thread.sleep(10000)
 					  	val req = transaction.getRequest()
 						val authenticationHelper = 
-						       		sipStack.asInstanceOf[SipStackExt].getAuthenticationHelper(credentialHelper, headerFactory);
-						val inviteTid = authenticationHelper.handleChallenge(asResponse(re), transaction, sipProvider.get, 30);
-						inviteTid.sendRequest();
+						       		sipStack.asInstanceOf[SipStackExt].getAuthenticationHelper(credentialHelper, headerFactory)
+						val inviteTid = authenticationHelper.handleChallenge(asResponse(re), transaction, sipProvider.get, 30)
+						inviteTid.sendRequest()
 					case _ => error(" unaothorized for non register")
 				}
 		    case Response.REQUEST_TERMINATED =>
@@ -285,7 +292,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		}
 		} catch {
 			//note: we don't usually care about errors here, so many times its caused by clients resending data and Txs being null
-			case ex:Exception => //ex.printStackTrace()
+			case ex:Exception => ex.printStackTrace()
 		}
 	}
 	
