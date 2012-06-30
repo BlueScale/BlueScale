@@ -62,8 +62,10 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         conn.direction match {
             case i:INCOMING => 
                 conn.connectionState match {
-                    case CONNECTED() => f()
-                    case UNCONNECTED() => conn.accept() foreach { _=> f() }
+                    case CONNECTED() => 
+                      	f()
+                    case UNCONNECTED() => 
+                      	conn.accept() foreach { _=> f() }
                 } 
             case o:OUTGOING => 
                 f()
@@ -120,7 +122,9 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                   	destConn.cancel().run {
                   	  	println("cancelled")
                   	})
-                destConn.connect().run { connectAnswer(conn, destConn, dial.url)() }
+                destConn.connect().run { 
+                	connectAnswer(conn, destConn, dial.url)() 
+                }
         }
     
         dial.ringLimit match {
@@ -137,7 +141,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                     }
 
            case _ => 
-                println("nothing to do but hope it connects!")
+                println("no ring limit, nothing to do but hope it connects!")
            }
     }
 
@@ -147,10 +151,10 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             conn.direction match {
                 case i:INCOMING =>
                   			for (
-                  			  _ <- conn.accept;
-                  			  _ <- conn.join(destConn)) {
+                  			  _ <- conn.accept();
+                  			  _ <- conn.join(destConn)) 
                   				postConversationStatus(addConvoInfo(url, conn, destConn))
-                  			}
+                  			
                 case o:OUTGOING =>
                             conn.join(destConn).run {
                                 postConversationStatus(addConvoInfo(url, conn, destConn))

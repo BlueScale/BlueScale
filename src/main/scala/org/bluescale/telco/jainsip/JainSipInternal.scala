@@ -206,7 +206,13 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			    //TODO: should we respond with progressing, and only ringing if the user does something? 
 				transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
 				//transaction.sendResponse(messageFactory.createResponse(Response.TRYING, request))
-				val destination = getDest(request.getRequestURI().toString())
+				val requestURI = request.getRequestURI().toString
+				val destination = requestURI.startsWith("sip:") match {
+			      case true => 
+			        getDest(requestURI) //requestURI
+			      case false => 
+			        getDest(requestURI)
+			    } 
 				val origin      = parseFromHeader(request)
 				println("Origin = " + origin)
 				//printHeaders(request)
@@ -228,6 +234,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	override def processResponse(re:ResponseEvent) {
 		try { 
 		var transaction = re.getClientTransaction()
+			
 		val conn = telco.getConnection(getCallId(re))
 		if ( null == transaction) { //we already got a 200OK and the TX was terminated...
 			debug(" transaction is null right away re = " + re.getDialog())
@@ -268,7 +275,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case Response.UNAUTHORIZED | Response.PROXY_AUTHENTICATION_REQUIRED =>
 				cseq.getMethod() match {
 					case Request.REGISTER =>
-					  	println(" registerResponse TX id = " + transaction.hashCode())
 					  	val authinfo = telco.getRegistAuthInfo(transaction.getBranchId())
 						val credentialHelper = new AccountManager { 
 								def getCredentials(challengeTx:ClientTransaction,realm:String) =
@@ -278,7 +284,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 					  	  			def getSipDomain() = authinfo.domain
 					  		   }
 					  	}
-					  	Thread.sleep(10000)
 					  	val req = transaction.getRequest()
 						val authenticationHelper = 
 						       		sipStack.asInstanceOf[SipStackExt].getAuthenticationHelper(credentialHelper, headerFactory)
@@ -399,7 +404,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         //TODO: fix case where there is no callerID
      //   to.toString().split("@")(0).split(":")(1)
   	//}
-  	
 
   	private def parseFromHeader(request:Request) : String = { 
   	    try {
@@ -412,7 +416,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
     }
   	
   	private def getDest(str:String) =
-  	  str.split("@")(0).split(":")(1)
+  	  	str.split("@")(0).split(":")(1)
   	
   	
   	private def printHeaders(request:Request) = { 

@@ -39,27 +39,6 @@ class InviteCreator(val sipServer:JainSipInternal) {
     var ctr:Long = 1
     
     def createRegister(from:String, dest:String, sdp:Array[Byte]): Request = {
-    	/*
-    	val fromAddress = sipServer.addressFactory.createAddress("here@somewhere:5070");
-        val contactHeader1 = sipServer.headerFactory.createContactHeader(sipServer.addressFactory.createAddress("sip:here@somewhere:5070"));
-    		
-		val  callId = sipServer.sipProvider.get.getNewCallId();			
-		val  cSeq = sipServer.headerFactory.createCSeqHeader(1l, Request.REGISTER);
-		val  from = sipServer.headerFactory.createFromHeader(fromAddress, "1234");
-		val  to = sipServer.headerFactory.createToHeader(sipServer.addressFactory.createAddress("server@"+host+":"+SERVER_PORT), null);
-		//val via = ((ListeningPointImpl)sipProvider.get.getListeningPoint(testProtocol)).getViaHeader()			
-		
-		val requestURI = sipServer.addressFactory.createURI("sip:test@"+host+":"+SERVER_PORT);
-		val request = sipServer.messageFactory.createRequest(requestURI, Request.REGISTER, callId, cSeq, from, to, getViaHeader(), maxForwards;
-		    		
-		request.setRequestURI(requestURI);
-		request.addHeader(contactHeader1);
-   
-      
-    	//	val tosip = sipServer.addressFactory.createSipURI(dest, sipServer.destIp)	
-    	//return createInviteRequest(tosip, "", dest, sdp)
-    	 *
-    	 */
     	val toSipAddress = dest.split("@")(1)
     	val destname = dest.split("@")(0)
     	val callerid = from 

@@ -40,6 +40,8 @@ trait Util {
 
     def FixPhoneNumber(number:String) : String = {
         var ret = number.replace(" ","")
+        if (ret.startsWith("sip:"))
+          return ret
         return ret.head match {
             case '+' => ret
             case '1' => "+"+ret

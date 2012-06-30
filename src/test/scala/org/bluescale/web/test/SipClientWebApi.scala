@@ -64,6 +64,9 @@ class SipClientWebApi extends FunSuite with BeforeAndAfter {
 		telcoServer.start()
 		ws.start()
     	sipClientTelcoServer.start()
+    	sipClientTelcoServer.setIncomingCallback( conn => conn.accept().run { 
+    	  println("accepted an incoming sip call") 
+    	})
 		testWS.start()
 		latch = new CountDownLatch(1)
 	}	
@@ -99,10 +102,15 @@ class SipClientWebApi extends FunSuite with BeforeAndAfter {
     	})
     	
     	testWS.setNextResponse( request => {
+    		assert(request.getParameter("To") === "7147570982")
     		// an incoming call, lets connect and join to the sip client
     		//assert(request.getParemeter(""))
     		getDialResponse(contactAddress)
     	})
+    	testWS.setNextResponse( request => {
+    			println("nothing to do here, jsut telling us the other call was connected")
+    			""
+    		})
     	
     	testWS.setNextResponse( request => {
     		//verify we're joined, hangup, and we're good to go!
@@ -112,11 +120,11 @@ class SipClientWebApi extends FunSuite with BeforeAndAfter {
     	})
     
     	sipClientTelcoServer.sendRegisterRequest("7147570982@127.0.0.1:4000","7147570982",  password, "127.0.0.1")
-    	assert(registerLatch.await(8, TimeUnit.SECONDS))
+    	assert(registerLatch.await(5, TimeUnit.SECONDS))
     	val incomingConn = b2bServer.createConnection("7147570982", "5554443333")
     	incomingConn.connect().run { println("connected") }
     	
-    	assert(joinedLatch.await(8, TimeUnit.SECONDS))
+    	assert(joinedLatch.await(5, TimeUnit.SECONDS))
     	sipClientTelcoServer.stop()
     }
     
