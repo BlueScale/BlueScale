@@ -35,7 +35,7 @@ import javax.sip.message._
 import org.bluescale._
 import org.bluescale.util.BlueFuture
 import org.bluescale.util.BlueFuture._
-import org.bluescale.util.DoAsync._
+import org.bluescale.util.ForUnitWrap._
 
 trait UACJainSipConnection extends BaseJainSipConnection {
     
@@ -92,17 +92,17 @@ trait UACJainSipConnection extends BaseJainSipConnection {
             println(" join for " + this + " to " + otherCall )
             for(
             _ <- otherCall.connect(this);
-            //_ = println("yay");
+            _ <- println("otherCall"+otherCall +" is , now trying to reinvite " + this);
             _ <- connect(otherCall))
             	joinCallback()
         }
-        println(" ok here....")
   	    joinedTo match { 
             case Some(joined) => 
                 joined.connect(telco.silentJoinable()) foreach { _=> 
                 	f() 
                  }
-            case None => f()
+            case None => 
+              	f()
   	    }
     })
 

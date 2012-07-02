@@ -55,9 +55,16 @@ class CallHangup extends FunTestHelper {
 	    println("in runConn")
  		latch = new CountDownLatch(1)
  		val destNumber = "9495557777"
- 		println("here1")
- 		val alice = telcoServer.createConnection(destNumber, "4445556666")
- 		println("here2")
+ 		var alice:SipConnection = null
+ 		
+ 		telcoServer.setDisconnectedCallback( c=>{
+ 			println("alice connectionstate = " + alice.connectionState)
+ 			tryAssertEq(alice.connectionState,UNCONNECTED())
+ 			latch.countDown()
+ 		})
+ 		
+ 		alice = telcoServer.createConnection(destNumber, "4445556666")
+ 		
  		alice.connect().run { 
 		  	assert(alice.connectionState === CONNECTED())
 		  	println("OK i'm Connected now...how did that happen?")
@@ -65,8 +72,6 @@ class CallHangup extends FunTestHelper {
 		  	println("trying a remote hangup")
 		  	b2bServer.findConnByDest(destNumber).foreach( _.disconnect().run {
 		  				println("disconnect has happened")
-                        tryAssertEq(alice.connectionState,UNCONNECTED())
-                        latch.countDown()
 			        })
 		}
 	}	

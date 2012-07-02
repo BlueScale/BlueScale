@@ -149,7 +149,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		conn.bye(tx)
 	}
         
-
 	private def processRegister(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
 	    val tx = getServerTx(requestEvent)
@@ -195,7 +194,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
   
 	private def processInvite(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
-		//printHeaders(request)
 		Option(requestEvent.getServerTransaction) match {
 			case Some(transaction) =>
 			    val conn = telco.getConnection(getCallId(request))
@@ -205,17 +203,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			    val transaction = requestEvent.getSource().asInstanceOf[SipProvider].getNewServerTransaction(request)
 			    //TODO: should we respond with progressing, and only ringing if the user does something? 
 				transaction.sendResponse(messageFactory.createResponse(Response.RINGING,request) )
-				//transaction.sendResponse(messageFactory.createResponse(Response.TRYING, request))
 				val requestURI = request.getRequestURI().toString
-				val destination = requestURI.startsWith("sip:") match {
-			      case true => 
-			        getDest(requestURI) //requestURI
-			      case false => 
-			        getDest(requestURI)
-			    } 
+				val destination = getDest(requestURI)
 				val origin      = parseFromHeader(request)
 				println("Origin = " + origin)
-				//printHeaders(request)
 				val conn = new SipConnectionImpl(getCallId(request), destination, origin, INCOMING(), telco, true)
                 val sdp = SdpHelper.getSdp(request.getRawContent())
                 telco.addConnection(conn) 
