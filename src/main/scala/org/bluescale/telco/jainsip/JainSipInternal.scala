@@ -57,7 +57,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 										val destPort:Int) extends SipListener 
 														 //with LogHelper
 														 {
-    println("listeningIp = " + listeningIp)
+    println("listeningIp = " + listeningIp + ":" + port)
 	println("contactIp = " + contactIp)
     val sipFactory = SipFactory.getInstance()
 	sipFactory.setPathName("gov.nist")
@@ -108,6 +108,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
     	
 	override def processRequest(requestEvent:RequestEvent) {
+		println("PROCESSING REQUEST")
 		val request = requestEvent.getRequest()
 		val method = request.getMethod()
 		request.getMethod() match {
@@ -150,13 +151,15 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
         
 	private def processRegister(requestEvent:RequestEvent) {
-		val request = requestEvent.getRequest()
+		implicit val request = requestEvent.getRequest()
 	    val tx = getServerTx(requestEvent)
 		tx.sendResponse(messageFactory.createResponse(Response.TRYING, request))
-		
-		val sipaddr = getDest(request.getRequestURI().toString())
-		val contact = requestEvent.getRequest().getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString
-		
+		printHeaders(request)
+		val toAddress = request.getHeader("To").asInstanceOf[ToHeader].getAddress().getURI().toString
+		println("toAddress = " + toAddress)
+		val sipaddr = getDest(toAddress)
+		val contact = contactHeader
+		println("contact = " + request.getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString)
 		val authFunction = (pass:String) => 
 			new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
 				case true => 
@@ -206,6 +209,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				val requestURI = request.getRequestURI().toString
 				val destination = getDest(requestURI)
 				val origin      = parseFromHeader(request)
+				println("request URI = " + requestURI)
 				println("Origin = " + origin)
 				val conn = new SipConnectionImpl(getCallId(request), destination, origin, INCOMING(), telco, true)
                 val sdp = SdpHelper.getSdp(request.getRawContent())
@@ -334,7 +338,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
     }
 	
 	def sendInvite(from:String, to:String, sdp:SessionDescription) : (String,ClientTransaction) = {
-		val request = inviteCreator.createInviteRequest(from, to, sdp.toString().getBytes())
+    	val request = inviteCreator.createInviteRequest(from.replace("sip:",""), to.replace("sip:",""), sdp.toString().getBytes())
 		//FIXME: add FROM
 		request.addHeader(inviteCreator.getViaHeader().get(0))
 		//conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
@@ -396,7 +400,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
      //   to.toString().split("@")(0).split(":")(1)
   	//}
 
-  	private def parseFromHeader(request:Request) : String = { 
+  	private def parseFromHeader(request:Request): String = { 
   	    try {
             return getDest(request.getHeader("From").asInstanceOf[FromHeader].getAddress().toString)
         } catch  {
@@ -406,9 +410,19 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         return ""
     }
   	
+  	private def contactHeader(implicit request:Request): String = {
+  		val c = request.getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString 
+  		c.contains(";") match {
+  		  case true => c.split(";")(0)
+  		  case false => c
+  		}
+  	}
+  	
+  	private def impTest(implicit str:String): String = 
+  			str + "blahBlahBLaHBLAH"
+  	
   	private def getDest(str:String) =
   	  	str.split("@")(0).split(":")(1)
-  	
   	
   	private def printHeaders(request:Request) = { 
   		val iter = request.getHeaderNames()
@@ -416,7 +430,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			val headerName = iter.next().toString()
 			println("  h = " + headerName + "=" + request.getHeader(headerName))
 		}
-  	} 
+  	}
+ 
 }
 	
 

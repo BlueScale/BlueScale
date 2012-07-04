@@ -73,13 +73,14 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			val toNameAddress = sipServer.addressFactory.createAddress(toAddress)
 			toNameAddress.setDisplayName(dest)
 			val toHeader = sipServer.headerFactory.createToHeader(toNameAddress,null)
-			val requestURI = sipServer.addressFactory.createSipURI(dest.trim(), sipServer.destIp)
+			//val requestURI = sipServer.addressFactory.createSipURI(toAddress)
+			//val requestURI = sipServer.addressFactory.createSipURI(dest.trim(), sipServer.destIp)
 			val contentTypeHeader = sipServer.headerFactory.createContentTypeHeader("application", "sdp")
 			val callIdHeader = sipServer.sipProvider.get.getNewCallId()
  		
 			val maxForwards = sipServer.headerFactory.createMaxForwardsHeader(70)
  			// Create the request.
-			val request = sipServer.messageFactory.createRequest(requestURI, 
+			val request = sipServer.messageFactory.createRequest(toAddress, 
                                                   		  		method, 
                                                   		  		callIdHeader, 
                                                   		  		cSeqHeader, 
@@ -88,7 +89,6 @@ class InviteCreator(val sipServer:JainSipInternal) {
                                                   		  		getViaHeader(), 
                                                   		  		maxForwards)
                                                   		  		
-             //ContactHeader contactHeader1 = headerFactory.createContactHeader(addressFactory.createAddress("sip:here@somewhere:5070"));
                                                   		  		
 			// Create the contact name address.
 			val contactURI = sipServer.addressFactory.createSipURI(fromName, sipServer.contactIp)

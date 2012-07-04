@@ -49,7 +49,6 @@ class CallRepl(telco:TelcoServer) {
 	    if ( processing ) return "please try again when your previous action completes"
         val command  = line.split(" ")(0)
         val arg = line.split(" ")(1)
-        /*
         processing = true
         return command match {
 
@@ -57,10 +56,10 @@ class CallRepl(telco:TelcoServer) {
                 val conn = telco.createConnection(arg, "4443332222")
                 val callLabel = labelStack.pop()
                 callmap += callLabel->conn 
-                conn.connect( ()=> {
+                conn.connect().run {
                         println("..." + arg + " Connected. CallID = "+ callLabel) 
                         processing = false
-                    })
+                    }
                 "connecting..."
 
             case "join" =>
@@ -68,21 +67,21 @@ class CallRepl(telco:TelcoServer) {
                     "must provide two call labels to join"
                 val c1 = callmap(arg)
                 val c2 = callmap(line.split(" ")(2))
-                c1.join(c2, ()=> {
+                c1.join(c2).run {
                         println("..." + c1 + " joined to " + c2 )
                         processing = false
                     }
-                )
+                
                 "joining..."
 
-            case "hold" =>
-                val c1 = callmap(arg)
+//            case "hold" =>
+//                val c1 = callmap(arg)
                 
-                c1.hold( ()=> {
-                    println("... call " + arg + " is now on hold")
-                    processing = false
-                    })
-                "holding..." 
+  //              c1.hold().run {
+    //                println("... call " + arg + " is now on hold")
+      //              processing = false
+        //            }
+          //      "holding..." 
             //case "silence" =>
                // val c1 = callmap(arg)
                // c1.silence( ()=> {
@@ -91,15 +90,14 @@ class CallRepl(telco:TelcoServer) {
                // })
 
             case "hangup" =>
-                callmap(arg).disconnect( ()=> { 
+                callmap(arg).disconnect().run { 
                         println("...call" + arg + " is disconnected") 
                         labelStack.push(arg)
                         processing = false
-                    })
+                    }
                  //remove from map
                 "hanging up..."
         }
-        */
         ""
     }
 
