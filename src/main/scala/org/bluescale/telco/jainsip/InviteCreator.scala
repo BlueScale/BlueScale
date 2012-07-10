@@ -42,25 +42,45 @@ class InviteCreator(val sipServer:JainSipInternal) {
     	val toSipAddress = dest.split("@")(1)
     	val destname = dest.split("@")(0)
     	val callerid = from 
-    	val toAddress = sipServer.addressFactory.createSipURI(destname, toSipAddress)
+    	//val toAddress = sipServer.addressFactory.createSipURI(destname, toSipAddress)
       
-    	return createRequest(Request.REGISTER,sipServer.headerFactory.createCSeqHeader(1l, Request.REGISTER), toAddress, callerid, dest, sdp)
+    	return createRequest(Request.REGISTER,sipServer.headerFactory.createCSeqHeader(1l, Request.REGISTER), callerid, destname, toSipAddress,5060, sdp)
     } 
     //NOTE: we parse the destinatino because if we're going out to the PSTN, we're going to forward to our SIP Trunk provider. 
     def createInviteRequest(callerid:String, dest:String, sdp:Array[Byte]): Request = {
-    	val tosip = dest.contains("@") match {
+    	val nameaddrport = dest.contains("@") match {
 		  	  case true => 
-		  	    	(dest.split("@")(0).replace("sip:",""), dest.split("@")(1))
+		  	    	val nameaddr = dest.split("@")
+		  	    	(nameaddr(0).replace("sip:",""), nameaddr(1), Integer.parseInt(nameaddr(1).split(":")(1)))
 		  	  case false => 
-		  	    	(dest,sipServer.destIp)
+		  	    	(dest,sipServer.destIp, sipServer.destPort)
 		  	}
-    	val toAddress = sipServer.addressFactory.createSipURI(tosip._1, tosip._2)
-    	return createRequest(Request.INVITE, sipServer.headerFactory.createCSeqHeader(1L,Request.INVITE),toAddress,callerid,dest,sdp)
+    	//val toAddress = sipServer.addressFactory.createSipURI(tosip._1, tosip._2)
+    	return createRequest(Request.INVITE, sipServer.headerFactory.createCSeqHeader(1L,Request.INVITE),callerid,nameaddrport._1, nameaddrport._2, nameaddrport._3,sdp)
     }
     
     
+    /*
+     * 
+     *             val toSipAddress = "192.168.1.6";
+           // val toUser = "2134088442";
+           
+     * 
+     * 
+     *          // create To Header
+            val toAddress = addressFactory.createSipURI(
+                    toUser, toSipAddress);
+            val toNameAddress = addressFactory
+                    .createAddress(toAddress);
+            toNameAddress.setDisplayName(toDisplayName);
+            val toHeader = headerFactory.createToHeader(
+                    toNameAddress, null);
+     */
+    
+    
+    
     //handle port
-    private def createRequest(method:String, cSeqHeader:CSeqHeader,toAddress:SipURI, callerid:String, dest:String, sdp:Array[Byte]): Request = {
+    private def createRequest(method:String, cSeqHeader:CSeqHeader, callerid:String, dest:String, destIp:String, destPort:Int, sdp:Array[Byte]): Request = {
 			val fromName = callerid //"BlueScaleServer"
     		val fromDisplayName = callerid 
 
@@ -70,17 +90,22 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			fromNameAddress.setDisplayName(fromDisplayName)
 			val fromHeader = sipServer.headerFactory.createFromHeader(fromNameAddress, "12345")
 
-			val toNameAddress = sipServer.addressFactory.createAddress(toAddress)
+			 val toAddress = sipServer.addressFactory.createSipURI(
+                    dest, destIp);
+            val toNameAddress = sipServer.addressFactory
+                    .createAddress(toAddress);
+			
 			toNameAddress.setDisplayName(dest)
 			val toHeader = sipServer.headerFactory.createToHeader(toNameAddress,null)
 			//val requestURI = sipServer.addressFactory.createSipURI(toAddress)
 			//val requestURI = sipServer.addressFactory.createSipURI(dest.trim(), sipServer.destIp)
 			val contentTypeHeader = sipServer.headerFactory.createContentTypeHeader("application", "sdp")
 			val callIdHeader = sipServer.sipProvider.get.getNewCallId()
- 		
+			println("   InviteCreaotor toAddress = " + toAddress)
 			val maxForwards = sipServer.headerFactory.createMaxForwardsHeader(70)
+			val requestURI = sipServer.addressFactory.createSipURI(dest, destIp + ":" + destPort);
  			// Create the request.
-			val request = sipServer.messageFactory.createRequest(toAddress, 
+			val request = sipServer.messageFactory.createRequest(requestURI, 
                                                   		  		method, 
                                                   		  		callIdHeader, 
                                                   		  		cSeqHeader, 

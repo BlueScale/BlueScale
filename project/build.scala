@@ -29,6 +29,10 @@ object BuildSettings {
     
     val scalatest =  "org.scalatest" %% "scalatest" % "1.8" % "test"
 
+    val config = "resources/config" //not currently used
+
+    val scripts = "resources/scripts" //not currently used
+
 
     val dependencies = Seq (
         scalatest  )

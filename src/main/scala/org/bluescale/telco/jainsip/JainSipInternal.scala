@@ -64,23 +64,13 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	val properties = new Properties()
 	val transport = "udp"
 
-	def debug(s:String) {
-		println(s)
-	}
-	def log(s:String) {
-			println(s)
-	}
-
-	def error(s:String) {
-		//println(s)
-	}
- 
+	
     properties.setProperty("javax.sip.STACK_NAME", "BSSJainSip"+this.hashCode())//name with hashcode so we can have multiple instances started in one VM
 	properties.setProperty("javax.sip.OUTBOUND_PROXY", destIp +  ":" + destPort + "/"+ transport)
 	properties.setProperty("gov.nist.javax.sip.DEBUG_LOG","log/debug_log" + port + ".log.txt") //FIXME
 	properties.setProperty("gov.nist.javax.sip.SERVER_LOG","log/server_log" + port + ".log.txt")
 	properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS","false")
-	properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "ERROR")
+	properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "DEBUG")
 	properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1")	
     properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "false") 
 
@@ -340,7 +330,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	def sendInvite(from:String, to:String, sdp:SessionDescription) : (String,ClientTransaction) = {
     	val request = inviteCreator.createInviteRequest(from.replace("sip:",""), to.replace("sip:",""), sdp.toString().getBytes())
 		//FIXME: add FROM
-		request.addHeader(inviteCreator.getViaHeader().get(0))
+		//request.addHeader(inviteCreator.getViaHeader().get(0))
 		//conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		val tx =  sipProvider.get.getNewClientTransaction(request)
 		val id = getCallId(request)
@@ -431,6 +421,17 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			println("  h = " + headerName + "=" + request.getHeader(headerName))
 		}
   	}
+ 
+  	def debug(s:String) {
+		println(s)
+	}
+	def log(s:String) {
+			println(s)
+	}
+
+	def error(s:String) {
+		//println(s)
+	}
  
 }
 	
