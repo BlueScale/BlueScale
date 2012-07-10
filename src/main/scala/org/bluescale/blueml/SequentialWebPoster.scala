@@ -40,12 +40,8 @@ protected class SequentialWebPoster(url:String) extends Actor {
 		    react {
 		  
 		        case map:Map[String,String] =>
-		          	try {
-		          		val s = WebUtil.postToUrl(url, map) 
-		          		reply(s)
-		          	} catch {
-		          	  case ex:Exception => ex.printStackTrace()
-		          	}
+		          	val s = WebUtil.postToUrl(url, map) 
+		            reply(s)
 		  
 		        case _ => 
 		            println("Error")

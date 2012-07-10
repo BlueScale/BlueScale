@@ -136,7 +136,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 
   
  	def start() : Unit = {
- 	    println("Test Server Attempting to start for " + ip + ":" + port)
+ 	    println("Test Server STARTED")
  	    b2bTelcoServer.setIncomingCallback(handleIncoming);
  	    b2bTelcoServer.start()
     }

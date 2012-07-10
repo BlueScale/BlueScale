@@ -199,22 +199,17 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     
     //TODO: reject
     def handleRegisterRequest(url:String, authInfo:IncomingRegisterRequest): Unit = { 
-    	try {
-    	println("registeredAddress = " + authInfo.registeredAddress + "contact address = " + authInfo.actualAddress)
     	val parameters = Map("AuthType" -> "Request",
     					"RegisterAddress" -> authInfo.registeredAddress,
     	        		"ContactAddress" -> authInfo.actualAddress)
-    	val bluemlverbs = BlueMLParser.parse(SequentialWebPoster.postToUrl(url+"/register/",parameters))
+    	val bluemlverbs = BlueMLParser.parse(SequentialWebPoster.postToUrl(url,parameters))
     	bluemlverbs
     		.collectFirst({case auth:Auth => auth})
     		.foreach( a => 
     		  	authInfo.successFunction(a.password) match {
-    				case true => postSuccesfulAuth(url+"/register/", authInfo)
+    				case true => postSuccesfulAuth(url, authInfo)
     				case false =>println("auth rejected")
     			})
-    	} catch {
-    	  case ex:Exception => ex.printStackTrace()
-    	}
     }
 	
 	def postSuccesfulAuth(url:String, authInfo:IncomingRegisterRequest): Unit = {
