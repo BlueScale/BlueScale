@@ -38,29 +38,32 @@ class InviteCreator(val sipServer:JainSipInternal) {
     
     var ctr:Long = 1
     
+    
+    //SHOULD THIS EVER LOOK FOR THE DEFAULT DEST IP?
     def createRegister(from:String, dest:String, sdp:Array[Byte]): Request = {
-    	val toSipAddress = dest.split("@")(1)
+    	val toSipAddress = dest.split("@")(1).split(":")(0)
+    	val toPort = Integer.parseInt(dest.split("@")(1).split(":")(1))
     	val destname = dest.split("@")(0)
     	val callerid = from 
-    	val toAddress = sipServer.addressFactory.createSipURI(destname, toSipAddress)
+    	//val toAddress = sipServer.addressFactory.createSipURI(destname, toSipAddress)
       
-    	return createRequest(Request.REGISTER,sipServer.headerFactory.createCSeqHeader(1l, Request.REGISTER), toAddress, callerid, dest, sdp)
+    	return createRequest(Request.REGISTER,sipServer.headerFactory.createCSeqHeader(1l, Request.REGISTER), callerid, destname, toSipAddress, toPort, sdp)
     } 
     //NOTE: we parse the destinatino because if we're going out to the PSTN, we're going to forward to our SIP Trunk provider. 
     def createInviteRequest(callerid:String, dest:String, sdp:Array[Byte]): Request = {
     	val tosip = dest.contains("@") match {
 		  	  case true => 
-		  	    	(dest.split("@")(0).replace("sip:",""), dest.split("@")(1))
+		  	    	(dest.split("@")(0).replace("sip:",""), dest.split("@")(1).split(":")(0), Integer.parseInt(dest.split("@")(1).split(":")(1)))
 		  	  case false => 
-		  	    	(dest,sipServer.destIp)
+		  	    	(dest,sipServer.destIp, sipServer.destPort)
 		  	}
-    	val toAddress = sipServer.addressFactory.createSipURI(tosip._1, tosip._2)
-    	return createRequest(Request.INVITE, sipServer.headerFactory.createCSeqHeader(1L,Request.INVITE),toAddress,callerid,dest,sdp)
+    	//val toAddress = sipServer.addressFactory.createSipURI(tosip._1, tosip._2)
+    	return createRequest(Request.INVITE, sipServer.headerFactory.createCSeqHeader(1L,Request.INVITE),callerid,tosip._1, tosip._2, tosip._3 ,sdp)
     }
     
     
     //handle port
-    private def createRequest(method:String, cSeqHeader:CSeqHeader,toAddress:SipURI, callerid:String, dest:String, sdp:Array[Byte]): Request = {
+    private def createRequest(method:String, cSeqHeader:CSeqHeader,callerid:String, name:String, addr:String, port:Int, sdp:Array[Byte]): Request = {
 			val fromName = callerid //"BlueScaleServer"
     		val fromDisplayName = callerid 
 
@@ -70,10 +73,25 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			fromNameAddress.setDisplayName(fromDisplayName)
 			val fromHeader = sipServer.headerFactory.createFromHeader(fromNameAddress, "12345")
 
-			val toNameAddress = sipServer.addressFactory.createAddress(toAddress)
-			toNameAddress.setDisplayName(dest)
+			/*
+			 *         SipURI toAddress = ProtocolObjects.addressFactory.createSipURI(
+                    toUser, toSipAddress);
+            Address toNameAddress = ProtocolObjects.addressFactory
+                    .createAddress(toAddress);
+            toNameAddress.setDisplayName(toDisplayName);
+            ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
+                    toNameAddress, null);
+			 * 
+			 */
+			
+			val toNameAddress = sipServer.addressFactory.createAddress(sipServer.addressFactory.createSipURI(name, addr))
+			
+			toNameAddress.setDisplayName(name)
+			
 			val toHeader = sipServer.headerFactory.createToHeader(toNameAddress,null)
-			val requestURI = sipServer.addressFactory.createSipURI(dest.trim(), sipServer.destIp)
+			
+			val requestURI = sipServer.addressFactory.createSipURI(name, addr + ":" + port)
+			println("createREQUEST dest = " + name + " |||  requestURI = " + requestURI)
 			val contentTypeHeader = sipServer.headerFactory.createContentTypeHeader("application", "sdp")
 			val callIdHeader = sipServer.sipProvider.get.getNewCallId()
  		
