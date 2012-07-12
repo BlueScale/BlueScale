@@ -61,9 +61,7 @@ class IncomingForward extends FunTestHelper {
 
     def answerCall(call:SipConnection) : Unit ={
         //try the call that they're trying to go for.
-    	println("OK we answered the call!!!!!!!")
         call.accept().run {
-    	println("OK WE ACCEPTED< YAY")
         assert(CONNECTED() === call.connectionState)
         println(" call = " + call )
         incomingCall = call
