@@ -207,11 +207,9 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				val requestURI = request.getRequestURI().toString
 				val destination = getDest(requestURI)
 				val origin      = parseFromHeader(request)
-				println("Origin = " + origin)
 				val conn = new SipConnectionImpl(getCallId(request), destination, origin, INCOMING(), telco, true)
                 val sdp = SdpHelper.getSdp(request.getRawContent())
                 telco.addConnection(conn)
-                println(" INVITE SDP = " + sdp)
                 conn.invite(transaction,sdp)
                 telco.fireIncoming(conn)//todo: move to connection?
     	}
@@ -254,7 +252,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    							transaction.getDialog().sendAck(ackRequest)//should be done in the call? 
 		    							val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
 		    							
-		    				  			println("PROCESS OK FOR INVITE!!!!!!")
 				  					    conn.setUAC(transaction, statusCode, sdp)	
 				  					    				  						    	
 		    				case Request.CANCEL =>
