@@ -62,8 +62,11 @@ trait UACJainSipConnection extends BaseJainSipConnection {
                 connid = t._1
                 addConnection()
             case s:CONNECTED =>
-                transaction.foreach( tx =>
-                    clientTx = Some(telco.internal.sendReinvite(tx, join.sdp) ))
+                transaction.foreach( tx => {
+                  println(" Sending a reinvite TO " + this.destination + "WITH the sdp of " + join.sdp)  
+                  clientTx = Some(telco.internal.sendReinvite(tx, join.sdp) )
+                    		
+                })
                     
             }
         clientTx.foreach( tx => {
@@ -89,12 +92,14 @@ trait UACJainSipConnection extends BaseJainSipConnection {
 
     override def join(otherCall:Joinable[_]) = BlueFuture(joinCallback => orderedexec {
         val f = ()=> {
-            println(" join for " + this + " to " + otherCall )
+            println(" ***** join for " + this + " to " + otherCall )
             for(
             _ <- otherCall.connect(this);
             _ <- println("otherCall"+otherCall +" is , now trying to reinvite " + this);
-            _ <- connect(otherCall))
+            _ <- connect(otherCall)) {
+            	println("WOAh, got to the other connect................YAY")
             	joinCallback()
+            }
         }
   	    joinedTo match { 
             case Some(joined) => 

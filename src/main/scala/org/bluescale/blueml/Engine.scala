@@ -202,12 +202,12 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     	val parameters = Map("AuthType" -> "Request",
     					"RegisterAddress" -> authInfo.registeredAddress,
     	        		"ContactAddress" -> authInfo.actualAddress)
-    	val bluemlverbs = BlueMLParser.parse(SequentialWebPoster.postToUrl(url,parameters))
+    	val bluemlverbs = BlueMLParser.parse(SequentialWebPoster.postToUrl(url+"/register/",parameters))
     	bluemlverbs
     		.collectFirst({case auth:Auth => auth})
     		.foreach( a => 
     		  	authInfo.successFunction(a.password) match {
-    				case true => postSuccesfulAuth(url, authInfo)
+    				case true => postSuccesfulAuth(url + "/register/", authInfo)
     				case false =>println("auth rejected")
     			})
     }

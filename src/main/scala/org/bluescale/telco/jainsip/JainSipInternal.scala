@@ -153,15 +153,16 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		val request = requestEvent.getRequest()
 	    val tx = getServerTx(requestEvent)
 		tx.sendResponse(messageFactory.createResponse(Response.TRYING, request))
-		
-		val sipaddr = getDest(request.getRequestURI().toString())
-		val contact = requestEvent.getRequest().getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString
-		
+		printHeaders(request)
+		//val sipname = getDest(request.getRequestURI().toString())
+		val sipname = getDest(request.getHeader("To").asInstanceOf[ToHeader].getAddress().getURI().toString())
+		val contact = request.getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString.split(";")(0)
+		println("processREGISTER name = " + sipname)
 		val authFunction = (pass:String) => 
 			new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
 				case true => 
 			    	sendRegisterResponse(200, requestEvent, tx)
-			    	telco.addSipBinding(sipaddr, contact) 
+			    	telco.addSipBinding(sipname, contact) 
 			    	telco.sentPasswordPrompt.remove(tx.getBranchId())
 					true
 				case false => 
@@ -175,9 +176,9 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		  
 		val rejectFunction = ()=>sendRegisterResponse(401, requestEvent, tx)
 		
-		val registerRequest = new IncomingRegisterRequest(sipaddr, contact, authFunction, rejectFunction)
+		val registerRequest = new IncomingRegisterRequest(sipname, contact, authFunction, rejectFunction)
 		
-		telco.sentPasswordPrompt.putIfAbsent(sipaddr+contact, true) match {
+		telco.sentPasswordPrompt.putIfAbsent(sipname+contact, true) match {
 		  	case true =>
 		  		telco.fireRegister(registerRequest)
 		  	case false =>
@@ -209,7 +210,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				println("Origin = " + origin)
 				val conn = new SipConnectionImpl(getCallId(request), destination, origin, INCOMING(), telco, true)
                 val sdp = SdpHelper.getSdp(request.getRawContent())
-                telco.addConnection(conn) 
+                telco.addConnection(conn)
+                println(" INVITE SDP = " + sdp)
                 conn.invite(transaction,sdp)
                 telco.fireIncoming(conn)//todo: move to connection?
     	}
@@ -251,6 +253,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
 		    							transaction.getDialog().sendAck(ackRequest)//should be done in the call? 
 		    							val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
+		    							
+		    				  			println("PROCESS OK FOR INVITE!!!!!!")
 				  					    conn.setUAC(transaction, statusCode, sdp)	
 				  					    				  						    	
 		    				case Request.CANCEL =>
@@ -406,9 +410,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         return ""
     }
   	
-  	private def getDest(str:String) =
-  	  	str.split("@")(0).split(":")(1)
-  	
+  	private def getDest(str:String) = 
+  		str.split(";")(0).split("@")(0).split(":")(1)
   	
   	private def printHeaders(request:Request) = { 
   		val iter = request.getHeaderNames()
