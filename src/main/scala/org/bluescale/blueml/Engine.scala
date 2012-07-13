@@ -126,10 +126,9 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 	connectAnswer(conn, destConn, dial.url)() 
                 }
         }
-    
+        println("dial.ringLimit= " + dial.ringLimit)
         dial.ringLimit match {
             case x if x > 0 =>
-                    println("ring limit = " + dial.ringLimit)
                     Thread.sleep(dial.ringLimit*(1000))
                     try {
                         destConn.cancel().run { 

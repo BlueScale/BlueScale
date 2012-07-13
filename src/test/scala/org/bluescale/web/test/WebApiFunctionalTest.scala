@@ -111,7 +111,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         println("Finished testINcomingCall")
     }
     
-    test("Test Incoming send to VM") {
+	test("Test Incoming send to VM") {
         println("test incomingSendToVM()")
         var callid:Option[String] = None
         val joinedLatch = new CountDownLatch(1)
@@ -127,6 +127,11 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
             //assert(request.getParameter("To"), bobNumber)
             ""
         })
+        
+        //testWS.setNextResponse( request => {
+        //	println("ohter call is connected")
+        //	""
+        //})
 
         testWS.setNextResponse( request=> {
             println("!.....joined")
@@ -147,7 +152,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
 
         b2bServer.simulateCellVM = true
         clientConn.connect().run { println("connected") }
-        val latchresult = joinedLatch.await(8, TimeUnit.SECONDS)
+        val latchresult = joinedLatch.await(800, TimeUnit.SECONDS)
         println("got latchResult in sendToVM")
         assert(latchresult)
         println("we've joined in sendToVm")
@@ -155,7 +160,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         println("finished testIncomingSendToVMForward")
     }
     
-    test("Web API Incoming Forward TEST"){
+	test("Web API Incoming Forward TEST"){
         println("test incoming forward")
         val joinedLatch = new CountDownLatch(1)
         var callid:Option[String] = None
@@ -168,9 +173,8 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         })
 
         testWS.setNextResponse( request=> {
-            println(" ok i'm connected here")
-            //assert(request.getParameter("To"), bobNumber)
-            ""
+          println("ok the other call is connected")
+          ""
         })
 
         testWS.setNextResponse( request=> {
@@ -254,12 +258,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         assert(latchresult) 
         println("finisehd click to call")
     }
-    
-    test("Testing SIpAuth IncomingForward") {
-    	
       
-    }
-    
     def getForwardVMResponse(dest:String, dest2:String): String = 
         return (<Response>
                     <DialVoicemail>

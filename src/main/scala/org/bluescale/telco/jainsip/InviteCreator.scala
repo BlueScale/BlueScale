@@ -91,7 +91,6 @@ class InviteCreator(val sipServer:JainSipInternal) {
 			val toHeader = sipServer.headerFactory.createToHeader(toNameAddress,null)
 			
 			val requestURI = sipServer.addressFactory.createSipURI(name, addr + ":" + port)
-			println("createREQUEST dest = " + name + " |||  requestURI = " + requestURI)
 			val contentTypeHeader = sipServer.headerFactory.createContentTypeHeader("application", "sdp")
 			val callIdHeader = sipServer.sipProvider.get.getNewCallId()
  		

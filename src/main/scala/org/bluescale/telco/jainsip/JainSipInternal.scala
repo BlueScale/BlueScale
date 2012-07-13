@@ -157,7 +157,6 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		//val sipname = getDest(request.getRequestURI().toString())
 		val sipname = getDest(request.getHeader("To").asInstanceOf[ToHeader].getAddress().getURI().toString())
 		val contact = request.getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString.split(";")(0)
-		println("processREGISTER name = " + sipname)
 		val authFunction = (pass:String) => 
 			new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
 				case true => 
@@ -188,6 +187,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
     }
 
     private def processCancel(requestEvent:RequestEvent) {
+    	//println("processCANCEL called!!!!")
 	    val request = requestEvent.getRequest()
 	    val conn = telco.getConnection(getCallId(request))
 	    conn.cancel(requestEvent.getServerTransaction()) //fixme, shouldn't be setting here!v
@@ -285,7 +285,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 				}
 		    case Response.REQUEST_TERMINATED =>
 		        println("TERMINATED")
-			case _ => error("Unexpected Response = " + asResponse(re).getStatusCode())
+			case _ => 
+		        //something went wrong, lets consider it in a fucked up state
+		        conn.setUAC(transaction, statusCode, conn.sdp) 
+		        error("Unexpected Response = " + asResponse(re).getStatusCode())
 		}
 		} catch {
 			//note: we don't usually care about errors here, so many times its caused by clients resending data and Txs being null
@@ -313,7 +316,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	}
  
 	//TODO: deal with dead transactions...
-	def sendResponse(responseCode:Int, tx:ServerTransaction, content:Array[Byte] ) { 
+	def sendResponse(responseCode:Int, tx:ServerTransaction, content:Array[Byte] ) {
 	    val response = messageFactory.createResponse(responseCode,tx.getRequest)
 		//response.getHeader(ToHeader.NAME).asInstanceOf[ToHeader].setTag("4321")  //FIXME
         response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))

@@ -71,19 +71,25 @@ trait UACJainSipConnection extends BaseJainSipConnection {
             }
         clientTx.foreach( tx => {
             setRequestCallback(tx.getBranchId(), (responseCode, previousSdp) => {
-                responseCode match {
+                println("the response code is " + responseCode)
+            	responseCode match {
                     case Response.RINGING =>
                         _state = RINGING()
                         //only if it's different!
                         if (!previousSdp.toString().equals(sdp.toString()))
                             joinedTo.foreach( join => join.joinedMediaChange() )
                     case Response.OK =>
+                        println("RESPONSE IS OK!!!!!!!!!!!!!!!!!!!!")
                         _state = CONNECTED()
                         this._joinedTo = Some(join)
                         //if (!previousSdp.toString().equals(sdp.toString()))
                         //    joinedTo.foreach( join => join.joinedMediaChange() )
                         clearCallbacks(tx)
                         callback()
+                    case _ =>
+                      println("DID SOMETHING FAIL..........???????????????")
+                      //something went wrong, set to failed state
+                      _state = FAILED()
                 }
             })
            progressingCallback.foreach( _(this) )
@@ -124,10 +130,20 @@ trait UACJainSipConnection extends BaseJainSipConnection {
   	})
 
     def cancel() = BlueFuture(callback => orderedexec {
- 	    clientTx.foreach( tx=> {
-            clientTx = Some(telco.internal.sendCancel(tx))
-            callbacks += tx.getBranchId()->(() => callback())
- 	    })
+    	_state match {
+    		case CANCELED() | FAILED() =>
+    	    println(" ------------------NOT CANCELLING, state = " + _state)
+    		callback()
+    	  case _ =>
+    	    	clientTx.foreach( tx=> {
+    				clientTx = Some(telco.internal.sendCancel(tx))
+    				callbacks += tx.getBranchId()->(() => {
+    				 println("--------------- cancel worked!")
+    				callback()
+    				})
+    			})
+
+    	}
  	})
 
     def unjoin() = BlueFuture(callback => orderedexec {
@@ -139,7 +155,8 @@ trait UACJainSipConnection extends BaseJainSipConnection {
 
                     disconnectCallback.foreach(_(this))
                     for (unjoined <- maybeJoined;
-                        ucallback <- unjoinCallback) ucallback(unjoined, this)
+                        ucallback <- unjoinCallback) 
+                    	ucallback(unjoined, this)
                     callback()
                 }
             case false =>
@@ -150,5 +167,5 @@ trait UACJainSipConnection extends BaseJainSipConnection {
     def hold(f:FinishFunction) = orderedexec {
         throw new Exception("Not Implemented yet")
     }
-
+    
 }

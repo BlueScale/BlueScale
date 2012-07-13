@@ -38,6 +38,7 @@ import org.bluescale._
 
 trait UASJainSipConnection extends BaseJainSipConnection  {
 
+	//wrong place how did it get moved?!?
     def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = orderedexec {
   	    try {
             val previousSdp = sdp
@@ -94,7 +95,7 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
         	case UNCONNECTED() =>
         		telco.removeConnection(this)
         		incomingCancelCallback.foreach(_(this))
-        	case _ =>
+        	case _ => println("this state = " + _state)
         }
  	}
  	
@@ -113,10 +114,9 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
     private def incomingResponse(responseCode:Int, toJoin:Joinable[_]) = BlueFuture(connectedCallback => orderedexec {
         serverTx.foreach( tx => {
             callbacks += tx.getBranchId()->(() => { 
-            	println("Got the ack packet bavck, we have an ACCEPT!")
             	connectedCallback()
             })
-		    telco.internal.sendResponse(200, tx, toJoin.sdp.toString().getBytes())  
+		    telco.internal.sendResponse(responseCode, tx, toJoin.sdp.toString().getBytes())  
 	 	})
     })
     

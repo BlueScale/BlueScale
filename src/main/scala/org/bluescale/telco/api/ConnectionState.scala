@@ -41,4 +41,6 @@ case class CANCELED() extends ConnectionState
 
 case class RINGING() extends HASMEDIA 
 
+case class FAILED() extends ConnectionState
+
 //DO WE WANT A JOINED STATE?

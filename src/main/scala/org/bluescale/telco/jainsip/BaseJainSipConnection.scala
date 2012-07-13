@@ -97,4 +97,5 @@ protected trait BaseJainSipConnection extends SipConnection with Actorable {
     def joinedMediaChange() = 
         joinedTo.foreach( join => connect(join) foreach { _=> {}} )
  
+
 }

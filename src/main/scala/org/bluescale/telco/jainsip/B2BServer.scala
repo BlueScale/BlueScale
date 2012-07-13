@@ -68,6 +68,8 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 	private val mediaConnmap = new ConcurrentHashMap[String, MediaConnection]()
 
 	private var ignore = Set[String]()
+	
+	private var reject = Set[String]()
  
 	val sdpFactory = SdpFactory.getInstance()
      
@@ -90,6 +92,13 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
             Thread.sleep(500*ringsleep) 
         }
 
+        if(reject.contains(conn.destination)) {
+        	println("Rejecting the call")
+        	conn.reject().run {
+        		println("!!!!!!!rejected!!!!!!")
+        	}
+        	return
+        }
 
 		if (ignore.contains(conn.destination))
 		    return
@@ -134,7 +143,11 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
     def addIgnore(number:String) : Unit = 
         ignore += number
 
+    def addReject(number:String) =
+     	reject += number
   
+     
+     	
  	def start() : Unit = {
  	    println("Test Server STARTED")
  	    b2bTelcoServer.setIncomingCallback(handleIncoming);
