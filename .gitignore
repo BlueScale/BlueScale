@@ -5,6 +5,7 @@
 *.classpath
 *.scala_dependencies
 .project
+.cache
 .history
 heap.bin
 
