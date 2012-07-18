@@ -23,9 +23,14 @@
 */
 package org.bluescale.telco
 
+import org.bluescale.util.BlueFuture
+import java.io.InputStream
+
 protected[telco] trait Playable {
 
-	def play(url:String, f:()=>Unit)
+	//def play(url:String): BlueFuture[Unit]
 
-	def cancel(f:()=>Unit)	
+	def play(file:InputStream): BlueFuture[Unit]
+	
+	def cancel(): BlueFuture[Unit]	
 }

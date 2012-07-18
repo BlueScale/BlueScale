@@ -30,7 +30,7 @@ trait TelcoServer {
 
    	def createConnection(destPhone:String, callerId:String) : SipConnection //should switch this to take an outoging.
 
-   	def createConnection(destPhone:String, callerId:String, disconnectOnUnjoin:Boolean) : SipConnection
+   	def createConnection(destPhone:String, callerId:String, disconnectOnUnjoin:Boolean): SipConnection
   	  
    	def findConnection(connectionId:String) : SipConnection;
 
@@ -44,14 +44,16 @@ trait TelcoServer {
   
   	def setRegisterCallback(f: IncomingRegisterRequest=>Unit)
   	
-  	def sendRegisterRequest(dest:String, user:String, password:String, domain:String) 
+  	def sendRegisterRequest(dest: String, user: String, password: String, domain: String) 
   	
   	def start()
 
   	def stop()
 
-  	def areTwoConnected(conn1:SipConnection, conn2:SipConnection) : Boolean
+  	def areTwoConnected(conn1:SipConnection, conn2:SipConnection): Boolean
   	
-  	def contactIp : String
+  	def contactIp: String
+  	
+  	def listeningIp: String
   
 }

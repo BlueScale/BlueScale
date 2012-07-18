@@ -27,19 +27,25 @@ package org.bluescale.telco.media.test
 
 import org.junit._
 import Assert._
-import org.bluescale.telco.media.jlibrtp._
+import org.bluescale.telco.media._
 import org.bluescale.telco.api._
-import org.bluescale.telco.jainsip.unittest.TestHelper
+import org.bluescale.telco.jainsip.unittest.FunTestHelper
 import java.util.concurrent.CountDownLatch
+import scala.io.Source
 
-class PlayRecordFunctionalTest extends TestHelper {
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
+@RunWith(classOf[JUnitRunner])
+class PlayRecord extends FunTestHelper {
 	
 	def finishedPlaying(conn:SipConnection) {
 	  //get file from server. 
 	  //compare with sent file.
 	  println("finishedPlaying")
+	  Thread.sleep(4000)
 	  conn.disconnect().run {
-	    Thread.sleep(1000)//lets let the connection finish writing the file
+	    Thread.sleep(2000)//lets let the connection finish writing the file
 	  	val files = b2bServer.getMediaConnection("7145554444").recordedFiles
 	    files.foreach( f => { 
 	  		//compare.
@@ -56,16 +62,17 @@ class PlayRecordFunctionalTest extends TestHelper {
 
 	val latch = new CountDownLatch(1)  
 	
-	@Test
-	def testPlayRecord() {
+	test("Test Playing and Recording to our medaiserver") {
 		this.b2bServer.answerWithMedia = true
 		//lets do client side stuff for now. will have to set stuff pup.
 		conn = telcoServer.createConnection("7145554444", "7148889999")
-		val media = new JlibMediaConnection(telcoServer)
+		val media = new EffluxMediaConnection(telcoServer)
 		
 		conn.connect().run { 
 			media.join(conn).run {
-			    media.play( "resources/gulp.wav", ()=> finishedPlaying(conn) )
+				val filestream = getClass.getResource("/gulp.wav").openStream()
+			    //val mymediafile = Source.fromURL(getClass.getResource("/gulp.wav"))
+				media.play(filestream).run { finishedPlaying(conn) }
 			}
 		}
 		
@@ -73,7 +80,7 @@ class PlayRecordFunctionalTest extends TestHelper {
 		println("awaiting")
 		latch.await()
 		println("finished waiting, sleeping now...")
-		Thread.sleep(1000)
+		Thread.sleep(10000)
 		println("why are we not here????")
 	}
 }

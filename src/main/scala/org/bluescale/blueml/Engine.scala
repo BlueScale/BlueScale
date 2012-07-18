@@ -26,7 +26,7 @@ import org.bluescale.telco.api._
 import org.bluescale.util._
 import java.util.concurrent._
 import org.bluescale.telco._
-import org.bluescale.telco.media.jlibrtp._
+import org.bluescale.telco.media._
 
 class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
@@ -57,8 +57,9 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
     protected def handlePlay(conn:SipConnection, play:Play, verbs:Seq[BlueMLVerb]) = {
         val mediaConn = new JlibMediaConnection(telcoServer)
+        val mediaFile = MediaFileManager.getInputStream(play.mediaUrl)
         val f = ()=>
-            mediaConn.joinPlay(play.mediaUrl, conn, ()=> handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ))
+            mediaConn.joinPlay(mediaFile, conn).run { handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ) }
         conn.direction match {
             case i:INCOMING => 
                 conn.connectionState match {

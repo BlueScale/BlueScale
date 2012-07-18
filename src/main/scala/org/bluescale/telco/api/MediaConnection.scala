@@ -30,9 +30,9 @@ trait MediaConnection
 	extends Joinable[MediaConnection]
     with Playable {
 
-	def recordedFiles : List[String]
+	def recordedFiles: List[String]
 	
-	def playedFiles :List[String]
+	def playedFiles: List[String]
 	
 	//def State : MediaState  Maybe need later
 }

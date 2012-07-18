@@ -43,7 +43,7 @@ import org.bluescale.util.BlueFuture
 import org.bluescale.util.BlueFuture._
 import org.bluescale.util.DoAsync._
 import scala.collection.JavaConversions._
-import org.bluescale.telco.media.jlibrtp._
+import org.bluescale.telco.media._
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic._
 import org.bluescale.telco.SdpJoinable
@@ -110,7 +110,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		
 		answerWithMedia match {
 		  case true		=>
-		    	val mediaConn = new JlibMediaConnection(b2bTelcoServer)
+		    	val mediaConn = new EffluxMediaConnection(b2bTelcoServer)
 		    	mediaConnmap.put(conn.destination, mediaConn)
 		    	conn.accept(mediaConn) foreach { _ => 
 		    	println("b2bserver accepted call with medai support to " + conn.destination) }

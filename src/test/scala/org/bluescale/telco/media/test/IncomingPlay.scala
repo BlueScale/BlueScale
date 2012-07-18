@@ -33,10 +33,14 @@ import org.bluescale.telco.api._
 import org.junit._
 import Assert._
 import org.bluescale.telco.jainsip.unittest._
-import org.bluescale.telco.media.jlibrtp._
-/*
+import org.bluescale.telco.media._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import java.util.concurrent.TimeUnit
+
+@RunWith(classOf[JUnitRunner])
 class IncomingPlayFunctionalTest
-extends TestHelper {
+extends FunTestHelper {
 
     val alice = telcoServer.createConnection("7147579999","555444333")
 
@@ -61,22 +65,20 @@ extends TestHelper {
         val mediaConn = new JlibMediaConnection(telcoServer)
         conn.accept().run {
             mediaConn.join(conn).run {
-                mediaConn.play( "resources/gulp.wav", ()=> playedLatch.countDown() )
+                //mediaConn.play( "resources/gulp.wav", ()=> playedLatch.countDown() )
             }
         }
     }
 
 }
-
+/*
 object IncomingPlayFunctionalTest {
     def main(args:Array[String]) { 
         println("Starting IncomingPlayFunctionalTest")
         val test = new IncomingPlayFunctionalTest()
-        test.setUp()
         println("starting testIncomingPlay method")
         test.testIncomingPlay()
-        test.tearDown()
     }
-}
-*/
+}*/
+
 
