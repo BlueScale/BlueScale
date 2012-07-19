@@ -41,6 +41,7 @@ object MediaFileManager {
   
 	var total = 0 //temp!!!
 	def addMedia(mc:MediaConnection, data:Array[Byte]): Unit = {
+	  	println("ADDING MEDIA")
 	  	total += data.length
 	  	dataMap.put(mc, safeConcat(data, dataMap.get(mc) ) ) //this could error out..., should wrap in a try.
 	 
@@ -52,7 +53,8 @@ object MediaFileManager {
 	
 	  
 	def finishAddMedia(mc:MediaConnection) : Option[String] = {
-	    try {
+	    println("finish addmedia , contains it" + dataMap.containsKey(mc))
+	  	try {
 	    	if (!dataMap.containsKey(mc))
 	    	  return None
 	    	  

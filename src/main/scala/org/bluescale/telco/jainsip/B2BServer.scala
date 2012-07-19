@@ -47,7 +47,7 @@ import org.bluescale.telco.media._
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic._
 import org.bluescale.telco.SdpJoinable
-
+import org.bluescale.telco._
 
 
 class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
@@ -113,7 +113,8 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		    	val mediaConn = new EffluxMediaConnection(b2bTelcoServer)
 		    	mediaConnmap.put(conn.destination, mediaConn)
 		    	conn.accept(mediaConn) foreach { _ => 
-		    	println("b2bserver accepted call with medai support to " + conn.destination) }
+		    		println("b2bserver accepted call with medai support to " + conn.destination + " With = "+ mediaConn + " mediaPort for incomingcall is = " + SdpHelper.getMediaPort(conn.sdp)) 
+		    	}
 		  case false	=>	conn.accept(getFakeJoinable(ip)) foreach { _ => println("b2bServer accepted call to " + conn.destination ) }
 		}
 	}

@@ -35,6 +35,7 @@ import scala.io.Source
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import java.util.concurrent.TimeUnit
 
 @RunWith(classOf[JUnitRunner])
 class PlayRecord extends FunTestHelper {
@@ -42,8 +43,7 @@ class PlayRecord extends FunTestHelper {
 	def finishedPlaying(conn:SipConnection) {
 	  //get file from server. 
 	  //compare with sent file.
-	  println("finishedPlaying")
-	  Thread.sleep(4000)
+	  println("finishedPlaying, now calling disconnect")
 	  conn.disconnect().run {
 	    Thread.sleep(2000)//lets let the connection finish writing the file
 	  	val files = b2bServer.getMediaConnection("7145554444").recordedFiles
@@ -67,20 +67,16 @@ class PlayRecord extends FunTestHelper {
 		//lets do client side stuff for now. will have to set stuff pup.
 		conn = telcoServer.createConnection("7145554444", "7148889999")
 		val media = new EffluxMediaConnection(telcoServer)
-		
-		conn.connect().run { 
-			media.join(conn).run {
-				val filestream = getClass.getResource("/gulp.wav").openStream()
-			    //val mymediafile = Source.fromURL(getClass.getResource("/gulp.wav"))
-				media.play(filestream).run { finishedPlaying(conn) }
-			}
+		val filestream = getClass.getResource("/gulp.wav").openStream()
+		for (_ <- conn.connect();
+			 _ <- media.join(conn);
+			 _ <- media.play(filestream)) {
+			finishedPlaying(conn)
 		}
 		
 		//lets see if we can get this working!	
 		println("awaiting")
-		latch.await()
-		println("finished waiting, sleeping now...")
-		Thread.sleep(10000)
-		println("why are we not here????")
+		assert(latch.await(5, TimeUnit.SECONDS))
+		println("finished!")
 	}
 }

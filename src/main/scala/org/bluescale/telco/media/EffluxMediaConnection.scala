@@ -58,10 +58,34 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     val listeningSdp = SdpHelper.createSdp(rtpport, telco.contactIp)
     
+    val localparticipant = RtpParticipant.createReceiver(new RtpParticipantInfo(1), telco.listeningIp, rtpport, rtpport+1)
+    
+    var effluxSession: Option[SingleParticipantSession] = None
+    
+    private def initRtp(conn:Joinable[_]) {
+     	val mc = this
+    	val mediaport = SdpHelper.getMediaPort(conn.sdp)
+    	val remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(2), telco.listeningIp, mediaport, mediaport+1)
+    	val session1 = new SingleParticipantSession(this.toString, 9, localparticipant, remote1)
+    	effluxSession = Some(session1)
+    	session1.addDataListener(new RtpSessionDataListener() {
+    		def dataPacketReceived(session:RtpSession,  participant:RtpParticipantInfo, packet:DataPacket) {
+    			println("ading media on the receiver")
+    			MediaFileManager.addMedia(mc, packet.getDataAsArray())
+           	}
+    	})
+    	println("STARTED THE RTP LISTENER on port" + rtpport + " remotePort =  " + mediaport + " For " + this)
+   		session1.init()
+    }
+    
     override def join(conn:Joinable[_]) = BlueFuture(callback => {
+    	//should we only do this when we get a 200 OK? should  we put it in the connect callback? 
     	//get an SDP port
+    	initRtp(conn)
     	for (_ <- conn.connect(this, false)) {
-    		println(" conn " + conn + " Is now Reconnected and listening to the Media's CONNECTION INFO") 
+    		
+    		println(" conn " + conn + " Is now Reconnected and listening to the Media's CONNECTION INFO")
+    		println("WE HAVE INITIED THE SESSION!!!!!!!!")
     		this._joinedTo = Some(conn)
     		callback()
     	}
@@ -79,10 +103,16 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     })
     
     override def joinedMediaChange() {
-        println("do nothing here?")
+    	//KILL THE OLD SESSION AND MAKE A NEW ONE.
+    	println(" effluxSession = " + effluxSession)
+    	println("joinedTo = " + joinedTo)
+    	effluxSession.foreach(_.terminate())
+    	joinedTo.foreach( joined => initRtp(joined))
+        println("~~~~~~~~~~~~~~~~~~~~~~~~  joinedMeidaChanged~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~do nothing here?")
     }
 
     protected[telco] def unjoin() = BlueFuture(callback => {
+    	println("unjoin for the media connectino!")
     	finishListen()
     	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
     	callback()
@@ -95,42 +125,37 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     def play(filestream:InputStream) = BlueFuture(f => {
     	val localport = 0
-    	joinedTo.foreach( joined => {
-    		/*
-    		 * 
-        	RtpParticipant local1 = RtpParticipant.createReceiver(new RtpParticipantInfo(1), "127.0.0.1", 6000, 6001);
-        	RtpParticipant remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(2), "127.0.0.1", 7000, 7001);
-        	this.session1 = new SingleParticipantSession("Session1", 8, local1, remote1);
-    		 */
-    		val mediaport = SdpHelper.getMediaPort(joined.sdp)
-    		val local1 = RtpParticipant.createReceiver(new RtpParticipantInfo(1), telco.listeningIp, localport, localport+1)
-    		val remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(2), telco.listeningIp, mediaport, mediaport+1)
-    		val session1 = new SingleParticipantSession("Session1", 9, local1, remote1)
-    		session1.addDataListener(new RtpSessionDataListener() {
-    			def dataPacketReceived(session:RtpSession,  participant:RtpParticipantInfo, packet:DataPacket) {
-    				//System.err.println("Session 1 received packet: " + packet + "(session: " + session.getId() + ")");
-    				//latch.countDown();
-             	}
-             })
-             val bytes = new Array[Byte](1024)
+    	println("joined = " + joinedTo)
+    	println("effluxSession = " + effluxSession)
+    	for(joined <- joinedTo;
+    		session <- effluxSession) {
+    		println("sending data to !!!!!!!! " + SdpHelper.getMediaPort(joined.sdp) + " My own port = " + rtpport)
+    	   	val bytes = new Array[Byte](1024)
+    	   	var seq = 1
              while (filestream.read(bytes) != -1) {
             	 val packet = new DataPacket()
-            	 session1.sendDataPacket(packet)
+            	 packet.setData(bytes)
+            	 packet.setSequenceNumber(seq)
+            	 session.sendDataPacket(packet)
+            	 seq += 1
              }
-    	})
-    	println("done playing")
+    	}
+    	println("done sending our data!")
+    	f()
     })
     
     private def finishListen() =
     	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
     
+    	
     override def cancel() = BlueFuture(callback => {
     	callback()
     }) 
     
-     override protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean ) = BlueFuture(callback => {//doesn't need to be here? 
-    	
-      callback()
+    override protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean ) = BlueFuture(callback => {//doesn't need to be here? 
+    	initRtp(join)
+    	_joinedTo = Some(join)
+    	callback()
 	})
     
     override protected[telco] def connect(join:Joinable[_])= connect(join, true)
@@ -139,11 +164,15 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
 
 
 object EffluxMediaConnection {
-	val myarray = Array[Byte]()	
-  
+	val myarray = new Array[Byte](2000)	
+	val Max = 5000
+	val Min = 2000
 	
 	def getPort(): Int = {
-	  return 1234//fixme: walk the array, etc.
+	  val ran = Math.random
+	  val ret = Min + (ran * ((Max - Min) + 1))
+	  println("returning for getPort = " + ret)
+	  ret.asInstanceOf[Int]
 	}
 	
 	def putBackPort(port:Int): Unit = {

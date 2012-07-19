@@ -71,6 +71,7 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
     }
 
     def reinvite(tx:ServerTransaction, sdp:SessionDescription) = orderedexec {
+    	println("GOT A REINVITE, the new mediaport is " + SdpHelper.getMediaPort(sdp) + "joinedTo = " + joinedTo)
         this.serverTx = Some(tx)
         this.sdp = sdp ///here is the weird part? 
         serverTx = Some(tx)
@@ -121,10 +122,19 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
     })
     
     def accept(toJoin:Joinable[_]) = BlueFuture{ callback => 
-    	incomingResponse(200,toJoin) foreach { _ =>
+    	for(_ <- incomingResponse(200,toJoin);
+    		_ <- toJoin.connect(this)) {
     		_joinedTo = Some(toJoin)
     		callback()
     	}
+      
+      /*
+      	incomingResponse(200,toJoin) foreach { _ =>
+    		_joinedTo = Some(toJoin)
+    		
+    		callback()
+    	}
+    	*/
     }
     
 

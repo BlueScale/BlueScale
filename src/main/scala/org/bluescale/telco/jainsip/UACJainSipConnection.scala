@@ -63,7 +63,7 @@ trait UACJainSipConnection extends BaseJainSipConnection {
                 addConnection()
             case s:CONNECTED =>
                 transaction.foreach( tx => {
-                  println(" Sending a reinvite TO " + this.destination + "WITH the sdp of " + join.sdp)  
+                  //println(" Sending a reinvite TO " + this.destination + "WITH the sdp of " + join.sdp)  
                   clientTx = Some(telco.internal.sendReinvite(tx, join.sdp) )
                     		
                 })
@@ -71,7 +71,6 @@ trait UACJainSipConnection extends BaseJainSipConnection {
             }
         clientTx.foreach( tx => {
             setRequestCallback(tx.getBranchId(), (responseCode, previousSdp) => {
-                println("the response code is " + responseCode)
             	responseCode match {
                     case Response.RINGING =>
                         _state = RINGING()
@@ -79,7 +78,6 @@ trait UACJainSipConnection extends BaseJainSipConnection {
                         if (!previousSdp.toString().equals(sdp.toString()))
                             joinedTo.foreach( join => join.joinedMediaChange() )
                     case Response.OK =>
-                        println("RESPONSE IS OK!!!!!!!!!!!!!!!!!!!!")
                         _state = CONNECTED()
                         this._joinedTo = Some(join)
                         //if (!previousSdp.toString().equals(sdp.toString()))
