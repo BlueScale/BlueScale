@@ -36,6 +36,7 @@ import scala.io.Source
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import java.util.concurrent.TimeUnit
+import java.io.FileInputStream
 
 @RunWith(classOf[JUnitRunner])
 class PlayRecord extends FunTestHelper {
@@ -44,8 +45,8 @@ class PlayRecord extends FunTestHelper {
 	  //get file from server. 
 	  //compare with sent file.
 	  println("finishedPlaying, now calling disconnect")
+	  Thread.sleep(2000)//lets let the connection finish writing the file
 	  conn.disconnect().run {
-	    Thread.sleep(2000)//lets let the connection finish writing the file
 	  	val files = b2bServer.getMediaConnection("7145554444").recordedFiles
 	    files.foreach( f => { 
 	  		//compare.
@@ -67,7 +68,10 @@ class PlayRecord extends FunTestHelper {
 		//lets do client side stuff for now. will have to set stuff pup.
 		conn = telcoServer.createConnection("7145554444", "7148889999")
 		val media = new EffluxMediaConnection(telcoServer)
-		val filestream = getClass.getResource("/gulp.wav").openStream()
+		val filestream = new FileInputStream("/gulp.wav")
+		//val filestream = getClass.getResource("/medium.rtf").openStream()
+		
+		println(" GOT THE FILESTREAM")
 		for (_ <- conn.connect();
 			 _ <- media.join(conn);
 			 _ <- media.play(filestream)) {
@@ -76,7 +80,7 @@ class PlayRecord extends FunTestHelper {
 		
 		//lets see if we can get this working!	
 		println("awaiting")
-		assert(latch.await(5, TimeUnit.SECONDS))
+		assert(latch.await(20, TimeUnit.SECONDS))
 		println("finished!")
 	}
 }

@@ -62,6 +62,8 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     var effluxSession: Option[SingleParticipantSession] = None
     
+    var totalBytesRead = 0
+    var totalPacketsread = 0
     private def initRtp(conn:Joinable[_]) {
      	val mc = this
     	val mediaport = SdpHelper.getMediaPort(conn.sdp)
@@ -70,11 +72,15 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	effluxSession = Some(session1)
     	session1.addDataListener(new RtpSessionDataListener() {
     		def dataPacketReceived(session:RtpSession,  participant:RtpParticipantInfo, packet:DataPacket) {
-    			println("ading media on the receiver")
-    			MediaFileManager.addMedia(mc, packet.getDataAsArray())
+    			//println("ading media on the receiver, packet sequence number = " + packet.getSequenceNumber())
+    			val data = packet.getDataAsArray()
+    			MediaFileManager.addMedia(mc, data)
+    			totalBytesRead += data.length
+    			totalPacketsread += 1
+    			
            	}
     	})
-    	println("STARTED THE RTP LISTENER on port" + rtpport + " remotePort =  " + mediaport + " For " + this)
+    	//println("STARTED THE RTP LISTENER on port" + rtpport + " remotePort =  " + mediaport + " For " + this)
    		session1.init()
     }
     
@@ -83,9 +89,6 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	//get an SDP port
     	initRtp(conn)
     	for (_ <- conn.connect(this, false)) {
-    		
-    		println(" conn " + conn + " Is now Reconnected and listening to the Media's CONNECTION INFO")
-    		println("WE HAVE INITIED THE SESSION!!!!!!!!")
     		this._joinedTo = Some(conn)
     		callback()
     	}
@@ -104,16 +107,15 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     override def joinedMediaChange() {
     	//KILL THE OLD SESSION AND MAKE A NEW ONE.
-    	println(" effluxSession = " + effluxSession)
-    	println("joinedTo = " + joinedTo)
     	effluxSession.foreach(_.terminate())
     	joinedTo.foreach( joined => initRtp(joined))
-        println("~~~~~~~~~~~~~~~~~~~~~~~~  joinedMeidaChanged~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~do nothing here?")
+        //println("~~~~~~~~~~~~~~~~~~~~~~~~  joinedMeidaChanged~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~do nothing here?")
     }
 
     protected[telco] def unjoin() = BlueFuture(callback => {
-    	println("unjoin for the media connectino!")
-    	finishListen()
+    	println("total received bytes = " + totalBytesRead)
+    	println("total packets received = " + totalPacketsread)
+    	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
     	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
     	callback()
     	unjoinCallback.foreach(_(joinedTo.get,this))
@@ -125,27 +127,26 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     def play(filestream:InputStream) = BlueFuture(f => {
     	val localport = 0
-    	println("joined = " + joinedTo)
-    	println("effluxSession = " + effluxSession)
     	for(joined <- joinedTo;
     		session <- effluxSession) {
-    		println("sending data to !!!!!!!! " + SdpHelper.getMediaPort(joined.sdp) + " My own port = " + rtpport)
-    	   	val bytes = new Array[Byte](1024)
-    	   	var seq = 1
-             while (filestream.read(bytes) != -1) {
+    		var totalSent = 0
+    	   	val bytes = new Array[Byte](512)
+    	   	var seq = 1 //TODO: get a random sequence number
+    	   	var read = filestream.read(bytes)
+             while (read != -1) {
             	 val packet = new DataPacket()
             	 packet.setData(bytes)
             	 packet.setSequenceNumber(seq)
             	 session.sendDataPacket(packet)
+            	 read = filestream.read(bytes)
+            	 totalSent += read
             	 seq += 1
+            	 Thread.sleep(20)
              }
+    		println("totalSENT = " + totalSent + " SEQ = " + seq)
     	}
-    	println("done sending our data!")
     	f()
     })
-    
-    private def finishListen() =
-    	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
     
     	
     override def cancel() = BlueFuture(callback => {

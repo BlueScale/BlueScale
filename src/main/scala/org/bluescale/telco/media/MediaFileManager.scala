@@ -41,7 +41,6 @@ object MediaFileManager {
   
 	var total = 0 //temp!!!
 	def addMedia(mc:MediaConnection, data:Array[Byte]): Unit = {
-	  	println("ADDING MEDIA")
 	  	total += data.length
 	  	dataMap.put(mc, safeConcat(data, dataMap.get(mc) ) ) //this could error out..., should wrap in a try.
 	 
