@@ -56,7 +56,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     }
 
     protected def handlePlay(conn:SipConnection, play:Play, verbs:Seq[BlueMLVerb]) = {
-        val mediaConn = new JlibMediaConnection(telcoServer)
+        val mediaConn = new EffluxMediaConnection(telcoServer)
         val mediaFile = MediaFileManager.getInputStream(play.mediaUrl)
         val f = ()=>
             mediaConn.joinPlay(mediaFile, conn).run { handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ) }

@@ -36,8 +36,13 @@ import com.biasedbit.efflux.packet.DataPacket
 import com.biasedbit.efflux.participant.RtpParticipant
 import com.biasedbit.efflux.participant.RtpParticipantInfo
 import com.biasedbit.efflux.session._
+import java.util.Timer
+import java.util.TimerTask
+import java.util.Date
 
 class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
+  
+	private val payloadType = 0 //8 for Alaw
   
     private var _joinedTo:Option[Joinable[_]] = None
     
@@ -59,15 +64,29 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     val listeningSdp = SdpHelper.createSdp(rtpport, telco.contactIp)
     
     val localparticipant = RtpParticipant.createReceiver(new RtpParticipantInfo(1), telco.listeningIp, rtpport, rtpport+1)
-    
+    println("made a media connection, listening port = " + telco.listeningIp + " rtpPort = " + rtpport)
     var effluxSession: Option[SingleParticipantSession] = None
     
+    var playTimer: Option[Timer] = None
+    
     var totalBytesRead = 0
+    
     var totalPacketsread = 0
+    
     private def initRtp(conn:Joinable[_]) {
      	val mc = this
-    	val mediaport = SdpHelper.getMediaPort(conn.sdp)
-    	val remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(2), telco.listeningIp, mediaport, mediaport+1)
+    	val mediaport = SdpHelper.getMediaPort(conn.sdp) //
+    	val remoteip = conn.sdp.getConnection().getAddress() //192.168.1.18
+   
+    	/*
+    	if (remoteip == "0.0.0.0")
+    		return
+    	println(" ~~~~~~~~~~~ init RTP for " + this + "~~~~~~~~~~~~ ")
+    	println("conn address = " + remoteip + " Mediaport = " + mediaport)
+    	println(" ########################")
+    	println(" sd = " + conn.sdp)
+    	*/
+    	val remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(rtpport), remoteip, mediaport, mediaport+1)
     	val session1 = new SingleParticipantSession(this.toString, 9, localparticipant, remote1)
     	effluxSession = Some(session1)
     	session1.addDataListener(new RtpSessionDataListener() {
@@ -77,7 +96,6 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     			MediaFileManager.addMedia(mc, data)
     			totalBytesRead += data.length
     			totalPacketsread += 1
-    			
            	}
     	})
     	//println("STARTED THE RTP LISTENER on port" + rtpport + " remotePort =  " + mediaport + " For " + this)
@@ -113,10 +131,11 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     }
 
     protected[telco] def unjoin() = BlueFuture(callback => {
-    	println("total received bytes = " + totalBytesRead)
-    	println("total packets received = " + totalPacketsread)
+    	//println("total received bytes = " + totalBytesRead)
+    	//println("total packets received = " + totalPacketsread)
     	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
-    	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
+    	//println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
+    	stopPlaying()
     	callback()
     	unjoinCallback.foreach(_(joinedTo.get,this))
     })
@@ -125,31 +144,53 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     //def receive(frame:DataFrame, participant:Participant)  =
      // MediaFileManager.addMedia(this, frame.getConcatenatedData())
     
+    
+    def makePacket(data:Array[Byte], seq:Int, delay:Int, timeoffset:Long): DataPacket = { 
+       	val packet = new DataPacket()
+    	packet.setPayloadType(payloadType)
+       	packet.setData(data)
+       	packet.setSequenceNumber(seq)
+       	packet.setTimestamp(timeoffset+(seq*delay*8)) //justin karnegas figured this bug out!
+    	packet
+    }
+    
     def play(filestream:InputStream) = BlueFuture(f => {
     	val localport = 0
+    	playTimer = Some(new Timer())
     	for(joined <- joinedTo;
-    		session <- effluxSession) {
+    		session <- effluxSession;
+    		timer <- playTimer) {
     		var totalSent = 0
-    	   	val bytes = new Array[Byte](512)
+    	   	val bytes = new Array[Byte](160)
+    		//val bytes = new Array[Byte](1280)
+    	   	val delay = 20
+    		//val delay = 640 
     	   	var seq = 1 //TODO: get a random sequence number
-    	   	var read = filestream.read(bytes)
-             while (read != -1) {
-            	 val packet = new DataPacket()
-            	 packet.setData(bytes)
-            	 packet.setSequenceNumber(seq)
-            	 session.sendDataPacket(packet)
-            	 read = filestream.read(bytes)
-            	 totalSent += read
-            	 seq += 1
-            	 Thread.sleep(20)
-             }
-    		println("totalSENT = " + totalSent + " SEQ = " + seq)
+    	   	var read = filestream.read(bytes)//lets skip the first 160 bytes so we don't have to worry about the header for nwo
+    	   	var now = new Date().getTime()
+    	   	val timerTask = new TimerTask() {
+    			def run() {
+    				read match {
+    				  case -1 =>
+    						println("this = " + this + "read = " + read + " totalSENT = " + totalSent + " SEQ = " + seq)
+    				    	timer.purge()
+    				    	f()
+    				  case _ => 
+    				    	read = filestream.read(bytes)
+    				    	session.sendDataPacket(makePacket(bytes, seq, delay, now))
+    				    	seq += 1
+    				}
+    			}
+    		}
+    		timer.scheduleAtFixedRate(timerTask, 0, delay)
     	}
-    	f()
     })
     
-    	
+    private def stopPlaying() = 
+      playTimer.foreach( t => t.cancel())
+    
     override def cancel() = BlueFuture(callback => {
+    	stopPlaying()
     	callback()
     }) 
     

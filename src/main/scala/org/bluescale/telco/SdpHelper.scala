@@ -100,7 +100,8 @@ object SdpHelper {
 	}
 
 	//fixme: can sdp have a different address for mediaDescription's conncetion than the SDP conenction?
-	def getMediaUrl(sdp:SessionDescription) : String = {
+	
+	/*def getMediaUrl(sdp:SessionDescription) : String = {
 		val mediaSrc =  sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription]
 		println(sdp)
 		val listeningPort = mediaSrc.getMedia().getMediaPort()
@@ -110,11 +111,13 @@ object SdpHelper {
 			case RTP => "rtp://"+ sdp.getConnection().getAddress()+":"+ listeningPort
 			case _ => throw new ProtocolNotSupportedException( mediaSrc.getMedia().getProtocol())
 		}
-	}
+	}*/
 	 
-
-	def getMediaPort(sdp:SessionDescription) : Int = 
-		Integer.parseInt(getMediaUrl(sdp).split(":")(2))
+	def getMediaSrc(sdp:SessionDescription) =
+		sdp.getMediaDescriptions(false).get(0).asInstanceOf[MediaDescription]
+	
+	def getMediaPort(sdp:SessionDescription) = 
+		getMediaSrc(sdp).getMedia().getMediaPort()
 		
 	def createSdp(mediaport:Int, ip:String) : SessionDescription = {
         val sd =  sdpFactory.createSessionDescription()

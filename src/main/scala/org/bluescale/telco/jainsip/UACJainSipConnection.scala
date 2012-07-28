@@ -85,7 +85,7 @@ trait UACJainSipConnection extends BaseJainSipConnection {
                         clearCallbacks(tx)
                         callback()
                     case _ =>
-                      println("DID SOMETHING FAIL..........???????????????")
+                      println("DID SOMETHING FAIL..........??????????????? response = " + responseCode)
                       //something went wrong, set to failed state
                       _state = FAILED()
                 }

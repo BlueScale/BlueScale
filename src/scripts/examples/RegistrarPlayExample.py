@@ -2,6 +2,7 @@ import string, cgi, time
 import sys
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
+filename = "/gypsy_ulaw_8000_mono.wav"
 
 class MyHandler(BaseHTTPRequestHandler):
 
@@ -55,24 +56,39 @@ class MyHandler(BaseHTTPRequestHandler):
             self.lookup[self.getParam("RegisterAddress")] = self.getParam("ContactAddress")
             self.wfile.write("<html> </Html>")
         return
-        
+
+
     def handleIncomingCall(self):
         self.postOK()
-        print("IN HANDLE INCOMING CALL looking for " + self.getParam("To"))
-        print("lookup is = " + self.lookup[self.getParam("To")])
         str = """
                 <Response>
-                    <Dial>
-                        <Number>""" + self.lookup[self.getParam("To")] + """</Number>
-                        <From>""" + self.getParam("From") + """ </From>
-                        <Action>http://127.0.0.1:8081/Status</Action>
-                    </Dial>
+                    <Play>
+                        <Action>http://localhost:8100/Status</Action>
+                        <MediaUrl>""" + filename + """</MediaUrl>
+                    </Play>>
                 </Response>
             """
-        
-        print( "responding with "+ str )
         self.wfile.write(str)
         return
+
+        
+    #def handleIncomingCall(self):
+    #    self.postOK()
+    #    print("IN HANDLE INCOMING CALL looking for " + self.getParam("To"))
+   #     print("lookup is = " + self.lookup[self.getParam("To")])
+   #     str = """
+   #             <Response>
+   #                 <Dial>
+   #                     <Number>""" + self.lookup[self.getParam("To")] + """</Number>
+   #                     <From>""" + self.getParam("From") + """ </From>
+   #                     <Action>http://127.0.0.1:8081/Status</Action>
+   #                 </Dial>
+   #             </Response>
+   #         """
+   #     
+   #     print( "responding with "+ str )
+   #     self.wfile.write(str)
+   #     return
 
     def parseParams(self):
         print("content-length = " + self.headers.getheader('Content-Length'))
