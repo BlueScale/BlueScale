@@ -45,7 +45,7 @@ class PlayRecord extends FunTestHelper {
 	  //get file from server. 
 	  //compare with sent file.
 	  println("finishedPlaying, now calling disconnect")
-	  Thread.sleep(9000)//lets let the connection finish writing the file
+	  Thread.sleep(1000)//lets let the connection finish writing the file
 	  conn.disconnect().run {
 	  	val files = b2bServer.getMediaConnection("7145554444").recordedFiles
 	    files.foreach( f => { 
@@ -60,7 +60,7 @@ class PlayRecord extends FunTestHelper {
 	var conn:SipConnection = null
 
 	val latch = new CountDownLatch(1)  
-	
+	/*
 	test("Test Playing and Recording to our medaiserver") {
 		this.b2bServer.answerWithMedia = true
 		//lets do client side stuff for now. will have to set stuff pup.
@@ -76,7 +76,8 @@ class PlayRecord extends FunTestHelper {
 		
 		//lets see if we can get this working!	
 		println("awaiting")
-		assert(latch.await(20, TimeUnit.SECONDS))
+		assert(latch.await(10, TimeUnit.SECONDS))
 		println("finished!")
 	}
+	*/
 }

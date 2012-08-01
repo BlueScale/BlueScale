@@ -40,6 +40,9 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.Date
 
+import java.util.concurrent.PriorityBlockingQueue
+import java.util.Comparator
+
 class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
   
 	private val payloadType = 0 //8 for Alaw
@@ -48,8 +51,6 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     private var _recordedFiles = List[String]()
     private var _playedFiles   = List[String]()
-    
-    //private var 
     
     override def playedFiles = _playedFiles 
     
@@ -91,7 +92,6 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	effluxSession = Some(session1)
     	session1.addDataListener(new RtpSessionDataListener() {
     		def dataPacketReceived(session:RtpSession,  participant:RtpParticipantInfo, packet:DataPacket) {
-    			//println("ading media on the receiver, packet sequence number = " + packet.getSequenceNumber())
     			val data = packet.getDataAsArray()
     			MediaFileManager.addMedia(mc, data)
     			totalBytesRead += data.length
@@ -140,18 +140,13 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	unjoinCallback.foreach(_(joinedTo.get,this))
     })
 
-    
-    //def receive(frame:DataFrame, participant:Participant)  =
-     // MediaFileManager.addMedia(this, frame.getConcatenatedData())
-    
-    
     def makePacket(data:Array[Byte], seq:Int, delay:Int, timeoffset:Long): DataPacket = { 
        	val packet = new DataPacket()
     	packet.setPayloadType(payloadType)
        	packet.setData(data)
        	packet.setSequenceNumber(seq)
        	packet.setTimestamp(timeoffset+(seq*delay*8)) //justin karnegas figured this bug out!
-    	packet
+       	packet
     }
     
     def play(filestream:InputStream) = BlueFuture(f => {
@@ -160,19 +155,16 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	for(joined <- joinedTo;
     		session <- effluxSession;
     		timer <- playTimer) {
-    		var totalSent = 0
     	   	val bytes = new Array[Byte](160)
-    		//val bytes = new Array[Byte](1280)
     	   	val delay = 20
-    		//val delay = 640 
     	   	var seq = 1 //TODO: get a random sequence number
     	   	var read = filestream.read(bytes)//lets skip the first 160 bytes so we don't have to worry about the header for nwo
-    	   	var now = new Date().getTime()
+    	   	val now = new Date().getTime()
     	   	val timerTask = new TimerTask() {
     			def run() {
     				read match {
     				  case -1 =>
-    						println("this = " + this + "read = " + read + " totalSENT = " + totalSent + " SEQ = " + seq)
+    						println("this = " + this + "read = " + read + " totalSENT =  SEQ = " + seq)
     				    	timer.purge()
     				    	f()
     				  case _ => 
@@ -221,3 +213,5 @@ object EffluxMediaConnection {
 			println("fix me")
 	}
 }
+
+
