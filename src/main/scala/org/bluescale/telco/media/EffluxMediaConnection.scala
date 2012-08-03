@@ -74,11 +74,11 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     var totalPacketsread = 0
     
+    var jitterBuffer:Option[JitterBuffer] = None
+    
     private def initRtp(conn:Joinable[_]) {
-     	val mc = this
     	val mediaport = SdpHelper.getMediaPort(conn.sdp) //
     	val remoteip = conn.sdp.getConnection().getAddress() //192.168.1.18
-   
     	/*
     	if (remoteip == "0.0.0.0")
     		return
@@ -87,15 +87,21 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	println(" ########################")
     	println(" sd = " + conn.sdp)
     	*/
+    	jitterBuffer = Some(new JitterBuffer(8000,150, data=> MediaFileManager.addMedia(this, data)))
+    	val mc = this
     	val remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(rtpport), remoteip, mediaport, mediaport+1)
     	val session1 = new SingleParticipantSession(this.toString, 9, localparticipant, remote1)
     	effluxSession = Some(session1)
     	session1.addDataListener(new RtpSessionDataListener() {
     		def dataPacketReceived(session:RtpSession,  participant:RtpParticipantInfo, packet:DataPacket) {
     			val data = packet.getDataAsArray()
-    			MediaFileManager.addMedia(mc, data)
+    			jitterBuffer.foreach( jb =>
+    				jb.addToQueue(packet))
+    			/*
     			totalBytesRead += data.length
     			totalPacketsread += 1
+    			println("received packet, sequence = " + packet.getSequenceNumber())
+    			*/
            	}
     	})
     	//println("STARTED THE RTP LISTENER on port" + rtpport + " remotePort =  " + mediaport + " For " + this)
@@ -131,13 +137,14 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     }
 
     protected[telco] def unjoin() = BlueFuture(callback => {
-    	//println("total received bytes = " + totalBytesRead)
+    	Thread.sleep(4000)
+    	println("UNJOING FOR ME ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + this + "total received bytes = " + totalBytesRead)
     	//println("total packets received = " + totalPacketsread)
     	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
-    	//println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
+    	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
     	stopPlaying()
-    	callback()
     	unjoinCallback.foreach(_(joinedTo.get,this))
+    	callback()
     })
 
     def makePacket(data:Array[Byte], seq:Int, delay:Int, timeoffset:Long): DataPacket = { 
@@ -164,8 +171,8 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     			def run() {
     				read match {
     				  case -1 =>
-    						println("this = " + this + "read = " + read + " totalSENT =  SEQ = " + seq)
-    				    	timer.purge()
+    				    	timer.cancel()
+    						println("~~~~~~~~~ this = " + this + "read = " + read + " totalSENT =  SEQ = " + seq)
     				    	f()
     				  case _ => 
     				    	read = filestream.read(bytes)

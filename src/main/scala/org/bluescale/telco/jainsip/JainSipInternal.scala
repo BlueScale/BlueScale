@@ -227,8 +227,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		var transaction = re.getClientTransaction()
 			
 		val conn = telco.getConnection(getCallId(re))
-		if ( null == transaction) { //we already got a 200OK and the TX was terminated...
-			debug(" transaction is null right away re = " + re.getDialog())
+		if ( null == transaction || null == conn) { //we already got a 200OK and the TX was terminated...
+			debug("Something was null, tx = " + transaction + " | conn = " + conn + " callId = " + getCallId(re))
 			return 
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
@@ -309,7 +309,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
         val response = messageFactory.createResponse(responseCode, requestEvent.getRequest() ) //transaction.getRequest())
 		response.addHeader( requestEvent.getRequest().getHeader("Contact"))
         val contact =  headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port))
-        contact.setExpires(999999)
+        contact.setExpires(999999) //TODO: fix this...
         response.addHeader(contact)
         //response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
 		tx.sendResponse(response)
@@ -364,9 +364,10 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
  
     //should we return the bye here?  I think certain things should be un-cancellable, so OK...
 	def sendByeRequest(tx:Transaction): ClientTransaction = {
-        val byeRequest = tx.getDialog().createRequest(Request.BYE)
+    	val dialog = tx.getDialog()
+        val byeRequest = dialog.createRequest(Request.BYE)
         val newTx =	sipProvider.get.getNewClientTransaction(byeRequest)
-        tx.getDialog().sendRequest(newTx)
+        dialog.sendRequest(newTx)
         return newTx
 	} 
 

@@ -99,8 +99,10 @@ class SipTelcoServer(
 	protected[jainsip] def addConnection(conn: SipConnectionImpl) : Unit = 
     	connections.put(conn.connectionid, conn)
     
-    protected[jainsip] def removeConnection(conn:SipConnection) : Unit = 
-    	connections.remove(conn.connectionid)
+    protected[jainsip] def removeConnection(conn:SipConnection) : Unit = { 
+    	println(" conn = " + conn + "  Connections = " + connections)
+        connections.remove(conn.connectionid)
+   	}
     
 	override def start() {
 		internal.start()

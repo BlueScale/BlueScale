@@ -40,7 +40,10 @@ trait Actorable {
 						orderedfunction.f()
 					
 					} catch {
-					  case ex:Exception => println("error running ordredfunction = " + ex)
+					  case ex:Exception => {
+						  println("error running ordredfunction = " +ex)
+						  ex.printStackTrace()
+					  }
 					}
 			}
 	  

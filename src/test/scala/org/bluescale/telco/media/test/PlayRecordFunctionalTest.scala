@@ -44,15 +44,16 @@ class PlayRecord extends FunTestHelper {
 	def finishedPlaying(conn:SipConnection) {
 	  //get file from server. 
 	  //compare with sent file.
-	  println("finishedPlaying, now calling disconnect")
-	  Thread.sleep(1000)//lets let the connection finish writing the file
 	  conn.disconnect().run {
+	    println("DISCONNECT FINISHED")
+	    Thread.sleep(2000)//need to let the disconnect propgate to the remote connection so it can finish up saving the file to disk
 	  	val files = b2bServer.getMediaConnection("7145554444").recordedFiles
 	    files.foreach( f => { 
 	  		//compare.
 	  		latch.countDown()
 	  		println("countdown for the latch")
 	  	})
+	  	println("files = " + files )
 	  }
 	  //TODO: compare to the recorded file
 	}
@@ -60,13 +61,13 @@ class PlayRecord extends FunTestHelper {
 	var conn:SipConnection = null
 
 	val latch = new CountDownLatch(1)  
-	/*
+	
 	test("Test Playing and Recording to our medaiserver") {
 		this.b2bServer.answerWithMedia = true
 		//lets do client side stuff for now. will have to set stuff pup.
 		conn = telcoServer.createConnection("7145554444", "7148889999")
 		val media = new EffluxMediaConnection(telcoServer)
-		val filestream = new FileInputStream("/gulp.wav")
+		val filestream = new FileInputStream("src/scripts/examples/KeepingTheBladeIntroSmall.wav")
 		
 		for (_ <- conn.connect();
 			 _ <- media.join(conn);
@@ -76,8 +77,7 @@ class PlayRecord extends FunTestHelper {
 		
 		//lets see if we can get this working!	
 		println("awaiting")
-		assert(latch.await(10, TimeUnit.SECONDS))
+		assert(latch.await(30, TimeUnit.SECONDS))
 		println("finished!")
 	}
-	*/
 }
