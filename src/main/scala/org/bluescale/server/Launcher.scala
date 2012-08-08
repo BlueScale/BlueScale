@@ -95,8 +95,8 @@ object Launcher {
     <BlueScaleConfig>
 		<TelcoServer>
             <!--<StartingDoc value="http://localhost:81/incoming" type="BlueML"/>-->
-			<ListeningAddress value="127.0.0.1"/>
-			<ContactAddress value="127.0.0.1" />
+			<ListeningAddress value="192.168.1.6"/>
+			<ContactAddress value="192.168.1.6" />
 			<ListeningPort value ="5060"/>
 			<DestAddress value="127.0.0.1"/>
 			<DestPort value = "5060"/>

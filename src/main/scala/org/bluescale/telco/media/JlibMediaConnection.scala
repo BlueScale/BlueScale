@@ -47,7 +47,7 @@ class JlibMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     private val rtpSession = new RTPSession(rtpPort._1, rtpPort._2)
     
-    val listeningSdp = SdpHelper.createSdp(rtpPort._1.getLocalPort(), telco.contactIp)
+    val listeningSdp = SdpHelper.createSdp(0, rtpPort._1.getLocalPort(), telco.contactIp)
     
     rtpSession.naivePktReception(true)
     

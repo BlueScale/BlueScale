@@ -54,6 +54,7 @@ class WebServer(apiPort:Int,
     telcoServer.setIncomingCallback( conn => engine.handleIncomingCall(callbackUrl,conn) )
     telcoServer.setUnjoinCallback( (unjoiner, conn) => engine.handleUnjoin(callbackUrl, unjoiner, conn) )
     telcoServer.setRegisterCallback((registerInfo) => engine.handleRegisterRequest(callbackUrl,registerInfo))
+    
     //we don't care about the disconnectCallbacks as muchas  conversation callbacks:w
     //telcoServer.setDisconnectedCallback( conn => engine.handleDisconnect(callbackUrl, conn) )
     initWebServer()

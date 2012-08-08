@@ -118,7 +118,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			case Request.CANCEL 	=> processCancel(requestEvent)
 			case Request.OPTIONS  => processOptions(requestEvent)
 		    //TODO: handle cancels...may be too late for most things but we can try to cancel.
-			case _ => println("err, what?")
+			case _ => println("err, what?, method = " + request.getMethod())
 		            //serverTransactionId.sendResponse( messageFactory.createResponse( 202, request ) )
 					// send one back
 					//val prov = requestEvent.getSource()
@@ -226,8 +226,8 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		try { 
 		var transaction = re.getClientTransaction()
 			
-		val conn = telco.getConnection(getCallId(re))
-		if ( null == transaction || null == conn) { //we already got a 200OK and the TX was terminated...
+		val conn = Option(telco.getConnection(getCallId(re)))
+		if ( null == transaction ) { //we already got a 200OK and the TX was terminated...
 			debug("Something was null, tx = " + transaction + " | conn = " + conn + " callId = " + getCallId(re))
 			return 
 		}
@@ -240,27 +240,28 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 	 		                Option(asResponse(re).getRawContent()).foreach( content=> {
     			                val sdp = SdpHelper.getSdp(content)
 			                    if (!SdpHelper.isBlankSdp(sdp)) {
-	    		                    conn.setUAC(transaction,statusCode, sdp)       
+	    		                    conn.foreach(_.setUAC(transaction,statusCode, sdp))       
 	    		                }
                             }) 
 			                           
 			case Response.OK =>
-		    			cseq.getMethod() match {
-		    				case Request.INVITE =>
-		    				  			val inviteRequset = transaction.getRequest()
-		    				  			val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
-		    							transaction.getDialog().sendAck(ackRequest)//should be done in the call? 
-		    							val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
-		    							
-				  					    conn.setUAC(transaction, statusCode, sdp)	
+	 		            for (c <- conn)
+	 		            	cseq.getMethod() match {
+	 		            	case Request.INVITE =>
+	 		            		val inviteRequset = transaction.getRequest()
+	 		            		val ackRequest = transaction.getDialog().createAck( cseq.getSeqNumber() )
+	 		            		transaction.getDialog().sendAck(ackRequest)//should be done in the call? 
+	 		            		val sdp = SdpHelper.getSdp(asResponse(re).getRawContent())
+	 		            		
+	 		            		c.setUAC(transaction, statusCode, sdp)	
 				  					    				  						    	
 		    				case Request.CANCEL =>
 		    				    //cancel, removeConnection,
-		    				    conn.setUAC(transaction, statusCode, conn.sdp) 
+		    				    c.setUAC(transaction, statusCode, c.sdp) 
 		    					log("	cancel request ")
 		    				case Request.BYE =>
-		    					telco.removeConnection(conn)
-		    					conn.setUAC(transaction, statusCode, conn.sdp)
+		    					telco.removeConnection(c)
+		    					c.setUAC(transaction, statusCode, c.sdp)
     	    				case _ => 
 			    			  	error("	wtf ")
 		    			}
@@ -287,7 +288,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 		        println("TERMINATED")
 			case _ => 
 		        //something went wrong, lets consider it in a fucked up state
-		        conn.setUAC(transaction, statusCode, conn.sdp) 
+		        conn.foreach(c => c.setUAC(transaction, statusCode, c.sdp)) 
 		        error("Unexpected Response = " + asResponse(re).getStatusCode())
 		}
 		} catch {

@@ -34,8 +34,13 @@ trait MediaConnection
 	
 	def playedFiles: List[String]
 	
+	var dtmfEventHandler: Option[DTMFEvent=>Unit] = None
+	
 	//def State : MediaState  Maybe need later
 }
+
+
+case class DTMFEvent(digit:Int)
 
 //Need more states?
 class MediaState
@@ -44,3 +49,4 @@ case class PLAYING extends MediaState
 case class RECORDING extends MediaState
 case class PLAYINGRECORDING extends MediaState
 case class SILENT extends MediaState
+

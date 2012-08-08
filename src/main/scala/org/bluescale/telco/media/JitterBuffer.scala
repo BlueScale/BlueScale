@@ -30,7 +30,7 @@ class JitterBuffer(clockrate: Int,
 	
 	private var missedPackets = 0L
 	
-	private var lastsequence = 0L
+	private var lastsequence = -1L
 	
 	private var lastTimestamp = 0L
 	
@@ -50,6 +50,8 @@ class JitterBuffer(clockrate: Int,
 				case packet if lastsequence - packet.getSequenceNumber() == -1 =>
 					takePacket(packet)
 				case packet =>
+						//println("ARE WE MISSING A PACKET????,lastTimestamp =  " + lastTimestamp + "| currenttimestamp =" + packet.getTimestamp() + " | seq =" + packet.getSequenceNumber() + "|" + (lastsequence - packet.getSequenceNumber()))
+			
 				    queue.add(packet)//put it back!
 					missedPackets += 1 //TOOD: to use at a later date for expanding the buffer size
 			}
@@ -69,7 +71,8 @@ class JitterBuffer(clockrate: Int,
 	  	queue.add(packet)
 	  	
 	def cancel() =
-	  timer.purge()
+	  timer.cancel()
+	  
 	  
 
 }

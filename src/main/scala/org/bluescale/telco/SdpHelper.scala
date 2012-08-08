@@ -38,17 +38,19 @@ import javax.sdp.SdpParseException
 import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
 
-
+import java.util.ArrayList
 import java.util.Vector
 import org.bluescale.util._
-
+import collection.JavaConversions._
 import org.bluescale.telco.api._
+import gov.nist.javax.sdp.fields.AttributeField
 //FIXME: lets make this a lttle smarter on figuring out what kind of stuff we can transmit
 
 object SdpHelper {
 
 	private val RTP = "RTP/AVP"
   	private val blank_port = 1111
+  	private val defaulthz = 8000
    
   	val sdpFactory = SdpFactory.getInstance() 
 
@@ -119,14 +121,33 @@ object SdpHelper {
 	def getMediaPort(sdp:SessionDescription) = 
 		getMediaSrc(sdp).getMedia().getMediaPort()
 		
-	def createSdp(mediaport:Int, ip:String) : SessionDescription = {
+	def getDtmfPayloadType(sdp:SessionDescription) = 
+			 sdp.getMediaDescriptions(false).asInstanceOf[Vector[MediaDescription]](0)
+	 			.getAttributes(false).asInstanceOf[Vector[AttributeField]]
+	 			.find( attr => attr.getValue().contains("telephone-event"))
+	 			.firstOption
+	 			.map( attr => attr.getValue.substring(0, 4))
+		
+	def createSdp(payloadType:Int, mediaport:Int, ip:String) : SessionDescription = {
         val sd =  sdpFactory.createSessionDescription()
 		sd.setOrigin(sdpFactory.createOrigin("bss", sd.hashCode(), 1L, "IN", "IP4", ip))
 		sd.setSessionName(sdpFactory.createSessionName("bssession"))
 		sd.setConnection(sdpFactory.createConnection("IN", "IP4", ip))
-				
-		val md = sdpFactory.createMediaDescription("audio", mediaport, 1, RTP, new Array[Int](1) ) //need a 0 tacked onto the end for the RTP stuff
-		sd.getMediaDescriptions(true).asInstanceOf[Vector[MediaDescription]].add(md)
+		
+		val media = sdpFactory.createMediaDescription("audio", mediaport, 1, RTP, Array(payloadType)) //, 101) ) //need a 0 tacked onto the end for the RTP encoding stuff
+		val televentattribute = new AttributeField()
+        televentattribute.setName("rtpmap")
+        televentattribute.setValue("101 telephone-event/"+defaulthz)
+		
+        media.getAttributes(true).asInstanceOf[Vector[AttributeField]].add(televentattribute)
+        
+		val fmtpattribute = new AttributeField()
+        fmtpattribute.setName("fmtp")
+        fmtpattribute.setValue("101 0-15")
+        media.getAttributes(true).asInstanceOf[Vector[AttributeField]].add(fmtpattribute)
+        
+		//val dtmf = sdpFactory.createMediaDescription("", )
+		sd.getMediaDescriptions(true).asInstanceOf[Vector[MediaDescription]].add(media)
         return sd
 	}
 

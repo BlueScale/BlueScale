@@ -2,7 +2,11 @@ import string, cgi, time
 import sys
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
-filename = "/gypsy_ulaw_8000_mono.wav"
+#filename = "/gypsy_ulaw_8000_mono.wav"
+
+filename = "/WelcomeHomeSmallULaw.wav"
+
+#filename = "/473742155.bs.wav"
 
 class MyHandler(BaseHTTPRequestHandler):
 
