@@ -97,20 +97,21 @@ class JitterBufferTest extends FunSuite {
 				  			packet2.setSequenceNumber(seq)
 				  			jitterbuffer.addToQueue(packet2)
 				  		}
+				  	  	println("adding packet to the queue with sequence = " + packet1.getSequenceNumber())
 				  	  	jitterbuffer.addToQueue(packet1)
 				}
 			}
 		}
-		
+		println("scheduling the timer task!")
 		timer.schedule(timerTask, 0, 130) //packets are coming in a littel faster than they need to, we just want to test reordering here
 		latch.await()
 		
 		val finalarr = finalbytes.toArray
 		println(finalarr.length)
-		for (i<- 0 to 10) {
-			println("randomData = " + randombytes(320+i)+ " | " + finalarr(320+i))
+		//for (i<- 0 to 10) {
+		//	println("randomData = " + randombytes(320+i)+ " | " + finalarr(320+i))
 			
-		}
+		//}
 		println("source array lenght = " + randombytes.length)
 		println("result array = " + finalbytes.toArray.length)
 		val res = Arrays.equals(randombytes, finalbytes.toArray)

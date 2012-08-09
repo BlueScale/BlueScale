@@ -100,7 +100,6 @@ class SipTelcoServer(
     	connections.put(conn.connectionid, conn)
     
     protected[jainsip] def removeConnection(conn:SipConnection) : Unit = { 
-    	println(" conn = " + conn + "  Connections = " + connections)
         connections.remove(conn.connectionid)
    	}
     

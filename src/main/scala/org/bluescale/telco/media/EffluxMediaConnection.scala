@@ -129,7 +129,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	jitterBuffer.foreach(j => j.cancel())
     	//println("total packets received = " + totalPacketsread)
     	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
-    	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
+    	println(" ~~~~~~~~~unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
     	stopPlaying()
     	unjoinCallback.foreach(_(joinedTo.get,this))
     	callback()
@@ -163,6 +163,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     				    	f()
     				  case _ => 
     				    	read = filestream.read(bytes)
+    				    	println("sending data!")
     				    	session.sendDataPacket(makePacket(bytes, seq, delay, now))
     				    	seq += 1
     				}
@@ -196,6 +197,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     		def dataPacketReceived(session: RtpSession,  participant: RtpParticipantInfo, packet: DataPacket) {
     			packet.getPayloadType match {
     			  case 0 =>
+    			    println("Receiving !!!!")
     			  	jitterBuffer.foreach( jb =>
     			  		jb.addToQueue(packet))   			  
     			  case _ =>
