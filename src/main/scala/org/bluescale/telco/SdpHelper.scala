@@ -126,7 +126,7 @@ object SdpHelper {
 	 			.getAttributes(false).asInstanceOf[Vector[AttributeField]]
 	 			.find( attr => attr.getValue().contains("telephone-event"))
 	 			.firstOption
-	 			.map( attr => attr.getValue.substring(0, 4))
+	 			.map( attr => new Integer(attr.getValue.substring(0, 4).replace(" ","")))
 		
 	def createSdp(payloadType:Int, mediaport:Int, ip:String) : SessionDescription = {
         val sd =  sdpFactory.createSessionDescription()

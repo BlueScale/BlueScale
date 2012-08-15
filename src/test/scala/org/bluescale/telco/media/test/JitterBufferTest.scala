@@ -97,7 +97,6 @@ class JitterBufferTest extends FunSuite {
 				  			packet2.setSequenceNumber(seq)
 				  			jitterbuffer.addToQueue(packet2)
 				  		}
-				  	  	println("adding packet to the queue with sequence = " + packet1.getSequenceNumber())
 				  	  	jitterbuffer.addToQueue(packet1)
 				}
 			}

@@ -34,7 +34,11 @@ trait MediaConnection
 	
 	def playedFiles: List[String]
 	
+	def sendDtmf(i:Int)
+	
 	var dtmfEventHandler: Option[DTMFEvent=>Unit] = None
+	
+	
 	
 	//def State : MediaState  Maybe need later
 }
