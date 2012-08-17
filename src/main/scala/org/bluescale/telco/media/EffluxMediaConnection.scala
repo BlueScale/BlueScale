@@ -39,7 +39,10 @@ import com.biasedbit.efflux.session._
 import java.util.Timer
 import java.util.TimerTask
 import java.util.Date
+import scala.collection.JavaConversions._
 
+import java.util.Collection;
+import java.util.ArrayList
 import java.nio.ByteBuffer
 
 
@@ -88,7 +91,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     		MediaFileManager.addMedia(this, data)
     	}))
     	val remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(rtpport), remoteip, mediaport, mediaport+1)
-    	val session1 = new SingleParticipantSession(this.toString, payloadType, dtmfPayloadType, localparticipant, remote1, null, null)
+    	val session1 = new SingleParticipantSession(this.toString, List(new Integer(payloadType), new Integer(dtmfPayloadType)), localparticipant, remote1, null, null)
     	effluxSession = Some(session1)
     	streamInfo = Some(RTPStreamInfo(20, new Date().getTime(), 1))
     	session1.addDataListener(getDataListener())
@@ -98,7 +101,6 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     override def join(conn:Joinable[_]) = BlueFuture(callback => {
     	//should we only do this when we get a 200 OK? should  we put it in the connect callback? 
-    	//get an SDP port
     	initRtp(conn)
     	for (_ <- conn.connect(this, false)) {
     		this._joinedTo = Some(conn)
