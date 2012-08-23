@@ -55,7 +55,6 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
     val gatewayNumber    = "4445556666"
     val aliceNumber     = "7778889999"
     val bobNumber       = "1112223333"
-        
 
    	before {
         testWS = new SimpleWebServer(8100)
@@ -74,7 +73,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
     }
 	
 	test("Incoming Call Web API test") {
-        println("!!!!!!!!!! test incomingCall")  
+        println(" test incomingCall")  
         var callid:Option[String] = None
         val inConn = b2bServer.createConnection("7147773456", "7145555555")
 

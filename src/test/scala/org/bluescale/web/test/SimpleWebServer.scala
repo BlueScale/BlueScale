@@ -39,7 +39,9 @@ import org.mortbay.jetty.servlet.ServletHolder
 import org.mortbay.jetty.bio.SocketConnector
 import org.mortbay.jetty.handler.AbstractHandler
 import java.net._
-import org.mortbay.jetty.HttpConnection;
+import org.mortbay.jetty.HttpConnection
+import scala.collection.JavaConversions
+import scala.collection.JavaConversions._
 
 
 class SimpleWebServer(port:Int) {
@@ -81,8 +83,11 @@ class SimpleWebServer(port:Int) {
 class CallbackServlet(ws:SimpleWebServer) extends HttpServlet {
         
     override def doGet(request:HttpServletRequest, response:HttpServletResponse) = { 
-        println(" REQUEST = " + request + " ConversationStatus = " + request.getParameter("ConversationStatus"))
-        println(" REQUEST To " + request.getParameter("To") + " From= " + request.getParameter("From") +" CallStatus = " + request.getParameter("CallStatus") )
+        for (param <- request.getParameterMap()) {
+        	println(param._1 + " = " + request.getParameter(param._1.toString))
+        }
+    	//println(" REQUEST = " + request + " ConversationStatus = " + request.getParameter("ConversationStatus"))
+        //println(" REQUEST To " + request.getParameter("To") + " From= " + request.getParameter("From") +" CallStatus = " + request.getParameter("CallStatus") )
         ws.getNextResponse().foreach( cb =>{
             response.setContentType("text/xml") //XML
             response.setStatus(HttpServletResponse.SC_OK)

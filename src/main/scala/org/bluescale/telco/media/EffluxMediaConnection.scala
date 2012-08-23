@@ -58,7 +58,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
 	private val payloadType = 0 //8 for Alaw
     private var _joinedTo:Option[Joinable[_]] = None
     private var _recordedFiles = List[String]()
-    private var _playedFiles   = List[String]()
+    private var _playedFiles   = List[String]()  //TODO: do we need this? 
     
     override def playedFiles = _playedFiles 
 	override def recordedFiles = _recordedFiles
@@ -85,17 +85,17 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	val mediaport = SdpHelper.getMediaPort(conn.sdp) //
     	val remoteip = conn.sdp.getConnection().getAddress() //192.168.1.18
     	val dtmfPayloadType = 101
-    	println("conn = " + conn + " address = " + remoteip + " Mediaport = " + mediaport + " localPort = " + rtpport)
-    	println(" sd = " + conn.sdp)
+    	//println("conn = " + conn + " address = " + remoteip + " Mediaport = " + mediaport + " localPort = " + rtpport)
+    	//println(" sd = " + conn.sdp)
     	jitterBuffer = Some(new JitterBuffer(8000,160, data=> {
     		MediaFileManager.addMedia(this, data)
     	}))
     	val remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(rtpport), remoteip, mediaport, mediaport+1)
     	val session1 = new SingleParticipantSession(this.toString, List(new Integer(payloadType), new Integer(dtmfPayloadType)), localparticipant, remote1, null, null)
     	effluxSession = Some(session1)
-    	streamInfo = Some(RTPStreamInfo(20, new Date().getTime(), 1))
+    	streamInfo = Some(RTPStreamInfo(10, new Date().getTime(), 1))
     	session1.addDataListener(getDataListener())
-    	//println("STARTED THE RTP LISTENER on port" + rtpport + " remotePort =  " + mediaport + " For " + this)
+    	println("STARTED THE RTP LISTENER on port" + rtpport + " remotePort =  " + mediaport + " For " + this)
    		session1.init()
     }
     
@@ -116,7 +116,6 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     			val packet = new DataPacket()
     			val data = new Array[Byte](4)
     			data(0) = digit.asInstanceOf[Byte]
-    			println("sending the DTMF packet, payload = " + payloadType)
     			session.sendDataPacket(makePacket(data,info, payloadType))
     			streamInfo = Some(info.copy(sequence =info.sequence+1))
     	}
@@ -141,7 +140,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	Thread.sleep(1000)
     	jitterBuffer.foreach(j => j.cancel())
     	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
-    	println(" ~~~~~~~~~unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
+    	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
     	stopPlaying()
     	unjoinCallback.foreach(_(joinedTo.get,this))
     	callback()
@@ -152,6 +151,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	playTimer = Some(new Timer())
     	val outer = this
     	val data = new Array[Byte](160)
+    	println("GOING TO PLAY the filestream = " + filestream + " joined = " + joinedTo + " effluxSession = " + effluxSession +" playTimer = " + playTimer)
     	for(joined <- joinedTo;
     		session <- effluxSession;
     		timer <- playTimer;
@@ -165,6 +165,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	   							timer.cancel()
     	   							f()
     	   						case _ => 
+    	   							//println("senidng data to remote sip phone, sequence = " + sinfo.sequence)
     	   							read = filestream.read(data)
     	   							session.sendDataPacket(makePacket(data,info))
     	   							outer.streamInfo = Some(sinfo.copy(sequence=sinfo.sequence+1))

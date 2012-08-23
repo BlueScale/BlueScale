@@ -27,8 +27,9 @@ import org.bluescale.util._
 import java.util.concurrent._
 import org.bluescale.telco._
 import org.bluescale.telco.media._
+import org.bluescale.util.ForUnitWrap._
 
-class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
+case class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
     val conversationMap = new ConcurrentHashMap[SipConnection,ConversationInfo]()
     
@@ -48,7 +49,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
             case dialVM:DialVoicemail =>
                 dialVoicemail(conn, dialVM, verbs.tail) 
             case play:Play => 
-                handlePlay(conn, play, verbs.tail)    
+                handlePlay(conn, play, verbs.tail)
             case hangup:Hangup =>
             	conn.disconnect().run {  postCallStatus(hangup.url,conn) }//verify we are recursing here?
             //dcase auth:Auth =>
@@ -58,15 +59,26 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     protected def handlePlay(conn:SipConnection, play:Play, verbs:Seq[BlueMLVerb]) = {
         val mediaConn = new EffluxMediaConnection(telcoServer)
         val mediaFile = MediaFileManager.getInputStream(play.mediaUrl)
+        println("HANDLE PLAY--------->")
+        
+        for(gather <- play.gather)
+        	handleGather(gather, mediaConn, conn)
+        
         val f = ()=>
-            mediaConn.joinPlay(mediaFile, conn).run { handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn) ) }
+            mediaConn.joinPlay(mediaFile, conn).run { 
+            	handleBlueML(conn,  postMediaStatus(play.url, mediaConn, conn, "FinishedPlaying") ) 
+            }
         conn.direction match {
             case i:INCOMING => 
                 conn.connectionState match {
                     case CONNECTED() => 
                       	f()
-                    case UNCONNECTED() => 
-                      	conn.accept() foreach { _=> f() }
+                   case UNCONNECTED() => 
+                      	println("UNCONNECTED< going to accept!")
+                      	for (_ <- conn.accept()) {
+                      		println("Accepted from ENGINE ...............now we should play")
+                      		f()
+                      	}
                 } 
             case o:OUTGOING => 
                 f()
@@ -74,7 +86,17 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         handleBlueML(conn, verbs)
     }
     
-    protected def handleDial(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
+    protected def handleGather(gather:Gather, mediaConn:MediaConnection, conn:SipConnection) {
+    	var digits:List[Int] = List()
+    	mediaConn.dtmfEventHandler = Some(dtmfEvent => {
+    		digits = digits:+dtmfEvent.digit
+    		if (digits.length == gather.digitLimit) {
+    			handleBlueML(conn, postDtmfEvent(gather.url, digits,conn))
+    		}
+    	})
+    } 
+    
+    protected def handleDial(conn:SipConnection, dial:Dial, verbs: Seq[BlueMLVerb]) = {
         conn.connectionState match {
             case c:CONNECTED =>
                                 dialJoin(conn, dial, verbs)
@@ -87,7 +109,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                                 println("progressing") //TODO: should we sleep and call again? 
         }
     }
-   
+    
     protected def dialVoicemail(conn:SipConnection, dialVM:DialVoicemail, verbs:Seq[BlueMLVerb]) = {
         //lets try incrementing to deal with loopback issues
         var str = "714444330"
@@ -106,7 +128,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         }
         //connectAnswer should only happen once since we're cancelling the others, so there should be only one successful connect!
         connections.foreach( conn => conn.connect().run { callback() })
-       
     }
 
     protected def dialJoin(conn:SipConnection, dial:Dial, verbs:Seq[BlueMLVerb]) = {
@@ -144,7 +165,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 println("no ring limit, nothing to do but hope it connects!")
            }
     }
-
+    
     protected def connectAnswer(conn:SipConnection, destConn:SipConnection, url:String) = 
         ()=> {
             postCallStatus(url, destConn)
@@ -152,6 +173,7 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 case i:INCOMING =>
                   			for (
                   			  _ <- conn.accept();
+                  			  _ <- println("we have accepted the call and now we will join it!");
                   			  _ <- conn.join(destConn)) 
                   				postConversationStatus(addConvoInfo(url, conn, destConn))
                   			
@@ -181,21 +203,29 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         postCallStatus(url, getConnectionMap(conn), Some( (s:String)=>handleBlueML(conn, s) ) )
 
     def postCallStatus(url:String, map:Map[String,String], handleResponse:Option[(String)=>Unit]) : Unit =
-      for(xml <- StrOption(SequentialWebPoster.postToUrl(url, map));
-    	  response <- handleResponse;
-    	  _ = response(xml)) 
-    	  	println("finished posting callstatus to " + url)
+      	for(xml <- StrOption(SequentialWebPoster.postToUrl(url, map));
+      		response <- handleResponse;
+      		_ = response(xml)) 
+      			println("finished posting callstatus to " + url)
      
     def postConversationStatus(convo:ConversationInfo) = {
         println("---" + getJoinedMap(convo))
     	postCallStatus(convo.url,getJoinedMap(convo),None)
     }
         
-    def postMediaStatus(url:String, media:MediaConnection, conn:SipConnection) =
+    def postMediaStatus(url:String, media:MediaConnection, conn:SipConnection, status:String) =
       SequentialWebPoster.postToUrl(url,
           Map( "CallId" -> conn.connectionid,
-               "MediaUrl" -> media.playedFiles.firstOption.getOrElse("")
-          ))
+               "MediaUrl" -> media.playedFiles.firstOption.getOrElse(""),
+               "Status" -> status
+          )
+       )
+       
+    def postDtmfEvent(url:String, digits:List[Int], conn:SipConnection) =
+      	SequentialWebPoster.postToUrl(url,
+      		Map( "CallId" -> conn.connectionid,
+      		    "Digits"  -> digits.mkString(","))
+      	)
     
     //TODO: reject
     def handleRegisterRequest(url:String, authInfo:IncomingRegisterRequest): Unit = { 
@@ -218,7 +248,6 @@ class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     					"ContactAddress" -> authInfo.actualAddress)	
     	SequentialWebPoster.postToUrl(url, parameters)       		
 	}
-    	        
     
     
     protected def getConnectionMap(conn:SipConnection) = 

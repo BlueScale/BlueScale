@@ -71,7 +71,6 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
     }
 
     def reinvite(tx:ServerTransaction, sdp:SessionDescription) = orderedexec {
-    	println("GOT A REINVITE, the new mediaport is " + SdpHelper.getMediaPort(sdp) + "joinedTo = " + joinedTo)
         this.serverTx = Some(tx)
         this.sdp = sdp ///here is the weird part? 
         serverTx = Some(tx)
@@ -103,12 +102,12 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
  	def ack(newtx:ServerTransaction) = orderedexec {
         serverTx.foreach( tx => { 
             _state = CONNECTED()
-            callbacks(tx.getBranchId()) match {
+            callbacks.get(tx.getBranchId()).foreach( callback => callback match {
                 case f:( ()=>Unit ) =>
                     clearCallbacks(tx)
                     f()
                 case _ => println("error")
-            }
+            })
         })
     }
  	  
@@ -127,17 +126,8 @@ trait UASJainSipConnection extends BaseJainSipConnection  {
     		_joinedTo = Some(toJoin)
     		callback()
     	}
-      
-      /*
-      	incomingResponse(200,toJoin) foreach { _ =>
-    		_joinedTo = Some(toJoin)
-    		
-    		callback()
-    	}
-    	*/
     }
     
-
     def accept() =
 	    accept(SdpHelper.getBlankJoinable(telco.contactIp))
 

@@ -32,9 +32,15 @@ import Assert._
 import javax.servlet.http.HttpServletRequest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-/*
+import org.scalatest.FunSuite
+import org.scalatest.BeforeAndAfter
+import org.bluescale.telco.media.EffluxMediaConnection
+import org.bluescale.util.ForUnitWrap
+import org.bluescale.util.ForUnitWrap._
+
+
 @RunWith(classOf[JUnitRunner])
-class MediaWebApiFunctionalTest extends junit.framework.TestCase {
+class MediaWebApiFunctionalTest extends FunSuite with BeforeAndAfter {
     
  	//val config = new ConfigParser("resources/BlueScaleConfig.Sample.xml")
  
@@ -47,8 +53,7 @@ class MediaWebApiFunctionalTest extends junit.framework.TestCase {
     val testWS  = new SimpleWebServer(8100)
     var latch:CountDownLatch = null
 
-	@Before
-   	override def setUp() {
+    before {
    		b2bServer.start()
    		b2bServer.answerWithMedia = true
 		telcoServer.start()
@@ -57,38 +62,92 @@ class MediaWebApiFunctionalTest extends junit.framework.TestCase {
 		latch = new CountDownLatch(1)
 	}	
 	
-    @After
-	override def tearDown() {
+    after {
         telcoServer.stop()
         b2bServer.stop()
         ws.stop()
         testWS.stop()
     }
-
-    @Test
-    def testPlayMediaIncomingCall() {
+    /*
+    test("Test playing media with a web command"){
         
-    	println("test incomingCall")  
         var callid:Option[String] = None
         val inConn = b2bServer.createConnection("7147773456", "7145555555")
 
         //BlueScale API is goign to post back an incoming call to in
         testWS.setNextResponse( request=> {
             callid = Some( request.getParameter("CallId") )
-            getPlayResponse("9494443333")
+            getPlayResponse()
         })
         
-        testWS.setNextResponse( request=>  
-          getHangupResponse() ) //this is telling us the callID of the other end...
-
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> {
-            	latch.countDown()
-        		""
-        	})
+        	println("we should be done playing here, status =" + request.getParameter("Status"))
+        	Thread.sleep(1000)
+        	latch.countDown()
+        	""
+        })
 
         inConn.connect().run { println("connected!") }
 
+        latch.await()
+        println("Finished incoming play with webAPI")
+    }
+    */
+    
+    
+    test(" Test DTMF Web Commands") {
+    	var callid:Option[String] = None
+        val inConn = b2bServer.createConnection("7147773456", "7145555555")
+
+        val mediaconn = new EffluxMediaConnection(telcoServer)
+    	
+    	
+        //BlueScale API is goign to post back an incoming call to in
+        testWS.setNextResponse( request=> {
+            callid = Some( request.getParameter("CallId") )
+            getPlayGatherResponse()
+        })
+        
+        //API is now going to tell us the call is connected!. We don't need to respond with anything
+        testWS.setNextResponse( (request:HttpServletRequest)=> {
+        	println("going tojoin here!")
+        	mediaconn.join(inConn).run {
+        	  println("JOINED ~~~~~~~~")
+        	}
+        	Thread.sleep(1000)
+        	println("we should be done playing here, status =" + request.getParameter("Status") +"joinedTo= "+ inConn.joinedTo)
+        	for (mediaconn <- inConn.joinedTo) {
+        		mediaconn match {
+        			case m:MediaConnection =>
+        			  	println("SEEEENDING DTMF")
+        				m.sendDtmf(1)
+        			case _=> println("ERROR matching, joined was = " + inConn.joinedTo)
+        		}
+        	}
+        	println("HERE")
+        	""
+        })
+        
+        testWS.setNextResponse( (request:HttpServletRequest)=> {
+        	println(" ok we're waiting for a DTMF event!")
+        	//get digit?
+        	assert(request.getParameter("Digits").contains("1"))
+        	getHangupResponse()
+        })
+        
+        testWS.setNextResponse( (request: HttpServletRequest) => {
+        	println("we should send the hangup")
+        	//veryify we gota hangup 
+        	latch.countDown()
+        	""
+        })
+      
+    	for(_ <- inConn.connect();
+        	_ <- println("We connected, now we are going to join......")) {
+        	println("CONNECTED")
+        }
+    	
         latch.await()
         println("Finished testINcomingPlay")
     }
@@ -100,21 +159,27 @@ class MediaWebApiFunctionalTest extends junit.framework.TestCase {
     		 </Hangup>
     	</Response>).toString()
 
-    def getPlayResponse(url:String) : String = 
+    def getPlayResponse(): String = 
         return (<Response>
                     <Play>
         				<Action>http://localhost:8100</Action>
-        				<MediaUrl>resources/gulp.wav</MediaUrl>
+        				<MediaUrl>src/scripts/examples/KeepingTheBladeIntroSmall.wav</MediaUrl>
         			</Play>
                 </Response>).toString()
+                
+    def getPlayGatherResponse(): String =
+      	return(<Response>
+      				<Play>
+      					<Action>http://localhost:8100</Action>
+        				<MediaUrl>src/scripts/examples/KeepingTheBladeIntroSmall.wav</MediaUrl>
+      					<Gather>
+      						<DigitLimit>1</DigitLimit>
+      						<Action>http://localhost:8100</Action>
+      					</Gather>
+      					
+      				</Play>
+      			</Response>).toString()
+      		
+     
+      	    
 }
-
-object MediaWebApiFunctionalTest {
-    def main(args:Array[String]) =  { 
-        val test = new MediaWebApiFunctionalTest()
-        test.setUp()
-        test.testPlayMediaIncomingCall()
-        test.tearDown()
-    }
-}
-*/

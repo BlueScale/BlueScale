@@ -28,6 +28,7 @@ trait BlueMLVerb
 
 case class Play(val loop:Int = 0,
                 val mediaUrl:String,
+                val gather:Option[Gather],
                 val url:String) extends BlueMLVerb 
 
 case class Dial(val number:String,
@@ -44,3 +45,6 @@ case class Hangup(val url:String) extends BlueMLVerb
 case class Auth(val password:String) extends BlueMLVerb
 
 case class Hold() extends BlueMLVerb
+
+case class Gather(val digitLimit: Int,
+				val url: String) extends BlueMLVerb

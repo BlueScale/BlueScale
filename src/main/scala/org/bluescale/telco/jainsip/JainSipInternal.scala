@@ -49,7 +49,7 @@ import org.bluescale.telco.jainsip._
 import org.bluescale.telco.api._  
 import org.bluescale.util._
 
-protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
+protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 										val listeningIp:String,
 										val contactIp:String,
 										val port:Int,
@@ -228,7 +228,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 			
 		val conn = Option(telco.getConnection(getCallId(re)))
 		if ( null == transaction ) { //we already got a 200OK and the TX was terminated...
-			debug("Something was null, tx = " + transaction + " | conn = " + conn + " callId = " + getCallId(re))
+			debug("Something was null, tx = " + transaction + " | conn = " + conn + " callId = " + getCallId(re) + "statusCOde = " + asResponse(re).getStatusCode())
 			return 
 		}
 		val cseq = asResponse(re).getHeader(CSeqHeader.NAME).asInstanceOf[CSeqHeader]
@@ -285,7 +285,7 @@ protected[jainsip] class JainSipInternal(telco:SipTelcoServer,
 					case _ => error(" unaothorized for non register")
 				}
 		    case Response.REQUEST_TERMINATED =>
-		        println("TERMINATED")
+		        log("TERMINATED")
 			case _ => 
 		        //something went wrong, lets consider it in a fucked up state
 		        conn.foreach(c => c.setUAC(transaction, statusCode, c.sdp)) 

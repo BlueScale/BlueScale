@@ -39,7 +39,6 @@ object BlueMLParser extends Util {
             case "DialVoicemail" => parseDialVoicemail(n)
             case "Say" => throw new UnsupportedOperationException("Say")
             case "Play" => parsePlay(n)
-            case "Gather"=>throw new UnsupportedOperationException("Gather")
             case "Record"=>throw new UnsupportedOperationException("Record")
             case "Hangup"=>parseHangup(n)
             case "Auth" => parseAuth(n) 
@@ -64,6 +63,7 @@ object BlueMLParser extends Util {
     private def parsePlay(n:Node) : Play = 
         new Play( parseInt( (n \ "loop").text),
         		(n \ "MediaUrl").text,
+        		(n \ "Gather").map(n => parseGather(n)).firstOption,
         		(n \ "Action").text)
 
     private def parseInt(str:String) = 
@@ -71,6 +71,10 @@ object BlueMLParser extends Util {
            case Some(s) => Integer.parseInt(s)
            case None => -1
         }
+    
+    private def parseGather(n: Node) =
+      new Gather( parseInt((n \ "DigitLimit").text),
+      		(n \ "Action").text)
     
     private def parseHangup(n:Node)  = 
       new Hangup( (n \ "Action").text)

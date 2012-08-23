@@ -93,7 +93,7 @@ class CallServlet(telcoServer:TelcoServer,
                 
                 val action = arr(3) match {
                     case "Hangup" => new Hangup(request.getParameter("Url"))
-                    case "Play"   => new Play(0, request.getParameter("MediaUrl"), request.getParameter("Url"))
+                    case "Play"   => new Play(0, request.getParameter("MediaUrl"), None, request.getParameter("Url"))
                     case "Hold"   => new Hold() 
                     case _ => status = HttpServletResponse.SC_BAD_REQUEST
                              null
