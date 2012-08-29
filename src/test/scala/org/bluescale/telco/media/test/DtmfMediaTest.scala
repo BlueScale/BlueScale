@@ -92,7 +92,7 @@ class DtmfMediaTest extends FunTestHelper {
 		}
 		
 		//lets see if we can get this working!	
-		assert(latch.await(30, TimeUnit.SECONDS))
+		assert(latch.await(3000, TimeUnit.SECONDS))
 		println("finished!")
 	}
 }
