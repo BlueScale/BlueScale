@@ -36,8 +36,11 @@ import org.bluescale._
 import org.bluescale.util.BlueFuture
 import org.bluescale.util.BlueFuture._
 import org.bluescale.util.ForUnitWrap._
+import org.bluescale.util.LogHelper
+import akka.dispatch.Future
+import akka.dispatch.Promise
 
-trait UACJainSipConnection extends BaseJainSipConnection {
+trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
     
     def connect() = connect(SdpHelper.getJoinable(sdp), false)//shouldn't be this.  that's weird
 
@@ -63,7 +66,7 @@ trait UACJainSipConnection extends BaseJainSipConnection {
                 addConnection()
             case s:CONNECTED =>
                 transaction.foreach( tx => {
-                  //println(" Sending a reinvite TO " + this.destination + "WITH the sdp of " + join.sdp)  
+                  debug(" Sending a reinvite to " + this.destination + "With sdp of " + join.sdp)  
                   clientTx = Some(telco.internal.sendReinvite(tx, join.sdp) )
                     		
                 })
@@ -85,7 +88,7 @@ trait UACJainSipConnection extends BaseJainSipConnection {
                         clearCallbacks(tx)
                         callback()
                     case _ =>
-                      println("DID SOMETHING FAIL..........??????????????? response = " + responseCode)
+                      error("DID SOMETHING FAIL..........??????????????? response = " + responseCode)
                       //something went wrong, set to failed state
                       _state = FAILED()
                 }
@@ -96,12 +99,12 @@ trait UACJainSipConnection extends BaseJainSipConnection {
 
     override def join(otherCall:Joinable[_]) = BlueFuture(joinCallback => orderedexec {
         val f = ()=> {
-            println(" ***** join for " + this + " to " + otherCall )
+            log(" Joing" + this + " to " + otherCall )
             for(
             _ <- otherCall.connect(this);
-            _ <- println("otherCall"+otherCall +" is , now trying to reinvite " + this);
+            _ <- log("otherCall"+otherCall +" is , now trying to reinvite " + this);
             _ <- connect(otherCall)) {
-            	println("WOAh, got to the other connect................YAY")
+            	log("WOAh, got to the other connect................YAY")
             	joinCallback()
             }
         }
@@ -121,7 +124,7 @@ trait UACJainSipConnection extends BaseJainSipConnection {
 		    clientTx = Some(newTx)
             setRequestCallback( newTx.getBranchId(), ()=> { //change callback singature
                 _state = UNCONNECTED()
-                onDisconnect()//BUG HERE. what if disconnect is CALLED from unjoin? 
+                onDisconnect()//BUG HERE? what if disconnect is CALLED from unjoin? 
                 callback()
             })
         })
@@ -130,13 +133,13 @@ trait UACJainSipConnection extends BaseJainSipConnection {
     def cancel() = BlueFuture(callback => orderedexec {
     	_state match {
     		case CANCELED() | FAILED() =>
-    	    println(" ------------------NOT CANCELLING, state = " + _state)
+    	    log(" ------------------NOT CANCELLING, state = " + _state)
     		callback()
     	  case _ =>
     	    	clientTx.foreach( tx=> {
     				clientTx = Some(telco.internal.sendCancel(tx))
     				callbacks += tx.getBranchId()->(() => {
-    				 println("--------------- cancel worked!")
+    				 log(" Cancel(),  cancel worked!")
     				callback()
     				})
     			})
@@ -166,4 +169,29 @@ trait UACJainSipConnection extends BaseJainSipConnection {
         throw new Exception("Not Implemented yet")
     }
     
+    
+    
+	//wrong place how did it get moved?!?
+    def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = orderedexec {
+  	    try {
+            val previousSdp = sdp
+            sdp = newsdp
+            if (callbacks.contains(clientTx.getBranchId()))
+                callbacks(clientTx.getBranchId()) match {
+                    case f:((Int,SessionDescription)=>Unit) =>
+                        //FIXME: do we want to leave them here forever?
+                        f(responseCode, previousSdp)
+                    case f:(()=>Unit) =>
+                        f()
+                    case _ => error("error")
+                }
+            else 
+                error(" we couldn't find an entry for " + clientTx.getBranchId() + " | for " + this)
+        } catch {
+            case ex:Exception =>
+                error(ex, ("Exception in setUAC = " + responseCode + " + responseCode"))
+                //ex.printStackTrace()
+        }
+    }
+
 }

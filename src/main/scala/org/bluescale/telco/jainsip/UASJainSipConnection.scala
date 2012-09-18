@@ -27,6 +27,7 @@ import org.bluescale.telco.jainsip._
 import org.bluescale.telco._
 import org.bluescale.telco.Types._
 import org.bluescale.telco.api._
+import org.bluescale.util.LogHelper
 import scala.collection.immutable.Map
 import javax.sip.header._
 import javax.sip._
@@ -36,30 +37,7 @@ import org.bluescale.telco.Types
 import org.bluescale.util._
 import org.bluescale._
 
-trait UASJainSipConnection extends BaseJainSipConnection  {
-
-	//wrong place how did it get moved?!?
-    def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = orderedexec {
-  	    try {
-            val previousSdp = sdp
-            sdp = newsdp
-            if (callbacks.contains(clientTx.getBranchId()))
-                callbacks(clientTx.getBranchId()) match {
-                    case f:((Int,SessionDescription)=>Unit) =>
-                        //FIXME: do we want to leave them here forever?
-                        f(responseCode, previousSdp)
-                    case f:(()=>Unit) =>
-                        f()
-                    case _ => println("error")
-                }
-            else 
-                println(" we couldn't find an entry for " + clientTx.getBranchId() + " | for " + this)
-        } catch {
-            case ex:Exception =>
-                println("Exception in setUAC = "+ ex + " | responseCode = " + responseCode)
-                //ex.printStackTrace()
-        }
-    }
+trait UASJainSipConnection extends BaseJainSipConnection with LogHelper {
     
     def bye(tx:ServerTransaction) = orderedexec {
         _state = UNCONNECTED()

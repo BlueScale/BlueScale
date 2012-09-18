@@ -32,16 +32,15 @@ import java.io.ByteArrayOutputStream
 import java.net.URL
 import java.io.File
 import java.io.FileInputStream
+import org.bluescale.util.LogHelper
 
-object MediaFileManager {
+object MediaFileManager extends LogHelper {
   
 	var filePath:Option[String] = None
 	
 	val dataMap = new ConcurrentHashMap[MediaConnection,Array[Byte]]()
   
-	var total = 0 //temp!!!
 	def addMedia(mc:MediaConnection, data:Array[Byte]): Unit = {
-	  	total += data.length
 	  	dataMap.put(mc, safeConcat(data, dataMap.get(mc) ) ) //this could error out..., should wrap in a try.
 	 
 	}
@@ -52,7 +51,7 @@ object MediaFileManager {
 	
 	  
 	def finishAddMedia(mc:MediaConnection) : Option[String] = {
-	    println("finish addmedia , contains it" + dataMap.containsKey(mc))
+	    log("finish addmedia for " + mc + ", contains " + dataMap.containsKey(mc))
 	  	try {
 	    	if (!dataMap.containsKey(mc))
 	    	  return None
@@ -60,8 +59,6 @@ object MediaFileManager {
 	    	val path = filePath.getOrElse("") + mc.hashCode() + ".bs.wav"
 	    	val fileStream = new FileOutputStream(path)
 	    	val d = dataMap.get(mc)
-	    	println("addmedia for total = " + total)
-	    	println( "AddMedia for " + mc.hashCode() + " data size = " + d.length)
 	    	fileStream.write(dataMap.get(mc))
 	    	fileStream.close() 
 	    	return Some(path)

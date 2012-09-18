@@ -30,6 +30,7 @@ import java.util.concurrent.PriorityBlockingQueue
 import java.util.Timer
 import java.util.TimerTask
 import com.biasedbit.efflux.packet.DataPacket
+import org.bluescale.util.LogHelper
 
 class PacketComparator extends Comparator[DataPacket] {
 	override def compare(t1: DataPacket, t2: DataPacket) =
@@ -47,7 +48,7 @@ object JitterBuffer {
 
 class JitterBuffer(clockrate: Int,
 					packetsize: Int,
-					handleData: Array[Byte]=>Unit ) {
+					handleData: Array[Byte]=>Unit ) extends LogHelper {
 	
 	private val buffersize = clockrate/1000 * 40
   
@@ -81,7 +82,7 @@ class JitterBuffer(clockrate: Int,
 			}
 		}
 	}
-	println("JitterBuffer runninng, buffersize = " + buffersize)
+	log("JitterBuffer runninng, buffersize = " + buffersize)
 	timer.scheduleAtFixedRate(timerTask, 0, packetsize)
 	
 	def takePacket(packet:DataPacket): Unit = {

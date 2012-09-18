@@ -6,13 +6,11 @@ import org.apache.log4j.Logger;
 trait LogHelper {
 
 	val loggerName = this.getClass.getName
-	Logger.getRootLogger().removeAllAppenders()
-    //val logger = Logger.getLogger(loggerName)
+    val logger = Logger.getLogger(loggerName)
 
 	
 	def log(msg: => String) { 
-
-		//logger.info(msg)
+		logger.info(msg)
 	}
 
 	def debug(msg: => String) {
@@ -20,7 +18,11 @@ trait LogHelper {
 	}
 
 	def error(msg: =>String) {
-		//logger.error(msg)
+		logger.error(msg)
+	}
+	
+	def error(ex:Exception, msg: =>String) {
+	  logger.error(msg)
 	}
 
 }

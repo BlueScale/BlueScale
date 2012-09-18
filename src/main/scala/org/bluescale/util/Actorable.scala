@@ -26,6 +26,8 @@ package org.bluescale.util
 
 import scala.actors.Actor
 import scala.actors.Actor._ 
+//import akka.actor.Actor
+
 
 trait Actorable {
 

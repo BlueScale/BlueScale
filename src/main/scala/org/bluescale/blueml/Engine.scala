@@ -193,7 +193,12 @@ case class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     }
     
     def handleIncomingCall(url:String, conn:SipConnection) = { 
-        postCallStatus(url, conn)
+        try {
+        	postCallStatus(url, conn)
+        } catch {
+          case ex:Exception=>
+            conn.reject()
+        }
     }
 
     def handleConnect(url:String, conn:SipConnection) =
@@ -232,14 +237,20 @@ case class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     	val parameters = Map("AuthType" -> "Request",
     					"RegisterAddress" -> authInfo.registeredAddress,
     	        		"ContactAddress" -> authInfo.actualAddress)
-    	val bluemlverbs = BlueMLParser.parse(SequentialWebPoster.postToUrl(url+"/register/",parameters))
-    	bluemlverbs
-    		.collectFirst({case auth:Auth => auth})
-    		.foreach( a => 
-    		  	authInfo.successFunction(a.password) match {
-    				case true => postSuccesfulAuth(url + "/register/", authInfo)
-    				case false =>println("auth rejected")
-    			})
+    	try {
+    		val bluemlverbs = BlueMLParser.parse(SequentialWebPoster.postToUrl(url+"/register/",parameters))
+    		bluemlverbs
+    			.collectFirst({case auth:Auth => auth})
+    			.foreach( a => 
+    		  		authInfo.successFunction(a.password) match {
+    		  			case true => postSuccesfulAuth(url + "/register/", authInfo)
+    		  			case false =>println("auth rejected")
+    		  		})
+    	 } catch {
+    	   case ex:Exception => 
+    	     	println("error here" + ex)
+    			authInfo.rejectFunction()  
+         }
     }
 	
 	def postSuccesfulAuth(url:String, authInfo:IncomingRegisterRequest): Unit = {

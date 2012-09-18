@@ -55,26 +55,18 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 										val port:Int,
 										val destIp:String, 
 										val destPort:Int) extends SipListener 
-														 //with LogHelper
+														 with LogHelper
 														 {
-    println("listeningIp = " + listeningIp)
-	println("contactIp = " + contactIp)
-    val sipFactory = SipFactory.getInstance()
+    log("listeningIp = " + listeningIp)
+	log("contactIp = " + contactIp)
+    
+	val sipFactory = SipFactory.getInstance()
 	sipFactory.setPathName("gov.nist")
-	val properties = new Properties()
+	
+	
 	val transport = "udp"
 
-	def debug(s:String) {
-		println(s)
-	}
-	def log(s:String) {
-			println(s)
-	}
-
-	def error(s:String) {
-		//println(s)
-	}
- 
+	val properties = new Properties()
     properties.setProperty("javax.sip.STACK_NAME", "BSSJainSip"+this.hashCode())//name with hashcode so we can have multiple instances started in one VM
 	//properties.setProperty("javax.sip.OUTBOUND_PROXY", destIp +  ":" + destPort + "/"+ transport)
 	properties.setProperty("gov.nist.javax.sip.DEBUG_LOG","log/debug_log" + port + ".log.txt") //FIXME
@@ -93,8 +85,9 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 	
 	var udpListeningPoint:Option[ListeningPoint] = None 
 	var sipProvider:Option[SipProvider] = None
-	val inviteCreator = new InviteCreator(this)
-
+	//val inviteCreator = new InviteCreator(this)
+	implicit val jainSipInternal = this
+	
 	def start() {
 		sipStack.start()
 		udpListeningPoint = Some( sipStack.createListeningPoint(listeningIp, port, transport) )
@@ -110,6 +103,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 	override def processRequest(requestEvent:RequestEvent) {
 		val request = requestEvent.getRequest()
 		val method = request.getMethod()
+		log("Processing Request = " + method)
 		request.getMethod() match {
 			case Request.REGISTER => processRegister(requestEvent)
 			case Request.INVITE 	=> processInvite(requestEvent)
@@ -118,7 +112,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 			case Request.CANCEL 	=> processCancel(requestEvent)
 			case Request.OPTIONS  => processOptions(requestEvent)
 		    //TODO: handle cancels...may be too late for most things but we can try to cancel.
-			case _ => println("err, what?, method = " + request.getMethod())
+			case _ => error("err, what?, method = " + request.getMethod())
 		            //serverTransactionId.sendResponse( messageFactory.createResponse( 202, request ) )
 					// send one back
 					//val prov = requestEvent.getSource()
@@ -143,7 +137,8 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 	}
     
     private def processBye(requestEvent: RequestEvent, request:Request): Unit = {
-		val tx = getServerTx(requestEvent)
+		println("process BYE")
+    	val tx = getServerTx(requestEvent)
 		tx.sendResponse(messageFactory.createResponse(200, request))
 		val conn = telco.getConnection(getCallId(request))
 		conn.bye(tx)
@@ -157,8 +152,9 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 		//val sipname = getDest(request.getRequestURI().toString())
 		val sipname = getDest(request.getHeader("To").asInstanceOf[ToHeader].getAddress().getURI().toString())
 		val contact = request.getHeader("Contact").asInstanceOf[ContactHeader].getAddress().getURI().toString.split(";")(0)
-		val authFunction = (pass:String) => 
-			new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
+		val authFunction = (pass:String) => {
+			println("trying for pass!" + pass)
+		  	new DigestServerAuthenticationHelper().doAuthenticatePlainTextPassword(request,pass) match {
 				case true => 
 			    	sendRegisterResponse(200, requestEvent, tx)
 			    	telco.addSipBinding(sipname, contact) 
@@ -172,6 +168,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 			    	tx.sendResponse(challengeResponse) 
 			    	false
 			}
+		}
 		  
 		val rejectFunction = ()=>sendRegisterResponse(401, requestEvent, tx)
 		
@@ -194,6 +191,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 	}
   
 	private def processInvite(requestEvent:RequestEvent) {
+		println("PROCESS INVITE")
 		val request = requestEvent.getRequest()
 		Option(requestEvent.getServerTransaction) match {
 			case Some(transaction) =>
@@ -298,7 +296,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
 	}
 	
 	def sendRegisterRequest(from:String, dest:String): String = {
-		val request = inviteCreator.createRegister(from, dest,SdpHelper.getBlankSdp(this.contactIp).toString.getBytes())	
+		val request = InviteCreator.createRegister(from, dest,SdpHelper.getBlankSdp(this.contactIp).toString.getBytes())	
     	val tx = sipProvider.get.getNewClientTransaction(request)
     	tx.sendRequest()
     	val req = tx.getRequest()
@@ -312,7 +310,6 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
         val contact =  headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port))
         contact.setExpires(999999) //TODO: fix this...
         response.addHeader(contact)
-        //response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":"+port)))
 		tx.sendResponse(response)
 	}
  
@@ -339,9 +336,9 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
     }
 	
 	def sendInvite(from:String, to:String, sdp:SessionDescription) : (String,ClientTransaction) = {
-		val request = inviteCreator.createInviteRequest(from, to, sdp.toString().getBytes())
+		val request = InviteCreator.createInviteRequest(from, to, sdp.toString().getBytes())
 		//FIXME: add FROM
-		request.addHeader(inviteCreator.getViaHeader().get(0))
+		request.addHeader(InviteCreator.getViaHeader(this).get(0))
 		//conn.contactHeader = Some(request.getHeader("contact").asInstanceOf[ContactHeader])
 		val tx =  sipProvider.get.getNewClientTransaction(request)
 		val id = getCallId(request)
@@ -354,7 +351,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
         val request = tx.getDialog().createRequest(Request.INVITE)
         request.removeHeader("contact")//The one from the createRequest is the listeningIP..., same with the via
         request.removeHeader("via")
-        request.addHeader(inviteCreator.getViaHeader().get(0))
+        request.addHeader(InviteCreator.getViaHeader(this).get(0))
 		request.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:" + contactIp + ":" + port)))
 		val contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp")
 		request.setContent(sdp.toString().getBytes(), contentTypeHeader)
@@ -365,6 +362,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
  
     //should we return the bye here?  I think certain things should be un-cancellable, so OK...
 	def sendByeRequest(tx:Transaction): ClientTransaction = {
+    	println("SENDING BYTE")
     	val dialog = tx.getDialog()
         val byeRequest = dialog.createRequest(Request.BYE)
         val newTx =	sipProvider.get.getNewClientTransaction(byeRequest)
@@ -407,7 +405,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
             return getDest(request.getHeader("From").asInstanceOf[FromHeader].getAddress().toString)
         } catch  {
             case ex:Exception =>
-                println("Exception parsing FROM header, it was " + request.getHeader("From"))
+                error("Exception parsing FROM header, it was " + request.getHeader("From"))
         }
         return ""
     }
@@ -419,7 +417,7 @@ protected[jainsip] case class JainSipInternal(telco:SipTelcoServer,
   		val iter = request.getHeaderNames()
 		while (iter.hasNext()) {
 			val headerName = iter.next().toString()
-			println("  h = " + headerName + "=" + request.getHeader(headerName))
+			log("  h = " + headerName + "=" + request.getHeader(headerName))
 		}
   	} 
 }

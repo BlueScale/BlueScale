@@ -30,6 +30,7 @@ import org.bluescale.telco.SdpHelper;
 import org.bluescale.telco.api._
 import org.bluescale.telco._
 import org.bluescale.util.BlueFuture
+import org.bluescale.util.LogHelper
 import java.io.InputStream
 import com.biasedbit.efflux._
 import com.biasedbit.efflux.packet.DataPacket
@@ -46,14 +47,13 @@ import java.util.ArrayList
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingQueue
 
-
 case class RtpStreamInfo(delay:Int,
 						payloadType:Int,
 						startingtimestamp:Long,
 						sequence:Int)
 
 
-class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
+class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogHelper {
   
 	private var connState = UNCONNECTED()
 	
@@ -78,8 +78,8 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     
     var streamInfo: Option[RtpStreamInfo] = None
     
-    println("made a media connection, listening port = " + telco.listeningIp + " rtpPort = " + rtpport)
-    println("Our connections listening sdp = " + listeningSdp)
+    log("made a media connection, listening port = " + telco.listeningIp + " rtpPort = " + rtpport)
+    log("Our connections listening sdp = " + listeningSdp)
  
     //TEMP debug vars
     var totalBytesRead = 0
@@ -98,10 +98,10 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	}))
     	val remote1 = RtpParticipant.createReceiver(new RtpParticipantInfo(rtpport), remoteip, mediaport, mediaport+1)
     	val session1 = new SingleParticipantSession(this.toString, List(new Integer(payloadType), new Integer(dtmfPayloadType)), localparticipant, remote1, null, null)
+    	effluxSession.foreach(_.terminate())
     	effluxSession = Some(session1)
     	streamInfo = Some(RtpStreamInfo(20, payloadType, new Date().getTime(), 1))
     	session1.addDataListener(getDataListener())
-    	println("STARTED THE RTP LISTENER on port" + rtpport + " remotePort =  " + mediaport + " For " + this)
    		session1.init()
     }
     
@@ -146,7 +146,8 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     	Thread.sleep(1000)
     	jitterBuffer.foreach(j => j.cancel())
     	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
-    	println(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
+    	log(" unjoin, mc = " + this.hashCode() + " files count = " + _recordedFiles.size)
+    	effluxSession.foreach(_.terminate())
     	stopPlaying()
     	unjoinCallback.foreach(_(joinedTo.get,this))
     	callback()
@@ -188,7 +189,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection {
     			  		jitterBuffer.foreach( jb =>
     			  		jb.addToQueue(packet))   			  
     			  case _ =>
-    			  		println("GOT A DTMF packet!")
+    			  		log("should have gotten A DTMF PACKET")
     			  		if(packet.getTimestamp() != prevDtmfTime.getOrElse(null)) {
     			  			dtmfEventHandler.foreach( _(DTMFEvent(packet.getDataAsArray()(0))))
     			  		}

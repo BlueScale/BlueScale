@@ -100,7 +100,7 @@ object Launcher {
 			<ListeningPort value ="5060"/>
 			<DestAddress value="127.0.0.1"/>
 			<DestPort value = "5060"/>
-			<B2BTestServer value="false"/>
+			<B2BTestServer value="true"/>
 		</TelcoServer>
 
 		<WebServer>

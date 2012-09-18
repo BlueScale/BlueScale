@@ -37,7 +37,7 @@ import akka.actor.ActorSystem
 import akka.actor.Cancellable
 import akka.util.Duration
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.ThreadPoolExecutor
+import javax.sound._
 
 object EffluxStreamHelper {
 
@@ -45,14 +45,13 @@ object EffluxStreamHelper {
   
     private def tryGetPackets(count:Int, filestream:InputStream, queue:Queue[Array[Byte]]): Option[Array[Byte]] = {
     	val data = new Array[Byte](160)
-    	var read = 0
     	if (queue.size() == 0) {
     		(1 to count)
     			.toStream
     			.takeWhile(c => filestream.read(data) != -1)
     			.foreach(c => queue.add(data.clone()))
     	}
-    	return Option(queue.poll())	
+    	Option(queue.poll())	
     }
     
     def makePacket(data:Array[Byte], info:RtpStreamInfo, payloadType:Int): DataPacket = { 
@@ -73,11 +72,10 @@ object EffluxStreamHelper {
 		var i = 0
 		val timerTask = new TimerTask() {
 			def run() {
-			  tryGetPackets(50, filestream, queue) match {
+			  tryGetPackets(100, filestream, queue) match {
 			  	case Some(data) =>
 			  		session.sendDataPacket(makePacket(data, info, info.payloadType))
 			  	case None=>
-			  		println("cancelling")
 			  		timer.cancel()
 			  		f()
 			  }
@@ -85,22 +83,7 @@ object EffluxStreamHelper {
 		}
 		
 		timer.scheduleAtFixedRate(timerTask,0, 20)
-		/*
-		scheduler.schedule(Duration.Zero, Duration.create(20, TimeUnit.MILLISECONDS)){
-			println("running a scheduled task! i ="+ i)
-			i+=1
-			tryGetPackets(10, filestream, queue) match {
-			  case Some(data) =>
-			    session.sendDataPacket(makePacket(data, info, info.payloadType))
-			  case None=>
-			    println("HEEEERE")
-			    cancellable.foreach(_.cancel)
-			    f()
-			}
-		}
-		*/
-		
-    	return ()=>timer.cancel()
+    	()=>timer.cancel()
 	}
   
 }

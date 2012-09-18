@@ -14,7 +14,7 @@ class MyHandler(BaseHTTPRequestHandler):
             print("PATH = STATUS")
             self.printParams()
             self.postOK()
-        else:
+        else if self.path == "/Connected":
             self.printParams()
             self.handleIncomingCall()   
 
