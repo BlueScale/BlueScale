@@ -35,8 +35,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.BeforeAndAfter
 import org.bluescale.telco.media.EffluxMediaConnection
-import org.bluescale.util.ForUnitWrap
-import org.bluescale.util.ForUnitWrap._
 
 
 @RunWith(classOf[JUnitRunner])
@@ -143,8 +141,8 @@ class MediaWebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         	""
         })
       
-    	for(_ <- inConn.connect();
-        	_ <- println("We connected, now we are going to join......")) {
+    	for(_ <- inConn.connect()) {
+        	println("We connected, now we are going to join......")
         	println("CONNECTED")
         }
     	

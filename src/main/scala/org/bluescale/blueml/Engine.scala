@@ -27,7 +27,6 @@ import org.bluescale.util._
 import java.util.concurrent._
 import org.bluescale.telco._
 import org.bluescale.telco.media._
-import org.bluescale.util.ForUnitWrap._
 
 case class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
 
@@ -173,7 +172,7 @@ case class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                 case i:INCOMING =>
                   			for (
                   			  _ <- conn.accept();
-                  			  _ <- println("we have accepted the call and now we will join it!");
+                  			  _ = println("we have accepted the call and now we will join it!");
                   			  _ <- conn.join(destConn)) 
                   				postConversationStatus(addConvoInfo(url, conn, destConn))
                   			

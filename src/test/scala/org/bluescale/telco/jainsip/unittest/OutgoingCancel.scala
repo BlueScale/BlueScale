@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.bluescale.util.ForUnitWrap._
 
 @RunWith(classOf[JUnitRunner])
 class OutgoingCancel extends FunTestHelper {
