@@ -41,18 +41,23 @@ import javax.sdp.SessionDescription
 import javax.sdp.MediaDescription
 import org.bluescale.util.BlueFuture
 import org.bluescale.telco.api._
+import akka.dispatch.Future
+import akka.dispatch.ExecutionContext
+import java.util.concurrent.Executors
 
 class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] {
-
+	
+	implicit val ec = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool)
+	
     override def connectionState = CONNECTED() 
     
     override def joinedTo = None
     
     var mySdp:Option[SessionDescription] = sdp
     
-    override def join(c:Joinable[_]) = BlueFuture(callback => callback()) 
+    override def join(c:Joinable[_]) = Future { this }
 
-    def reconnect(sdp:SessionDescription) = BlueFuture(callback => Unit) // should we execute callback
+    def reconnect(sdp:SessionDescription) = Future { this }
 
     override def sdp : SessionDescription = { 
         mySdp match {
@@ -61,15 +66,15 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
         }
     }
 
-    override def connect(join:Joinable[_], connectAnyMedia:Boolean) = BlueFuture(callback => callback())
+    override def connect(join:Joinable[_], connectAnyMedia:Boolean) = Future { this }
 
-    override def connect(join:Joinable[_]) = BlueFuture(callback => callback())
+    override def connect(join:Joinable[_]) = Future { this }
 
     override def joinedMediaChange() = Unit
     
     def silence(f:()=>Unit) : Unit = f()
 
-    override def unjoin() = BlueFuture( callback => callback() ) 
+    override def unjoin() = Future { this }
 
     override def toString() =
         "SdpJoinable ......"

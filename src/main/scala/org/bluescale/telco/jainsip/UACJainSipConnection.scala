@@ -33,31 +33,29 @@ import javax.sip._
 import javax.sdp.SessionDescription
 import javax.sip.message._
 import org.bluescale._
-import org.bluescale.util.BlueFuture
 import org.bluescale.util.BlueFuture._
-import org.bluescale.util.ForUnitWrap._
 import org.bluescale.util.LogHelper
 import akka.dispatch.Future
 import akka.dispatch.Promise
 
 trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
     
-    def connect() = connect(SdpHelper.getJoinable(sdp), false)//shouldn't be this.  that's weird
+    def connect(): Future[SipConnection] = connect(SdpHelper.getJoinable(sdp), false)//shouldn't be this.  that's weird
 
  	def connect(join:Joinable[_]) = connect(join, false) 
 
-    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean) = BlueFuture(callback=> orderedexec {
+    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean) = wrapPromise[SipConnection](promise => orderedexec {
         joinedTo match {
             case Some(currentJoin) =>
-              	for(_ <- currentJoin.unjoin;
-              	    _ <- realConnect(join))
-                	callback()
-            case None => realConnect(join) foreach(_ => callback())
+              	for(unjoined <- currentJoin.unjoin();
+              	    conn <- realConnect(join))
+              			promise.success(this)
+            case None => realConnect(join) foreach(_ => promise.success(this))
          }
     })
 
     //can only be called after unjoining whatever was connected previous
-    protected def realConnect(join:Joinable[_]) = BlueFuture(callback => {
+    protected def realConnect(join:Joinable[_]) = wrapPromise[SipConnection](promise => {
          _state match {
             case s:UNCONNECTED =>
                 val t = telco.internal.sendInvite(from, to, join.sdp)
@@ -86,7 +84,7 @@ trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
                         //if (!previousSdp.toString().equals(sdp.toString()))
                         //    joinedTo.foreach( join => join.joinedMediaChange() )
                         clearCallbacks(tx)
-                        callback()
+                        promise.success(this)
                     case _ =>
                       error("DID SOMETHING FAIL..........??????????????? response = " + responseCode)
                       //something went wrong, set to failed state
@@ -97,15 +95,15 @@ trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
         })
     })
 
-    override def join(otherCall:Joinable[_]) = BlueFuture(joinCallback => orderedexec {
+    override def join(otherCall:Joinable[_]) = wrapPromise[SipConnection](promise => orderedexec {
         val f = ()=> {
             log(" Joing" + this + " to " + otherCall )
             for(
             _ <- otherCall.connect(this);
-            _ <- log("otherCall"+otherCall +" is , now trying to reinvite " + this);
+            _ = log("otherCall"+otherCall +" is , now trying to reinvite " + this);
             _ <- connect(otherCall)) {
             	log("WOAh, got to the other connect................YAY")
-            	joinCallback()
+            	promise.success(this)
             }
         }
   	    joinedTo match { 
@@ -118,36 +116,36 @@ trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
   	    }
     })
 
-	def disconnect() = BlueFuture(callback => orderedexec {
+	def disconnect() = wrapPromise[SipConnection](promise => orderedexec {
 		transaction.foreach( tx => {
 		    val newTx = telco.internal.sendByeRequest(tx)
 		    clientTx = Some(newTx)
             setRequestCallback( newTx.getBranchId(), ()=> { //change callback singature
                 _state = UNCONNECTED()
                 onDisconnect()//BUG HERE? what if disconnect is CALLED from unjoin? 
-                callback()
+                promise.success(this)
             })
         })
   	})
 
-    def cancel() = BlueFuture(callback => orderedexec {
+    def cancel() = wrapPromise[SipConnection](promise => orderedexec {
     	_state match {
     		case CANCELED() | FAILED() =>
     	    log(" ------------------NOT CANCELLING, state = " + _state)
-    		callback()
+    		promise.success(this)
     	  case _ =>
     	    	clientTx.foreach( tx=> {
     				clientTx = Some(telco.internal.sendCancel(tx))
     				callbacks += tx.getBranchId()->(() => {
     				 log(" Cancel(),  cancel worked!")
-    				callback()
+    				 promise.success(this)
     				})
     			})
 
     	}
  	})
 
-    def unjoin() = BlueFuture(callback => orderedexec {
+    def unjoin() = wrapPromise[SipConnection](promise => orderedexec {
         disconnectOnUnjoin match {
             case true =>
                 val maybeJoined = joinedTo
@@ -158,10 +156,10 @@ trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
                     for (unjoined <- maybeJoined;
                         ucallback <- unjoinCallback) 
                     	ucallback(unjoined, this)
-                    callback()
+                    promise.success(this)
                 }
             case false =>
-                realConnect(telco.silentJoinable()) foreach { _ => callback() }
+                realConnect(telco.silentJoinable()) foreach { _ => promise.success(this) }
         }
     })
 

@@ -33,6 +33,7 @@ import javax.sip.header._
 import javax.sip._
 import javax.sdp.SessionDescription
 import javax.sip.message._
+import org.bluescale.util.BlueFuture._
 import org.bluescale.telco.Types
 import org.bluescale.util._
 import org.bluescale._
@@ -89,22 +90,22 @@ trait UASJainSipConnection extends BaseJainSipConnection with LogHelper {
         })
     }
  	  
-    private def incomingResponse(responseCode:Int, toJoin:Joinable[_]) = BlueFuture(connectedCallback => orderedexec {
+    private def incomingResponse(responseCode:Int, toJoin:Joinable[_]) = wrapPromise[SipConnection](promise => orderedexec {
         serverTx.foreach( tx => {
             callbacks += tx.getBranchId()->(() => { 
-            	connectedCallback()
+            	promise.success(this)
             })
 		    telco.internal.sendResponse(responseCode, tx, toJoin.sdp.toString().getBytes())  
 	 	})
     })
     
-    def accept(toJoin:Joinable[_]) = BlueFuture{ callback => 
+    def accept(toJoin:Joinable[_]) = wrapPromise[SipConnection]( promise => 
     	for(_ <- incomingResponse(200,toJoin);
     		_ <- toJoin.connect(this)) {
     		_joinedTo = Some(toJoin)
-    		callback()
+    		promise.success(this)
     	}
-    }
+    ) 
     
     def accept() =
 	    accept(SdpHelper.getBlankJoinable(telco.contactIp))

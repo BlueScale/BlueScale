@@ -28,7 +28,7 @@ import org.bluescale.telco._
 
 trait MediaConnection
 	extends Joinable[MediaConnection]
-    with Playable {
+    with Playable[MediaConnection] {
 
 	def recordedFiles: List[String]
 	

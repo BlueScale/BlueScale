@@ -44,7 +44,7 @@ class DtmfMediaTest extends FunTestHelper {
 	def finishedPlaying(conn:SipConnection) {
 	  //get file from server. 
 	  //compare with sent file.
-	  conn.disconnect().run {
+	  conn.disconnect().foreach( conn => {
 	    println("DISCONNECT FINISHED")
 	    Thread.sleep(2000)//need to let the disconnect propgate to the remote connection so it can finish up saving the file to disk
 	  	val files = b2bServer.getMediaConnection("7145554444").recordedFiles
@@ -54,7 +54,7 @@ class DtmfMediaTest extends FunTestHelper {
 	  		println("countdown for the latch")
 	  	})
 	  	println("files = " + files )
-	  }
+	  })
 	  //TODO: compare to the recorded file
 	}
 	

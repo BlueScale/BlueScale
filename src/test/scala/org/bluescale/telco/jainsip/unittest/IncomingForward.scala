@@ -52,7 +52,7 @@ class IncomingForward extends FunTestHelper {
         b2bServer.addIgnore("7147579999")
         val testCall = b2bServer.createConnection("7147579999", "5554443333")
         telcoServer.setIncomingCallback(answerCall)
-        testCall.connect().run { println("b2b INCOMING CALL IS...........connected") }
+        testCall.connect().foreach( c => println("b2b INCOMING CALL IS...........connected") )
         val result = joinedLatch.await(5,TimeUnit.SECONDS)
 		assert(result)
         println(        telcoServer.areTwoConnected(incomingCall, bob) )
@@ -61,25 +61,23 @@ class IncomingForward extends FunTestHelper {
 
     def answerCall(call:SipConnection) : Unit ={
         //try the call that they're trying to go for.
-        call.accept().run {
+        call.accept().foreach( c=> {
         assert(CONNECTED() === call.connectionState)
         println(" call = " + call )
         incomingCall = call
-        alice.connect().run { assert(false) } //shouldn't succeed...
+        alice.connect().foreach( c => assert(false) ) //shouldn't succeed...
         //start a timer, 
         Thread.sleep(1000)
-        alice.cancel().run {
-            println(" alice canceled !")
-            bob.connect().run {
-                println(" bob connected = " + bob )
-                assert(CONNECTED() === bob.connectionState)
-                bob.join(incomingCall).run {
+        for(alice <- alice.cancel();
+            _ = println(" alice canceled !");
+            bob <- bob.connect();
+            _ = println(" bob connected = " + bob );
+            _ = assert(CONNECTED() === bob.connectionState);
+            bob <- bob.join(incomingCall)) {
                     println("~~~~~~~JOINED~~~~~~")
                     joinedLatch.countDown()
-                }
             }
-        }
-        }
+        })
     }
 	
 }

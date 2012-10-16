@@ -25,12 +25,13 @@ package org.bluescale.telco
 
 import org.bluescale.util.BlueFuture
 import java.io.InputStream
+import akka.dispatch.Future
 
-protected[telco] trait Playable {
+protected[telco] trait Playable[T] {
 
 	//def play(url:String): BlueFuture[Unit]
 
-	def play(file:InputStream): BlueFuture[Unit]
+	def play(file:InputStream): Future[T]
 	
-	def cancel(): BlueFuture[Unit]	
+	def cancel(): Future[T]	
 }

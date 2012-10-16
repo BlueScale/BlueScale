@@ -24,25 +24,20 @@
 
 package org.bluescale.util
 import org.bluescale._
+import akka.dispatch.Promise
+import akka.dispatch.Future
+import akka.dispatch.ExecutionContext
+import java.util.concurrent.Executors
 
-class BlueFuture[T](myval:T,callback:(()=>_)=>Unit) {
-  
-	def foreach[U](f:T=>U): Unit = {
-		callback(()=>f(myval))
-	}
-	
-	def run(f: =>Any): Unit = 
-		callback( { ()=> f})
-	
-}
 
 object BlueFuture {
-	import org.bluescale._
-	
-	
-    //new { def foreach[String](callback: String=>Unit) = { f;println("")}
-	
-	def apply(callback:(()=>_)=>Unit) =
-	  new BlueFuture[Unit](Unit,callback)
+	implicit val ec = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool)
+  
+	def wrapPromise[T](f:Promise[T]=>Unit): Future[T] = {
+		val promise = Promise[T]()
+		f(promise)
+		promise.future
+	}
+  
 }
 

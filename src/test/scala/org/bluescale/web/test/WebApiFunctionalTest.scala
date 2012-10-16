@@ -92,7 +92,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
             println("got next response!")
             assert( "Connected" === request.getParameter("ConversationStatus"))
             assert( !SdpHelper.isBlankSdp(inConn.sdp))
-            inConn.disconnect().run { println("disconnected") }
+            inConn.disconnect().foreach( c => println("disconnected"))
             ""
         })
 
@@ -103,7 +103,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
             ""
         })
 
-        inConn.connect().run { println("connected!") }
+        inConn.connect().foreach( c => println("connected!") )
 
         val latchresult = latch.await(5, TimeUnit.SECONDS)
         assert(latchresult)
@@ -150,7 +150,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         })
 
         b2bServer.simulateCellVM = true
-        clientConn.connect().run { println("connected") }
+        clientConn.connect().foreach( c => println("connected") )
         val latchresult = joinedLatch.await(800, TimeUnit.SECONDS)
         println("got latchResult in sendToVM")
         assert(latchresult)
@@ -195,7 +195,7 @@ class WebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         b2bServer.addIgnore(aliceNumber)
         
         val inConn = b2bServer.createConnection(gatewayNumber, "4443332222")
-        inConn.connect().run { ()=> println("connected") }
+        inConn.connect().foreach(c => println("connected") )
         println("awaiting on joinedLatch in forwardTest")
         //assert(joinedLatch.await(8, TimeUnit.SECONDS))
         joinedLatch.await()

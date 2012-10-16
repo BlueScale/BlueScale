@@ -112,9 +112,9 @@ class MediaWebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         //API is now going to tell us the call is connected!. We don't need to respond with anything
         testWS.setNextResponse( (request:HttpServletRequest)=> {
         	println("going tojoin here!")
-        	mediaconn.join(inConn).run {
+        	mediaconn.join(inConn).foreach( _ => {
         	  println("JOINED ~~~~~~~~")
-        	}
+        	})
         	Thread.sleep(1000)
         	println("we should be done playing here, status =" + request.getParameter("Status") +"joinedTo= "+ inConn.joinedTo)
         	for (mediaconn <- inConn.joinedTo) {

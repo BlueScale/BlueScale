@@ -64,9 +64,9 @@ class SipClientWebApi extends FunSuite with BeforeAndAfter {
 		telcoServer.start()
 		ws.start()
     	sipClientTelcoServer.start()
-    	sipClientTelcoServer.setIncomingCallback( conn => conn.accept().run { 
+    	sipClientTelcoServer.setIncomingCallback( conn => conn.accept().foreach( c=> 
     	  println("accepted an incoming sip call") 
-    	})
+    	))
 		testWS.start()
 		latch = new CountDownLatch(1)
 	}	
@@ -122,7 +122,7 @@ class SipClientWebApi extends FunSuite with BeforeAndAfter {
     	sipClientTelcoServer.sendRegisterRequest("7147570982@127.0.0.1:4000","7147570982",  password, "127.0.0.1")
     	assert(registerLatch.await(5, TimeUnit.SECONDS))
     	val incomingConn = b2bServer.createConnection("7147570982", "5554443333")
-    	incomingConn.connect().run { println("connected") }
+    	incomingConn.connect().foreach( c=> println("connected"))
     	
     	assert(joinedLatch.await(5, TimeUnit.SECONDS))
     	sipClientTelcoServer.stop()

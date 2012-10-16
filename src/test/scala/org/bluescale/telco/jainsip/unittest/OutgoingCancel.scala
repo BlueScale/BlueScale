@@ -41,15 +41,15 @@ class OutgoingCancel extends FunTestHelper {
 	 	
  		val alice = telcoServer.createConnection(destNumber, "4445556666")
 
- 		alice.connect().run {
+ 		alice.connect().foreach( alice => {
  			println("HOW DID THIS HAPPEN")
 			assert(false) //shouldn't happen, we're ignoring this!
-		}
+		})
 		Thread.sleep(500)
-		alice.cancel().run {
+		alice.cancel().foreach( alice => {
 			println("cancelled!")
 			latch.countDown()
-		}
+		})
 		
 		val result = getLatch.await(5,TimeUnit.SECONDS)
 		assert(result) 

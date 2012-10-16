@@ -41,7 +41,6 @@ import org.bluescale.telco.api._
 import org.bluescale._
 import org.bluescale.util.BlueFuture
 import org.bluescale.util.BlueFuture._
-import org.bluescale.util.DoAsync._
 import scala.collection.JavaConversions._
 import org.bluescale.telco.media._
 import java.util.concurrent.ConcurrentHashMap
@@ -94,9 +93,9 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 
         if(reject.contains(conn.destination)) {
         	println("Rejecting the call")
-        	conn.reject().run {
+        	conn.reject().foreach( c=> {
         		println("!!!!!!!rejected!!!!!!")
-        	}
+        	})
         	return
         }
 

@@ -48,7 +48,7 @@ class IncomingRemoteHangup extends FunTestHelper {
         //add ignoring phone number to b2bServer
         val testCall = b2bServer.createConnection("7147579999", "5554443333")
         telcoServer.setIncomingCallback(answerCall)
-        testCall.connect().run { println("connected") } 
+        testCall.connect().foreach(testCall => println("connected") ) 
         val result = disconnectLatch.await(5,TimeUnit.SECONDS)
 		assert(result)
 		assert(!telcoServer.areTwoConnected(incomingCall, alice) )
@@ -58,15 +58,12 @@ class IncomingRemoteHangup extends FunTestHelper {
         //try the call that they're trying to go for.
         alice.disconnectCallback = Some( (c:SipConnection)=> disconnectLatch.countDown())
         incomingCall = call
-        alice.connect().run  {
-                println("alice connected!")
-                incomingCall.accept().run {
-                    incomingCall.join(alice).run {
+        for(alice <- alice.connect();  
+            _ = println("alice connected!");
+            incomingCall <- incomingCall.accept(); 
+            incomingCall <- incomingCall.join(alice)) {
                         Thread.sleep(1000)
-                        b2bServer.findConnByDest("9494443456").foreach( _.disconnect().run {  ()=>println( "remote call disconnected!") })
-                        
-                    }
-                }
+                        b2bServer.findConnByDest("9494443456").foreach( _.disconnect().foreach( _ =>println( "remote call disconnected!")))
             }
     }
 }

@@ -29,7 +29,7 @@ import javax.sdp._
 import org.bluescale.telco.SdpHelper;
 import org.bluescale.telco.api._
 import org.bluescale.telco._
-import org.bluescale.util.BlueFuture
+import org.bluescale.util.BlueFuture._
 import org.bluescale.util.LogHelper
 import java.io.InputStream
 import com.biasedbit.efflux._
@@ -105,12 +105,12 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
    		session1.init()
     }
     
-    override def join(conn:Joinable[_]) = BlueFuture(callback => {
+    override def join(conn:Joinable[_]) = wrapPromise[MediaConnection](promise => {
     	//should we only do this when we get a 200 OK? should  we put it in the connect callback? 
     	initRtp(conn)
     	for (_ <- conn.connect(this, false)) {
     		this._joinedTo = Some(conn)
-    		callback()
+    		promise.success(this)
     	}
     })
     
@@ -130,10 +130,10 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
     override def sdp = 
       listeningSdp
 
-    def joinPlay(filestream:InputStream, conn:Joinable[_]) = BlueFuture( callback => { 
-    	for(_ <- join(conn);
+    def joinPlay(filestream:InputStream, conn:Joinable[_]) = wrapPromise[MediaConnection](promise => { 
+    	for(media <- join(conn);
     		_ <- play(filestream))
-    	  callback()
+    		promise.success(this)
     })
     
     override def joinedMediaChange() {
@@ -142,7 +142,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
     	joinedTo.foreach( joined => initRtp(joined))
     }
 
-    protected[telco] def unjoin() = BlueFuture(callback => {
+    protected[telco] def unjoin() = wrapPromise[MediaConnection](promise => {
     	Thread.sleep(1000)
     	jitterBuffer.foreach(j => j.cancel())
     	MediaFileManager.finishAddMedia(this).foreach(newFile => _recordedFiles = newFile :: _recordedFiles)
@@ -150,14 +150,14 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
     	effluxSession.foreach(_.terminate())
     	stopPlaying()
     	unjoinCallback.foreach(_(joinedTo.get,this))
-    	callback()
+    	promise.success(this)
     })
    
 
-    def play(filestream:InputStream) = BlueFuture(f => {
+    def play(filestream:InputStream) = wrapPromise[MediaConnection](promise => {
     	for (session <- effluxSession;
     		info <- streamInfo) {
-    		val callback = EffluxStreamHelper.streamMedia(filestream, session, info, ()=>f())
+    		val callback = EffluxStreamHelper.streamMedia(filestream, session, info, ()=>promise.success(this))
     		playStopCallback = Some(callback)
     	}
     })
@@ -165,15 +165,15 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
     private def stopPlaying() = 
     	playStopCallback.foreach(_())
     
-    override def cancel() = BlueFuture(callback => {
+    override def cancel() = wrapPromise[MediaConnection](promise => {
     	stopPlaying()
-    	callback()
+    	promise.success(this)
     }) 
     
-    override protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean ) = BlueFuture(callback => {//doesn't need to be here? 
+    override protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean ) = wrapPromise[MediaConnection](promise => {//doesn't need to be here? 
     	initRtp(join)
     	_joinedTo = Some(join)
-    	callback()
+    	promise.success(this)
 	})
     
     override protected[telco] def connect(join:Joinable[_])= connect(join, true)

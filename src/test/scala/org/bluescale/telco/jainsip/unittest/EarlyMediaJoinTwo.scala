@@ -68,9 +68,9 @@ class EarlyMediaJoinTwo extends FunTestHelper {
     def runJoinConnect() {
         b2bServer.ringSome = true
         latch = new CountDownLatch(1)
- 		alice.connect().run { 
-		  	assert(alice.connectionState === CONNECTED())
-		    alice.join(bob).run {
+ 		for(alice <- alice.connect(); 
+		  	_ = assert(alice.connectionState === CONNECTED());
+		    alice <- alice.join(bob)) {
 		        println(" what is the state of bob = " + bob.connectionState + " alice = " + alice.connectionState )
 
 		        assert(alice.connectionState === CONNECTED())
@@ -78,13 +78,12 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 		        println(" alice.joinedTo = " + alice.joinedTo + " | bob.joinedTo = " + bob.joinedTo )
 		        //println("are two connected = " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
                 assert(getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
-                bob.disconnect().run {
-                    println("disconnected")
+                bob.disconnect().foreach( c=> {
+                	println("disconnected")
                     tryAssertEq(bob.connectionState,UNCONNECTED() )
                     latch.countDown()
-                }
+                })
             }
-		  } 
     }
 
 	def runJoinTwoConnected() {
@@ -92,15 +91,15 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 
  		latch = new CountDownLatch(1)
 	          
- 		alice.connect().run {
-		  	assert(alice.connectionState === CONNECTED())
-		  	bob.connect().run {
-		  		assert(bob.connectionState === CONNECTED())
-				alice.join(bob).run {
+ 		for(alice <- alice.connect(); 
+		  	_ = assert(alice.connectionState === CONNECTED());
+		  	bob <- bob.connect();
+		  	_ =	assert(bob.connectionState === CONNECTED());
+			alice <- alice.join(bob)) {
 				assert(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  System.err.println("are both connected = ? " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  
-				  	alice.disconnect().run {
+				  	alice.disconnect().foreach( alice => {
 				  	  println("alice connectionstate = "+ alice.connectionState)
 				  		tryAssertEq(alice.connectionState,UNCONNECTED())
 				  		//make sure bob is on hold now!
@@ -108,10 +107,8 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 				  		val b = SdpHelper.isBlankSdp(bob.sdp)
 				  		System.err.println("b = " + b)
 				  		//Now bob should be disconnected
-				    }
-				}
+				    })
 			}
-		}
 	}
  }
 

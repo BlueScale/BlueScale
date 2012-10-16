@@ -63,7 +63,7 @@ class RegisterRegistrar extends FunTestHelper {
 	test("Test Register and Registrar capabilities") {
 	  	latch = new CountDownLatch(1)
 	  	val sipClientTelcoServer  = new SipTelcoServer( "127.0.0.1", 4002, "127.0.0.1", 4000)
-	  	sipClientTelcoServer.setIncomingCallback((conn)=> conn.accept.run{ println("accepted!") } )
+	  	sipClientTelcoServer.setIncomingCallback((conn)=> conn.accept.foreach( c => println("accepted!") ))
 		sipClientTelcoServer.start()
 		telcoServer.setIncomingCallback(incomingCallback)
 		telcoServer.setRegisterCallback(incomingRegister)
@@ -105,7 +105,7 @@ class RegisterRegistrar extends FunTestHelper {
 		regRequest = Some(request)
 		//record internal association
 		val outgoingconn = b2bServer.createConnection("7147570982","5554443333")
-		outgoingconn.connect().run {println("connected")}
+		outgoingconn.connect().foreach( c => println("connected"))
 	}
 
 }

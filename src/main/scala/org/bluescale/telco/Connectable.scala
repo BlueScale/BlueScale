@@ -24,14 +24,15 @@
 package org.bluescale.telco
 import org.bluescale._
 import org.bluescale.util.BlueFuture
+import akka.dispatch.Future
 
 protected[telco] trait Connectable[T] {
   
-	def connect(): BlueFuture[Unit]
+	def connect(): Future[T]
 
-	def cancel(): BlueFuture[Unit]
+	def cancel(): Future[T]
 		
- 	def disconnect(): BlueFuture[Unit]
+ 	def disconnect(): Future[T]
 
     var disconnectCallback:Option[(T)=>Unit] = None
 
