@@ -57,7 +57,7 @@ class JoinTwoRemoteHangup extends FunTestHelper {
 		  	_ = assert(alice.connectionState === CONNECTED());
 		  	bob <- bob.connect();
 		  	_ =	assert(bob.connectionState === CONNECTED());
-			alice <- alice.join(bob)) {
+			(alice,bob) <- alice.join(bob)) {
 				    assert(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				    println("are both connected = ? " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 			        //Now initiate a remote hangup.
