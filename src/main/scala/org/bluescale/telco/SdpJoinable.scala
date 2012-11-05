@@ -55,7 +55,7 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
     
     var mySdp:Option[SessionDescription] = sdp
     
-    override def join(c:Joinable[_]) = Future { this }
+    override def join[J <: Joinable[J]](c:J) = Future { (this,c) }
 
     def reconnect(sdp:SessionDescription) = Future { this }
 
@@ -66,9 +66,9 @@ class SdpJoinable(sdp:Option[SessionDescription]) extends Joinable[SdpJoinable] 
         }
     }
 
-    override def connect(join:Joinable[_], connectAnyMedia:Boolean) = Future { this }
+    override def connect[J <: Joinable[_]](join:J, connectAnyMedia:Boolean) = Future { this }
 
-    override def connect(join:Joinable[_]) = Future { this }
+    override def connect[J <: Joinable[_]](join:J) = Future { this }
 
     override def joinedMediaChange() = Unit
     

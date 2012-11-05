@@ -63,7 +63,7 @@ class ConnectJoin extends FunTestHelper {
 
  		for(alice <- alice.connect();
  			_ = assert(alice.connectionState === CONNECTED());
- 			alice <- alice.join(bob)) { 
+ 			(alice,bob) <- alice.join(bob)) { 
 		        assert(alice.connectionState === CONNECTED())
                 println( "ARE TWO CONNECTED = " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]) )
                 assert(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))

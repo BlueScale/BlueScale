@@ -46,6 +46,7 @@ import java.util.Collection;
 import java.util.ArrayList
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingQueue
+import akka.dispatch.Future
 
 case class RtpStreamInfo(delay:Int,
 						payloadType:Int,
@@ -58,7 +59,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
 	private var connState = UNCONNECTED()
 	
 	private val payloadType = 0 //8 for Alaw
-    private var _joinedTo:Option[Joinable[_]] = None
+    //private var _joinedTo:Option[Joinable[_]] = None
     private var _recordedFiles = List[String]()
     private var _playedFiles   = List[String]()  //TODO: do we need this? 
     
@@ -105,12 +106,12 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
    		session1.init()
     }
     
-    override def join(conn:Joinable[_]) = wrapPromise[MediaConnection](promise => {
+    override def join[J <: Joinable[J]](conn:J) = wrapPromise[(MediaConnection,J)](promise => {
     	//should we only do this when we get a 200 OK? should  we put it in the connect callback? 
     	initRtp(conn)
-    	for (_ <- conn.connect(this, false)) {
+    	for (conn <- conn.connect[MediaConnection](this, false)) {
     		this._joinedTo = Some(conn)
-    		promise.success(this)
+    		promise.success((this,conn))
     	}
     })
     
@@ -130,7 +131,7 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
     override def sdp = 
       listeningSdp
 
-    def joinPlay(filestream:InputStream, conn:Joinable[_]) = wrapPromise[MediaConnection](promise => { 
+    def joinPlay[J <: Joinable[J]](filestream:InputStream, conn:J) = wrapPromise[MediaConnection](promise => { 
     	for(media <- join(conn);
     		_ <- play(filestream))
     		promise.success(this)
@@ -170,13 +171,13 @@ class EffluxMediaConnection(telco:TelcoServer) extends MediaConnection with LogH
     	promise.success(this)
     }) 
     
-    override protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean ) = wrapPromise[MediaConnection](promise => {//doesn't need to be here? 
+    override protected[telco] def connect[J <: Joinable[J]](join:J, connectAnyMedia:Boolean ) = wrapPromise[MediaConnection](promise => {//doesn't need to be here? 
     	initRtp(join)
     	_joinedTo = Some(join)
     	promise.success(this)
 	})
     
-    override protected[telco] def connect(join:Joinable[_])= connect(join, true)
+    override protected[telco] def connect[J <:Joinable[J]](join:J): Future[MediaConnection]= connect(join, true)
     
     private def getDataListener() = 
       	new RtpSessionDataListener() {

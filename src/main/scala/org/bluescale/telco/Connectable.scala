@@ -25,10 +25,11 @@ package org.bluescale.telco
 import org.bluescale._
 import org.bluescale.util.BlueFuture
 import akka.dispatch.Future
+import org.bluescale.telco.api.Joinable
 
 protected[telco] trait Connectable[T] {
   
-	def connect(): Future[T]
+	def connect[J <: Joinable[J]](): Future[T]
 
 	def cancel(): Future[T]
 		

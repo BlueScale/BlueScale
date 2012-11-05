@@ -40,11 +40,13 @@ import akka.dispatch.Promise
 
 trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
     
-    def connect(): Future[SipConnection] = connect(SdpHelper.getJoinable(sdp), false)//shouldn't be this.  that's weird
+	var myJoinedTrait: Option[Joinable[_]] = None
+  
+    def connect[T <: Joinable[T]](): Future[SipConnection] = connect[SdpJoinable](SdpHelper.getJoinable(sdp), false)//shouldn't be this.  that's weird
 
- 	def connect(join:Joinable[_]) = connect(join, false) 
+ 	def connect[T <: Joinable[T]](join: T): Future[SipConnection] = connect(join, false) 
 
-    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean) = wrapPromise[SipConnection](promise => orderedexec {
+    protected[telco] def connect[T <: Joinable[T]](join: T, connectAnyMedia:Boolean) = wrapPromise[SipConnection](promise => orderedexec {
         joinedTo match {
             case Some(currentJoin) =>
               	for(unjoined <- currentJoin.unjoin();
@@ -55,7 +57,8 @@ trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
     })
 
     //can only be called after unjoining whatever was connected previous
-    protected def realConnect(join:Joinable[_]) = wrapPromise[SipConnection](promise => {
+    protected def realConnect[T <: Joinable[T]](join: T) = wrapPromise[SipConnection](promise => {
+    	var testJoin = join
          _state match {
             case s:UNCONNECTED =>
                 val t = telco.internal.sendInvite(from, to, join.sdp)
@@ -95,20 +98,19 @@ trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
         })
     })
 
-    override def join(otherCall:Joinable[_]) = wrapPromise[SipConnection](promise => orderedexec {
-        val f = ()=> {
+    override def join[J <: Joinable[J]](otherCall:J) = wrapPromise[(SipConnection,J)](promise => orderedexec {
+    	val f = ()=> {
             log(" Joing" + this + " to " + otherCall )
-            for(
-            _ <- otherCall.connect(this);
-            _ = log("otherCall"+otherCall +" is , now trying to reinvite " + this);
-            _ <- connect(otherCall)) {
-            	log("WOAh, got to the other connect................YAY")
-            	promise.success(this)
-            }
+            for(otherCall <- otherCall.connect[SipConnection](this);
+            	_ = log("otherCall"+otherCall +" is , now trying to reinvite " + this);
+            	conn<- connect(otherCall)) {
+            		log("WOAh, got to the other connect................YAY")
+            		promise.success(this,otherCall)
+            } 
         }
   	    joinedTo match { 
             case Some(joined) => 
-                joined.connect(telco.silentJoinable()) foreach { _=> 
+                joined.connect[SdpJoinable](telco.silentJoinable()) foreach { _=> 
                 	f() 
                  }
             case None => 
@@ -159,7 +161,7 @@ trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
                     promise.success(this)
                 }
             case false =>
-                realConnect(telco.silentJoinable()) foreach { _ => promise.success(this) }
+                //realConnect[SdpJoinable](telco.silentJoinable()) foreach { _ => promise.success(this) }
         }
     })
 
@@ -169,7 +171,6 @@ trait UACJainSipConnection extends BaseJainSipConnection with LogHelper {
     
     
     
-	//wrong place how did it get moved?!?
     def setUAC(clientTx:ClientTransaction, responseCode:Int, newsdp:SessionDescription) = orderedexec {
   	    try {
             val previousSdp = sdp

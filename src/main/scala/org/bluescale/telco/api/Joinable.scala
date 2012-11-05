@@ -30,21 +30,23 @@ import org.bluescale.util.BlueFuture
 import akka.dispatch.Future
 
 //typed so our callback can return a concrete class
-trait Joinable[T] {
-
-	def joinedTo:Option[Joinable[_]]
+trait Joinable[T <: Joinable[T]] {
+	
+	var _joinedTo:Option[Joinable[_]] = None
+  
+	def joinedTo = _joinedTo
   	
     var unjoinCallback:Option[(Joinable[_],T)=>Unit] = None
 	
-	def join(connection:Joinable[_]): Future[T]
+	def join[J <:Joinable[J]](connection:J): Future[(T,J)]
 
     def sdp:SessionDescription
 
     def connectionState:ConnectionState //Possibly not needed here...
 
-    protected[telco] def connect(join:Joinable[_]): Future[T]
+    protected[telco] def connect[J <: Joinable[J]](join:J): Future[T]
 
-    protected[telco] def connect(join:Joinable[_], connectAnyMedia:Boolean): Future[T]//when do ew not want to connect with any media?
+    protected[telco] def connect[J <: Joinable[J]](join:J, connectAnyMedia:Boolean): Future[T]//when do ew not want to connect with any media?
     
     //protected[telco] def onConnect(f:()=>Unit)
 

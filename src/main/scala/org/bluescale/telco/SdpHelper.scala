@@ -54,7 +54,7 @@ object SdpHelper {
    
   	val sdpFactory = SdpFactory.getInstance() 
 
-  	def getBlankJoinable(ip:String) : Joinable[_] = new SdpJoinable(Some(getBlankSdp(ip)))
+  	def getBlankJoinable(ip:String) = new SdpJoinable(Some(getBlankSdp(ip)))
 	
 	def getBlankSdp(ip:String) : SessionDescription = {
 	 	val sdpip = "0.0.0.0"
@@ -69,7 +69,7 @@ object SdpHelper {
 		return sd
 	}
 	
-	def getJoinable(sdp:SessionDescription): Joinable[_] = new SdpJoinable(Some(sdp))
+	def getJoinable(sdp:SessionDescription) = new SdpJoinable(Some(sdp))
 	
   	def isBlankSdp(sd: SessionDescription) : Boolean = {
 	  if ( sd.getConnection.getAddress() != "0.0.0.0") 
@@ -125,7 +125,7 @@ object SdpHelper {
 			 sdp.getMediaDescriptions(false).asInstanceOf[Vector[MediaDescription]](0)
 	 			.getAttributes(false).asInstanceOf[Vector[AttributeField]]
 	 			.find( attr => attr.getValue().contains("telephone-event"))
-	 			.firstOption
+	 			.headOption
 	 			.map( attr => new Integer(attr.getValue.substring(0, 4).replace(" ","")))
 		
 	def createSdp(payloadType:Int, mediaport:Int, ip:String) : SessionDescription = {

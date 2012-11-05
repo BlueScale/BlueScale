@@ -99,16 +99,19 @@ trait UASJainSipConnection extends BaseJainSipConnection with LogHelper {
 	 	})
     })
     
-    def accept(toJoin:Joinable[_]) = wrapPromise[SipConnection]( promise => 
-    	for(_ <- incomingResponse(200,toJoin);
-    		_ <- toJoin.connect(this)) {
+    def accept[T <: Joinable[T]](toJoin: T) = wrapPromise[SipConnection]( promise => 
+    	for(conn <- incomingResponse(200,toJoin);
+    		toJoin <- toJoin.connect[SipConnection](this)) {
+    		val t = toJoin
+    		val s = _joinedTo
+    		
     		_joinedTo = Some(toJoin)
     		promise.success(this)
     	}
     ) 
     
     def accept() =
-	    accept(SdpHelper.getBlankJoinable(telco.contactIp))
+	    accept[SdpJoinable](SdpHelper.getBlankJoinable(telco.contactIp))
 
     def ring(toJoin:Joinable[_]) =
         incomingResponse(183, toJoin)

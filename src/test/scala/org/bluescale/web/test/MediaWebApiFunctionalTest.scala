@@ -116,12 +116,14 @@ class MediaWebApiFunctionalTest extends FunSuite with BeforeAndAfter {
         	Thread.sleep(1000)
         	println("we should be done playing here, status =" + request.getParameter("Status") +"joinedTo= "+ inConn.joinedTo)
         	for (mediaconn <- inConn.joinedTo) {
+        		mediaconn.asInstanceOf[MediaConnection].sendDtmf(1)
+        		/*
         		mediaconn match {
         			case m:MediaConnection =>
         			  	println("SEEEENDING DTMF")
         				m.sendDtmf(1)
         			case _=> println("ERROR matching, joined was = " + inConn.joinedTo)
-        		}
+        		}*/
         	}
         	println("HERE")
         	""

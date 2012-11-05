@@ -70,7 +70,7 @@ class EarlyMediaJoinTwo extends FunTestHelper {
         latch = new CountDownLatch(1)
  		for(alice <- alice.connect(); 
 		  	_ = assert(alice.connectionState === CONNECTED());
-		    alice <- alice.join(bob)) {
+		    (alice,bob) <- alice.join(bob)) {
 		        println(" what is the state of bob = " + bob.connectionState + " alice = " + alice.connectionState )
 
 		        assert(alice.connectionState === CONNECTED())
@@ -95,7 +95,7 @@ class EarlyMediaJoinTwo extends FunTestHelper {
 		  	_ = assert(alice.connectionState === CONNECTED());
 		  	bob <- bob.connect();
 		  	_ =	assert(bob.connectionState === CONNECTED());
-			alice <- alice.join(bob)) {
+			(alice,bob) <- alice.join(bob)) {
 				assert(getTelcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  System.err.println("are both connected = ? " + getTelcoServer().areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  

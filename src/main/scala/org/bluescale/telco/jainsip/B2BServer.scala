@@ -111,10 +111,10 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
 		  case true		=>
 		    	val mediaConn = new EffluxMediaConnection(b2bTelcoServer)
 		    	mediaConnmap.put(conn.destination, mediaConn)
-		    	conn.accept(mediaConn) foreach { _ => 
+		    	conn.accept[MediaConnection](mediaConn) foreach { _ => 
 		    		println("b2bserver accepted call with medai support to " + conn.destination + " With = "+ mediaConn + " mediaPort for incomingcall is = " + SdpHelper.getMediaPort(conn.sdp)) 
 		    	}
-		  case false	=>	conn.accept(getFakeJoinable(ip)) foreach { _ => println("b2bServer accepted call to " + conn.destination ) }
+		  case false	=>	conn.accept[SdpJoinable](getFakeJoinable(ip)) foreach { _ => println("b2bServer accepted call to " + conn.destination ) }
 		}
 	}
 	
@@ -126,7 +126,7 @@ class B2BServer(ip:String, port:Int, destIp:String, destPort:Int) {
     def findConnByDest(dest:String) : Option[SipConnection] = 
         b2bTelcoServer.connections.values.find( conn => if (conn.destination == dest) true else false)
             
-    def getFakeJoinable(ip:String) : Joinable[_] = new SdpJoinable(Some(getFakeSdp(ip))) 
+    def getFakeJoinable(ip:String)  = new SdpJoinable(Some(getFakeSdp(ip))) 
 
     def getFakeSdp(ip:String) : SessionDescription = {
 		val sd =  sdpFactory.createSessionDescription()

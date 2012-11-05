@@ -27,7 +27,7 @@ import org.bluescale.telco.api.Joinable
 import org.bluescale._
 import org.bluescale.util.BlueFuture
 import akka.dispatch.Future
-case class DIRECTION
+class DIRECTION
 
 case class INCOMING extends DIRECTION
 
@@ -39,7 +39,7 @@ protected[telco] trait Answerable[T] {
 
  	def accept(): Future[T] 
   
-    def accept(toJoin: Joinable[_]): Future[T] 
+    def accept[J <: Joinable[J]](toJoin: J): Future[T] 
 
  	def reject() : Future[T]
 

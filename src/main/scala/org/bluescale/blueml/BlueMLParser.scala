@@ -63,7 +63,7 @@ object BlueMLParser extends Util {
     private def parsePlay(n:Node) : Play = 
         new Play( parseInt( (n \ "loop").text),
         		(n \ "MediaUrl").text,
-        		(n \ "Gather").map(n => parseGather(n)).firstOption,
+        		(n \ "Gather").map(n => parseGather(n)).headOption,
         		(n \ "Action").text)
 
     private def parseInt(str:String) = 

@@ -65,9 +65,9 @@ class JoinTwoUnconnected extends FunTestHelper {
 		  	_ =	assert(bob.connectionState === CONNECTED());
 			_ =	println(" bob connected" );
 				//Thread.sleep(4000)
-			alice <- alice.join(bob)) {
-				assert(!SdpHelper.isBlankSdp(alice.sdp)) 
-				assert(!SdpHelper.isBlankSdp(bob.sdp))
+			(alice,bob) <- alice.join(bob)) {
+				assert(!SdpHelper.isBlankSdp(alice.asInstanceOf[Joinable[_]].sdp)) 
+				assert(!SdpHelper.isBlankSdp(bob.asInstanceOf[Joinable[_]].sdp))
 				assert(telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  System.err.println("are both connected = ? " + telcoServer.areTwoConnected(alice.asInstanceOf[SipConnection], bob.asInstanceOf[SipConnection]))
 				  

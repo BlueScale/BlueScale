@@ -133,7 +133,7 @@ case class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
         val destConn = telcoServer.createConnection(FixPhoneNumber(dial.number), dial.from)
         conn.connectionState match {
             case c:CONNECTED =>
-                for(conn <- conn.join(destConn)) {
+                for((conn, destconn) <- conn.join(destConn)) {
                     postCallStatus(dial.url, destConn)
                     postConversationStatus(addConvoInfo(dial.url, conn, destConn))
                 }
@@ -177,7 +177,7 @@ case class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
                   				postConversationStatus(addConvoInfo(url, conn, destConn))
                   			
                 case o:OUTGOING =>
-                            for(conn <- conn.join(destConn)) {
+                            for((conn,destconn) <- conn.join(destConn)) {
                                 postConversationStatus(addConvoInfo(url, conn, destConn))
                             }
             }
@@ -220,7 +220,7 @@ case class Engine(telcoServer:TelcoServer, defaultUrl:String) extends Util {
     def postMediaStatus(url:String, media:MediaConnection, conn:SipConnection, status:String) =
       SequentialWebPoster.postToUrl(url,
           Map( "CallId" -> conn.connectionid,
-               "MediaUrl" -> media.playedFiles.firstOption.getOrElse(""),
+               "MediaUrl" -> media.playedFiles.headOption.getOrElse(""),
                "Status" -> status
           )
        )

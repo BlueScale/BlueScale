@@ -35,33 +35,33 @@ import org.bluescale.util._
 
 protected trait BaseJainSipConnection extends SipConnection with Actorable { 
    
-    val to:String
+    val to: String
 
-    val from:String
+    val from: String
 
-    val telco:SipTelcoServer
+    val telco: SipTelcoServer
     
     var sdp = loadInitialSdp()
     
-    var clientTx:Option[ClientTransaction] = None
+    var clientTx: Option[ClientTransaction] = None
     
-    var serverTx:Option[ServerTransaction] = None
+    var serverTx: Option[ServerTransaction] = None
 
-    val disconnectOnUnjoin:Boolean 
+    val disconnectOnUnjoin: Boolean 
     
-    var connid:String
+    var connid: String
     
     protected var callbacks = Map[String, AnyRef]()
    
-    protected var _state:ConnectionState  = UNCONNECTED()
+    protected var _state: ConnectionState  = UNCONNECTED()
     
-    protected var progressingCallback:Option[(SipConnection)=>Unit] = None
+    protected var progressingCallback: Option[(SipConnection)=>Unit] = None
    
-    protected var _joinedTo:Option[Joinable[_]] = None
+    //protected var _joinedTo: Option[Joinable[_]] = None
 
     def protocol = "SIP"
     
-    def joinedTo = _joinedTo
+    //def joinedTo = _joinedTo
 
     def connectionid = connid
 
@@ -95,7 +95,7 @@ protected trait BaseJainSipConnection extends SipConnection with Actorable {
     def removeConnection() : Unit
 
     def joinedMediaChange() = 
-        joinedTo.foreach( join => connect(join) foreach { _=> {}} )
+        joinedTo.foreach( join => println("temp"))//connect(join) foreach { _=> {}} )
  
 
 }
